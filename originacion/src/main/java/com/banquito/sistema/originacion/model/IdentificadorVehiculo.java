@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 @Entity
 @Table(name = "IdentificadoresVehiculos")
@@ -24,6 +25,9 @@ public class IdentificadorVehiculo {
 
     @Column(name = "Placa", length = 7, nullable = false, unique = true)
     private String placa;
+
+    @Version
+    private Long version;
 
     public IdentificadorVehiculo() {
     }
@@ -62,6 +66,14 @@ public class IdentificadorVehiculo {
 
     public void setPlaca(String placa) {
         this.placa = placa;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     @Override

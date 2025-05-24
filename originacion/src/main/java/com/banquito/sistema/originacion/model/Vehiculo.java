@@ -9,6 +9,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 @Entity
 @Table(name = "Vehiculos")
@@ -42,6 +43,9 @@ public class Vehiculo {
 
     @Column(name = "Extras", length = 150, nullable = false)
     private String extras;
+
+    @Version
+    private Long version;
 
     @OneToOne
     @JoinColumn(name = "IdIdentificadorVehiculo", referencedColumnName = "IdIdentificadorVehiculo", insertable = false, updatable = false)
@@ -144,6 +148,14 @@ public class Vehiculo {
 
     public void setConcesionario(Concesionario concesionario) {
         this.concesionario = concesionario;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     @Override
