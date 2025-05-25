@@ -18,13 +18,7 @@ public class Vehiculo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "IdVehiculo", nullable = false)
-    private Long id;
-
-    @Column(name = "IdIdentificadorVehiculo", nullable = false)
-    private Long idIdentificadorVehiculo;
-
-    @Column(name = "IdConcesionario", nullable = false)
-    private Long idConcesionario;
+    private Integer id;
 
     @Column(name = "Marca", length = 40, nullable = false)
     private String marca;
@@ -45,7 +39,7 @@ public class Vehiculo {
     private String extras;
 
     @Version
-    private Long version;
+    private Integer version;
 
     @OneToOne
     @JoinColumn(name = "IdIdentificadorVehiculo", referencedColumnName = "IdIdentificadorVehiculo", insertable = false, updatable = false)
@@ -58,32 +52,16 @@ public class Vehiculo {
     public Vehiculo() {
     }
 
-    public Vehiculo(Long id) {
+    public Vehiculo(Integer id) {
         this.id = id;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
-    }
-
-    public Long getIdIdentificadorVehiculo() {
-        return idIdentificadorVehiculo;
-    }
-
-    public void setIdIdentificadorVehiculo(Long idIdentificadorVehiculo) {
-        this.idIdentificadorVehiculo = idIdentificadorVehiculo;
-    }
-
-    public Long getIdConcesionario() {
-        return idConcesionario;
-    }
-
-    public void setIdConcesionario(Long idConcesionario) {
-        this.idConcesionario = idConcesionario;
     }
 
     public String getMarca() {
@@ -150,11 +128,11 @@ public class Vehiculo {
         this.concesionario = concesionario;
     }
 
-    public Long getVersion() {
+    public Integer getVersion() {
         return version;
     }
 
-    public void setVersion(Long version) {
+    public void setVersion(Integer version) {
         this.version = version;
     }
 
@@ -185,8 +163,7 @@ public class Vehiculo {
 
     @Override
     public String toString() {
-        return "Vehiculo [id=" + id + ", idIdentificadorVehiculo=" + idIdentificadorVehiculo + ", idConcesionario="
-                + idConcesionario + ", marca=" + marca + ", modelo=" + modelo + ", anio=" + anio + ", valor=" + valor
+        return "Vehiculo [id=" + id + ", marca=" + marca + ", modelo=" + modelo + ", anio=" + anio + ", valor=" + valor
                 + ", color=" + color + ", extras=" + extras + ", identificadorVehiculo=" + identificadorVehiculo
                 + ", concesionario=" + concesionario + "]";
     }

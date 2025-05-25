@@ -15,7 +15,7 @@ public class IdentificadorVehiculo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "IdIdentificadorVehiculo", nullable = false)
-    private Long id;
+    private Integer id;
 
     @Column(name = "VIN", length = 17, nullable = false, unique = true)
     private String vin;
@@ -27,20 +27,20 @@ public class IdentificadorVehiculo {
     private String placa;
 
     @Version
-    private Long version;
+    private Integer version;
 
     public IdentificadorVehiculo() {
     }
 
-    public IdentificadorVehiculo(Long id) {
+    public IdentificadorVehiculo(Integer id) {
         this.id = id;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -68,11 +68,11 @@ public class IdentificadorVehiculo {
         this.placa = placa;
     }
 
-    public Long getVersion() {
+    public Integer getVersion() {
         return version;
     }
 
-    public void setVersion(Long version) {
+    public void setVersion(Integer version) {
         this.version = version;
     }
 

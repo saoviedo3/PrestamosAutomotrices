@@ -19,8 +19,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-@Entity
-@Table(name = "SolicitudesCreditos")
+//@Entity
+//@Table(name = "SolicitudesCreditos")
 public class SolicitudCredito {
 
     @Id
