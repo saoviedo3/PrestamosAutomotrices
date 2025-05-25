@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/contratos")
@@ -17,67 +16,61 @@ import java.util.stream.Collectors;
 public class ContratoController {
 
     private final ContratoService contratoService;
-    private final ContratoMapper contratoMapper;
 
     @PostMapping("/generar")
-    public ResponseEntity<ContratoDTO> generarContrato(@RequestParam Integer idSolicitud,
-                                                     @RequestParam(required = false) String condicionesEspeciales) {
+    public ResponseEntity<Contrato> generarContrato(@RequestParam Integer idSolicitud,
+                                                    @RequestParam(required = false) String condicionesEspeciales) {
         Contrato contrato = contratoService.generarContrato(idSolicitud, condicionesEspeciales);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(contratoMapper.toDTO(contrato));
+        return ResponseEntity.status(HttpStatus.CREATED).body(contrato);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ContratoDTO> buscarPorId(@PathVariable Integer id) {
+    public ResponseEntity<Contrato> buscarPorId(@PathVariable Integer id) {
         Contrato contrato = contratoService.buscarPorId(id);
-        return ResponseEntity.ok(contratoMapper.toDTO(contrato));
+        return ResponseEntity.ok(contrato);
     }
 
     @GetMapping("/solicitud/{idSolicitud}")
-    public ResponseEntity<ContratoDTO> buscarPorSolicitud(@PathVariable Integer idSolicitud) {
+    public ResponseEntity<Contrato> buscarPorSolicitud(@PathVariable Integer idSolicitud) {
         Contrato contrato = contratoService.buscarPorSolicitud(idSolicitud);
-        return ResponseEntity.ok(contratoMapper.toDTO(contrato));
+        return ResponseEntity.ok(contrato);
     }
 
     @GetMapping
-    public ResponseEntity<List<ContratoDTO>> listarTodos(@RequestParam(required = false) String estado) {
+    public ResponseEntity<List<Contrato>> listarTodos(@RequestParam(required = false) String estado) {
         List<Contrato> contratos;
-        
+
         if (estado != null && !estado.isEmpty()) {
             contratos = contratoService.listarPorEstado(estado);
         } else {
-            contratos = contratoService.listarPorEstado("VIGENTE");
+            contratos = contratoService.listarVigentes();
         }
-        
-        List<ContratoDTO> contratosDTO = contratos.stream()
-                .map(contratoMapper::toDTO)
-                .collect(Collectors.toList());
-        
-        return ResponseEntity.ok(contratosDTO);
+
+        return ResponseEntity.ok(contratos);
     }
 
     @PostMapping("/{id}/firmar")
-    public ResponseEntity<ContratoDTO> firmarContrato(@PathVariable Integer id) {
+    public ResponseEntity<Contrato> firmarContrato(@PathVariable Integer id) {
         Contrato contrato = contratoService.firmarContrato(id);
-        return ResponseEntity.ok(contratoMapper.toDTO(contrato));
+        return ResponseEntity.ok(contrato);
     }
 
     @PostMapping("/{id}/activar")
-    public ResponseEntity<ContratoDTO> activarContrato(@PathVariable Integer id) {
+    public ResponseEntity<Contrato> activarContrato(@PathVariable Integer id) {
         Contrato contrato = contratoService.activarContrato(id);
-        return ResponseEntity.ok(contratoMapper.toDTO(contrato));
+        return ResponseEntity.ok(contrato);
     }
 
     @PostMapping("/{id}/anular")
-    public ResponseEntity<ContratoDTO> anularContrato(@PathVariable Integer id,
-                                                    @RequestParam String motivo) {
+    public ResponseEntity<Contrato> anularContrato(@PathVariable Integer id,
+                                                   @RequestParam String motivo) {
         Contrato contrato = contratoService.anularContrato(id, motivo);
-        return ResponseEntity.ok(contratoMapper.toDTO(contrato));
+        return ResponseEntity.ok(contrato);
     }
 
     @PutMapping("/{id}/regenerar-archivo")
-    public ResponseEntity<ContratoDTO> regenerarArchivo(@PathVariable Integer id) {
+    public ResponseEntity<Contrato> regenerarArchivo(@PathVariable Integer id) {
         Contrato contrato = contratoService.regenerarArchivo(id);
-        return ResponseEntity.ok(contratoMapper.toDTO(contrato));
+        return ResponseEntity.ok(contrato);
     }
-} 
+}

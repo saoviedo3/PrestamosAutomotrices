@@ -12,6 +12,10 @@ public interface ClienteProspectoRepository extends JpaRepository<ClienteProspec
 
     Optional<ClienteProspecto> findByCedula(String cedula);
     
+    Optional<ClienteProspecto> findByEmail(String email);
+    
+    Optional<ClienteProspecto> findByIdentificacion(String identificacion);
+    
     List<ClienteProspecto> findByEstado(String estado);
     
     List<ClienteProspecto> findByNombreContainingIgnoreCase(String nombre);

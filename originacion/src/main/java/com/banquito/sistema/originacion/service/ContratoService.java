@@ -225,8 +225,8 @@ public class ContratoService {
     public Contrato obtenerContratoCompleto(Integer idContrato) {
         Contrato contrato = buscarPorId(idContrato);
         
-        // Cargar información de la solicitud si es necesario
-        SolicitudCredito solicitud = solicitudCreditoService.buscarPorId(contrato.getIdSolicitud());
+        // Cargar información de la solicitud
+        solicitudCreditoService.buscarPorId(contrato.getIdSolicitud());
         
         // En este punto podrías agregar más información relacionada
         return contrato;

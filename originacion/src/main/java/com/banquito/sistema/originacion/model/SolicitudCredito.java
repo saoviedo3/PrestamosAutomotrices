@@ -1,12 +1,6 @@
 package com.banquito.sistema.originacion.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 
 @Entity
@@ -14,13 +8,14 @@ import java.math.BigDecimal;
 public class SolicitudCredito {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "IdSolicitud", nullable = false)
     private Integer idSolicitud;
 
     @Column(name = "IdClienteProspecto", nullable = false)
     private Integer idClienteProspecto;
 
-    @Column(name = "IdVehiculo", nullable = false)
+    @Column(name = "IdVehiculo", nullable = false, unique = true)
     private Integer idVehiculo;
 
     @Column(name = "IdVendedor", nullable = false)
@@ -29,38 +24,38 @@ public class SolicitudCredito {
     @Column(name = "NumeroSolicitud", length = 20, nullable = false, unique = true)
     private String numeroSolicitud;
 
-    @Column(name = "MontoSolicitado", nullable = false, precision = 12, scale = 2)
+    @Column(name = "MontoSolicitado", precision = 12, scale = 2, nullable = false)
     private BigDecimal montoSolicitado;
 
-    @Column(name = "PlazoMeses", nullable = false, precision = 3)
+    @Column(name = "PlazoMeses", precision = 3, scale = 0, nullable = false)
     private BigDecimal plazoMeses;
 
-    @Column(name = "Entrada", nullable = false, precision = 12, scale = 2)
+    @Column(name = "Entrada", precision = 12, scale = 2, nullable = false)
     private BigDecimal entrada;
 
-    @Column(name = "ScoreInterno", nullable = false, precision = 6, scale = 2)
+    @Column(name = "ScoreInterno", precision = 6, scale = 2, nullable = false)
     private BigDecimal scoreInterno;
 
-    @Column(name = "ScoreExterno", nullable = false, precision = 6, scale = 2)
+    @Column(name = "ScoreExterno", precision = 6, scale = 2, nullable = false)
     private BigDecimal scoreExterno;
 
-    @Column(name = "RelacionCuotaIngreso", nullable = false, precision = 5, scale = 2)
+    @Column(name = "RelacionCuotaIngreso", precision = 5, scale = 2, nullable = false)
     private BigDecimal relacionCuotaIngreso;
 
-    @Column(name = "TasaAnual", nullable = false, precision = 5, scale = 2)
+    @Column(name = "TasaAnual", precision = 5, scale = 2, nullable = false)
     private BigDecimal tasaAnual;
 
-    @Column(name = "CuotaMensual", nullable = false, precision = 8, scale = 2)
+    @Column(name = "CuotaMensual", precision = 8, scale = 2, nullable = false)
     private BigDecimal cuotaMensual;
 
-    @Column(name = "TotalPagar", nullable = false, precision = 12, scale = 2)
+    @Column(name = "TotalPagar", precision = 12, scale = 2, nullable = false)
     private BigDecimal totalPagar;
 
     @Column(name = "Estado", length = 20, nullable = false)
     private String estado;
 
     @Version
-    @Column(name = "Version", nullable = false)
+    @Column(name = "Version", precision = 9, scale = 0, nullable = false)
     private Long version;
 
     @ManyToOne

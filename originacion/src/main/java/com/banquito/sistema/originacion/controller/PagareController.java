@@ -20,7 +20,7 @@ public class PagareController {
 
     @PostMapping("/generar-individual")
     public ResponseEntity<Pagare> generarPagareIndividual(@RequestParam Integer idSolicitud,
-                                                           @RequestParam Integer numeroCuota) {
+                                                         @RequestParam Integer numeroCuota) {
         Pagare pagare = pagareService.generarPagareIndividual(idSolicitud, numeroCuota);
         return ResponseEntity.status(HttpStatus.CREATED).body(pagare);
     }
@@ -55,7 +55,7 @@ public class PagareController {
 
     @GetMapping("/solicitud/{idSolicitud}/cuota/{numeroCuota}")
     public ResponseEntity<Pagare> buscarPorSolicitudYCuota(@PathVariable Integer idSolicitud,
-                                                            @PathVariable Integer numeroCuota) {
+                                                          @PathVariable Integer numeroCuota) {
         try {
             Pagare pagare = pagareService.buscarPorSolicitudYCuota(idSolicitud, numeroCuota);
             return ResponseEntity.ok(pagare);
@@ -100,7 +100,7 @@ public class PagareController {
 
     @GetMapping("/solicitud/{idSolicitud}/existe-cuota/{numeroCuota}")
     public ResponseEntity<Boolean> existePorSolicitudYCuota(@PathVariable Integer idSolicitud,
-                                                          @PathVariable Integer numeroCuota) {
+                                                            @PathVariable Integer numeroCuota) {
         boolean existe = pagareService.existePagarePorSolicitudYCuota(idSolicitud, numeroCuota);
         return ResponseEntity.ok(existe);
     }
@@ -125,4 +125,4 @@ public class PagareController {
     public ResponseEntity<Void> handlePagareNotFoundException(PagareNotFoundException e) {
         return ResponseEntity.notFound().build();
     }
-} 
+}

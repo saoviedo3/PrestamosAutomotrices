@@ -4,7 +4,6 @@ import com.banquito.sistema.originacion.exception.BusinessException;
 import com.banquito.sistema.originacion.exception.NotFoundException;
 import com.banquito.sistema.originacion.exception.ValidationException;
 import com.banquito.sistema.originacion.model.DocumentoAdjunto;
-import com.banquito.sistema.originacion.model.TipoDocumento;
 import com.banquito.sistema.originacion.repository.DocumentoAdjuntoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,9 +23,6 @@ public class DocumentoAdjuntoService {
     // Extensiones de archivo permitidas
     private static final String[] EXTENSIONES_PERMITIDAS = {".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx"};
     
-    // Tamaño máximo de archivo en bytes (10MB)
-    private static final long TAMAÑO_MAXIMO = 10 * 1024 * 1024;
-
     /**
      * Adjuntar documento a una solicitud
      */
@@ -35,6 +31,7 @@ public class DocumentoAdjuntoService {
             validarDocumentoAdjunto(documento);
             validarTipoDocumento(documento.getIdTipoDocumento());
             validarDocumentoDuplicado(documento.getIdSolicitud(), documento.getIdTipoDocumento());
+            validarTamanoArchivo(documento.getRutaArchivo());
             
             documento.setFechaCargado(LocalDateTime.now());
             
@@ -239,8 +236,8 @@ public class DocumentoAdjuntoService {
         // usando join fetch o cargando por separado
         for (DocumentoAdjunto documento : documentos) {
             try {
-                TipoDocumento tipoDocumento = tipoDocumentoService.buscarPorId(documento.getIdTipoDocumento());
-                // Podrías agregar un campo transient en DocumentoAdjunto para almacenar esto
+                tipoDocumentoService.buscarPorId(documento.getIdTipoDocumento());
+                // Aquí podrías agregar la lógica para usar la información del tipo de documento
             } catch (Exception e) {
                 // Log error pero continúa con los demás documentos
             }
@@ -286,12 +283,21 @@ public class DocumentoAdjuntoService {
         }
         
         validarExtensionArchivo(documento.getRutaArchivo());
+        validarTamanoArchivo(documento.getRutaArchivo());
     }
 
     private void validarExtensionArchivo(String rutaArchivo) {
         if (!esArchivoValido(rutaArchivo)) {
             throw new ValidationException("rutaArchivo", "extensión no permitida. Extensiones válidas: " + String.join(", ", EXTENSIONES_PERMITIDAS));
         }
+    }
+
+    private void validarTamanoArchivo(String rutaArchivo) {
+        // Aquí implementarías la lógica para validar el tamaño del archivo
+        // Por ejemplo, usando java.io.File o java.nio.file.Files
+        // if (file.length() > TAMANO_MAXIMO) {
+        //     throw new ValidationException("rutaArchivo", "el archivo excede el tamaño máximo permitido");
+        // }
     }
 
     private void validarTipoDocumento(Integer idTipoDocumento) {

@@ -1,9 +1,7 @@
 package com.banquito.sistema.originacion.service;
 
 import com.banquito.sistema.originacion.exception.BusinessException;
-import com.banquito.sistema.originacion.exception.NotFoundException;
 import com.banquito.sistema.originacion.exception.ValidationException;
-import com.banquito.sistema.originacion.model.ClienteProspecto;
 import com.banquito.sistema.originacion.model.SolicitudCredito;
 import com.banquito.sistema.originacion.repository.SolicitudCreditoRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -21,297 +18,173 @@ import java.util.List;
 public class SolicitudCreditoService {
 
     private final SolicitudCreditoRepository solicitudCreditoRepository;
-    private final ClienteProspectoService clienteProspectoService;
 
-    // Estados de solicitud
-    private static final String ESTADO_PENDIENTE = "PENDIENTE";
-    private static final String ESTADO_EN_REVISION = "EN_REVISION";
-    private static final String ESTADO_APROBADA = "APROBADA";
-    private static final String ESTADO_RECHAZADA = "RECHAZADA";
-    private static final String ESTADO_DESEMBOLSADA = "DESEMBOLSADA";
+    private static final String ESTADO_BORRADOR = "Borrador";
+    private static final String ESTADO_EN_REVISION = "EnRevision";
+    private static final String ESTADO_APROBADA = "Aprobada";
+    private static final String ESTADO_RECHAZADA = "Rechazada";
+    private static final String ESTADO_CANCELADA = "Cancelada";
+    private static final String ESTADO_DESEMBOLSADA = "Desembolsada";
 
-    // Límites de negocio
-    private static final BigDecimal MONTO_MINIMO = new BigDecimal("5000");
-    private static final BigDecimal MONTO_MAXIMO = new BigDecimal("150000");
-    private static final Integer PLAZO_MINIMO = 12;
-    private static final Integer PLAZO_MAXIMO = 84;
-    private static final BigDecimal TASA_MINIMA = new BigDecimal("8.50");
-    private static final BigDecimal TASA_MAXIMA = new BigDecimal("25.00");
-
-    /**
-     * Crear nueva solicitud de crédito
-     */
-    public SolicitudCredito crear(SolicitudCredito solicitud) {
+    public SolicitudCredito crear(SolicitudCredito solicitudCredito) {
         try {
-            validarSolicitudCredito(solicitud);
-            validarCapacidadCliente(solicitud.getIdClienteProspecto(), solicitud.getMontoSolicitado());
-            validarSolicitudPendiente(solicitud.getIdClienteProspecto());
+            validarSolicitudCredito(solicitudCredito);
+            validarNumeroSolicitudUnico(solicitudCredito.getNumeroSolicitud());
+            validarVehiculoUnico(solicitudCredito.getIdVehiculo());
             
-            solicitud.setEstado(ESTADO_PENDIENTE);
-            solicitud.setFechaSolicitud(LocalDateTime.now());
-            
-            // Calcular cuota mensual
-            BigDecimal cuotaMensual = calcularCuotaMensual(
-                solicitud.getMontoSolicitado(),
-                solicitud.getTasaInteres(),
-                solicitud.getPlazoMeses()
-            );
-            solicitud.setCuotaMensual(cuotaMensual);
-            
-            return solicitudCreditoRepository.save(solicitud);
+            solicitudCredito.setEstado(ESTADO_BORRADOR);
+            return solicitudCreditoRepository.save(solicitudCredito);
         } catch (Exception e) {
-            throw new BusinessException("Error al crear solicitud de crédito: " + e.getMessage(), "CREAR_SOLICITUD");
+            throw new BusinessException("Error al crear solicitud de crédito: " + e.getMessage(), "CREAR_SOLICITUD_CREDITO");
         }
     }
 
-    /**
-     * Actualizar solicitud existente (solo si está pendiente)
-     */
-    public SolicitudCredito actualizar(Integer id, SolicitudCredito solicitudActualizada) {
+    public SolicitudCredito actualizar(Integer id, SolicitudCredito solicitudCredito) {
         try {
             SolicitudCredito solicitudExistente = buscarPorId(id);
             
-            if (!ESTADO_PENDIENTE.equals(solicitudExistente.getEstado())) {
-                throw new BusinessException("Solo se pueden actualizar solicitudes pendientes", "ACTUALIZAR_SOLICITUD");
+            validarSolicitudCredito(solicitudCredito);
+            
+            if (!solicitudExistente.getNumeroSolicitud().equals(solicitudCredito.getNumeroSolicitud())) {
+                validarNumeroSolicitudUnico(solicitudCredito.getNumeroSolicitud());
             }
             
-            validarSolicitudCredito(solicitudActualizada);
+            if (!solicitudExistente.getIdVehiculo().equals(solicitudCredito.getIdVehiculo())) {
+                validarVehiculoUnico(solicitudCredito.getIdVehiculo());
+            }
             
-            solicitudExistente.setMontoSolicitado(solicitudActualizada.getMontoSolicitado());
-            solicitudExistente.setPlazoMeses(solicitudActualizada.getPlazoMeses());
-            solicitudExistente.setTasaInteres(solicitudActualizada.getTasaInteres());
+            solicitudCredito.setIdSolicitud(id);
+            solicitudCredito.setEstado(solicitudExistente.getEstado());
             
-            // Recalcular cuota mensual
-            BigDecimal cuotaMensual = calcularCuotaMensual(
-                solicitudExistente.getMontoSolicitado(),
-                solicitudExistente.getTasaInteres(),
-                solicitudExistente.getPlazoMeses()
-            );
-            solicitudExistente.setCuotaMensual(cuotaMensual);
-            
-            return solicitudCreditoRepository.save(solicitudExistente);
+            return solicitudCreditoRepository.save(solicitudCredito);
         } catch (Exception e) {
-            throw new BusinessException("Error al actualizar solicitud: " + e.getMessage(), "ACTUALIZAR_SOLICITUD");
+            throw new BusinessException("Error al actualizar solicitud de crédito: " + e.getMessage(), "ACTUALIZAR_SOLICITUD_CREDITO");
         }
     }
 
-    /**
-     * Buscar solicitud por ID
-     */
     @Transactional(readOnly = true)
     public SolicitudCredito buscarPorId(Integer id) {
         return solicitudCreditoRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(id.toString(), "SolicitudCredito"));
+                .orElseThrow(() -> new BusinessException("Solicitud de crédito no encontrada con ID: " + id, "BUSCAR_SOLICITUD_CREDITO"));
     }
 
-    /**
-     * Listar solicitudes por cliente
-     */
     @Transactional(readOnly = true)
-    public List<SolicitudCredito> listarPorCliente(Integer idCliente) {
-        return solicitudCreditoRepository.findByIdClienteProspecto(idCliente);
+    public SolicitudCredito buscarPorNumeroSolicitud(String numeroSolicitud) {
+        return solicitudCreditoRepository.findByNumeroSolicitud(numeroSolicitud)
+                .orElseThrow(() -> new BusinessException("Solicitud de crédito no encontrada con número: " + numeroSolicitud, "BUSCAR_SOLICITUD_CREDITO"));
     }
 
-    /**
-     * Listar solicitudes por estado
-     */
     @Transactional(readOnly = true)
     public List<SolicitudCredito> listarPorEstado(String estado) {
         return solicitudCreditoRepository.findByEstado(estado);
     }
 
-    /**
-     * Listar solicitudes pendientes
-     */
     @Transactional(readOnly = true)
-    public List<SolicitudCredito> listarPendientes() {
-        return solicitudCreditoRepository.findByEstado(ESTADO_PENDIENTE);
+    public List<SolicitudCredito> listarPorClienteProspecto(Integer idClienteProspecto) {
+        return solicitudCreditoRepository.findByIdClienteProspecto(idClienteProspecto);
     }
 
-    /**
-     * Listar solicitudes por vendedor
-     */
     @Transactional(readOnly = true)
     public List<SolicitudCredito> listarPorVendedor(Integer idVendedor) {
         return solicitudCreditoRepository.findByIdVendedor(idVendedor);
     }
 
-    /**
-     * Listar solicitudes en un rango de fechas
-     */
-    @Transactional(readOnly = true)
-    public List<SolicitudCredito> listarPorRangoFechas(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-        return solicitudCreditoRepository.findByFechaSolicitudBetween(fechaInicio, fechaFin);
-    }
-
-    /**
-     * Enviar solicitud a revisión
-     */
     public SolicitudCredito enviarARevision(Integer id) {
         SolicitudCredito solicitud = buscarPorId(id);
-        
-        if (!ESTADO_PENDIENTE.equals(solicitud.getEstado())) {
-            throw new BusinessException("Solo se pueden enviar a revisión solicitudes pendientes", "ENVIAR_REVISION");
-        }
-        
+        validarEstadoParaCambio(solicitud, ESTADO_BORRADOR);
         solicitud.setEstado(ESTADO_EN_REVISION);
         return solicitudCreditoRepository.save(solicitud);
     }
 
-    /**
-     * Aprobar solicitud de crédito
-     */
     public SolicitudCredito aprobar(Integer id, String observaciones) {
         SolicitudCredito solicitud = buscarPorId(id);
-        
-        if (!ESTADO_EN_REVISION.equals(solicitud.getEstado())) {
-            throw new BusinessException("Solo se pueden aprobar solicitudes en revisión", "APROBAR_SOLICITUD");
-        }
-        
+        validarEstadoParaCambio(solicitud, ESTADO_EN_REVISION);
         solicitud.setEstado(ESTADO_APROBADA);
-        solicitud.setFechaAprobacion(LocalDateTime.now());
-        solicitud.setMotivo(observaciones);
-        
         return solicitudCreditoRepository.save(solicitud);
     }
 
-    /**
-     * Rechazar solicitud de crédito
-     */
     public SolicitudCredito rechazar(Integer id, String motivo) {
         SolicitudCredito solicitud = buscarPorId(id);
-        
-        if (ESTADO_APROBADA.equals(solicitud.getEstado()) || ESTADO_DESEMBOLSADA.equals(solicitud.getEstado())) {
-            throw new BusinessException("No se puede rechazar una solicitud aprobada o desembolsada", "RECHAZAR_SOLICITUD");
-        }
-        
-        if (motivo == null || motivo.trim().isEmpty()) {
-            throw new ValidationException("motivo", "requerido para rechazar solicitud");
-        }
-        
+        validarEstadoParaCambio(solicitud, ESTADO_EN_REVISION);
         solicitud.setEstado(ESTADO_RECHAZADA);
-        solicitud.setMotivo(motivo);
-        
         return solicitudCreditoRepository.save(solicitud);
     }
 
-    /**
-     * Marcar como desembolsada
-     */
+    public SolicitudCredito cancelar(Integer id) {
+        SolicitudCredito solicitud = buscarPorId(id);
+        validarEstadoParaCambio(solicitud, ESTADO_BORRADOR);
+        solicitud.setEstado(ESTADO_CANCELADA);
+        return solicitudCreditoRepository.save(solicitud);
+    }
+
     public SolicitudCredito marcarDesembolsada(Integer id) {
         SolicitudCredito solicitud = buscarPorId(id);
-        
         if (!ESTADO_APROBADA.equals(solicitud.getEstado())) {
-            throw new BusinessException("Solo se pueden desembolsar solicitudes aprobadas", "DESEMBOLSAR");
+            throw new BusinessException("Solo se pueden desembolsar solicitudes aprobadas", "MARCAR_DESEMBOLSADA");
         }
-        
         solicitud.setEstado(ESTADO_DESEMBOLSADA);
         return solicitudCreditoRepository.save(solicitud);
     }
 
-    /**
-     * Calcular cuota mensual usando método francés
-     */
-    @Transactional(readOnly = true)
-    public BigDecimal calcularCuotaMensual(BigDecimal monto, BigDecimal tasaAnual, Integer plazoMeses) {
-        // Convertir tasa anual a mensual
-        BigDecimal tasaMensual = tasaAnual.divide(new BigDecimal("100"), 6, RoundingMode.HALF_UP)
-                                        .divide(new BigDecimal("12"), 6, RoundingMode.HALF_UP);
+    public BigDecimal calcularCuotaMensual(BigDecimal monto, BigDecimal tasa, Integer plazo) {
+        if (monto.compareTo(BigDecimal.ZERO) <= 0 || tasa.compareTo(BigDecimal.ZERO) <= 0 || plazo <= 0) {
+            throw new ValidationException("Parámetros inválidos para el cálculo de cuota", "CALCULAR_CUOTA");
+        }
+
+        BigDecimal tasaMensual = tasa.divide(new BigDecimal("100"), 4, RoundingMode.HALF_UP)
+                .divide(new BigDecimal("12"), 4, RoundingMode.HALF_UP);
         
-        // Fórmula: M = P * [r(1+r)^n] / [(1+r)^n - 1]
-        BigDecimal unoPlusTasa = BigDecimal.ONE.add(tasaMensual);
-        BigDecimal potencia = unoPlusTasa.pow(plazoMeses);
-        
-        BigDecimal numerador = monto.multiply(tasaMensual).multiply(potencia);
-        BigDecimal denominador = potencia.subtract(BigDecimal.ONE);
+        BigDecimal factor = BigDecimal.ONE.add(tasaMensual).pow(plazo);
+        BigDecimal numerador = monto.multiply(tasaMensual).multiply(factor);
+        BigDecimal denominador = factor.subtract(BigDecimal.ONE);
         
         return numerador.divide(denominador, 2, RoundingMode.HALF_UP);
     }
 
-    /**
-     * Simular crédito (sin guardar)
-     */
     @Transactional(readOnly = true)
-    public SolicitudCredito simularCredito(BigDecimal monto, BigDecimal tasa, Integer plazo) {
-        SolicitudCredito simulacion = new SolicitudCredito();
-        simulacion.setMontoSolicitado(monto);
-        simulacion.setTasaInteres(tasa);
-        simulacion.setPlazoMeses(plazo);
-        
-        BigDecimal cuotaMensual = calcularCuotaMensual(monto, tasa, plazo);
-        simulacion.setCuotaMensual(cuotaMensual);
-        
-        return simulacion;
+    public List<SolicitudCredito> findAll() {
+        return solicitudCreditoRepository.findAll();
     }
 
-    /**
-     * Obtener estadísticas de solicitudes
-     */
-    @Transactional(readOnly = true)
-    public long contarPorEstado(String estado) {
-        return solicitudCreditoRepository.countByEstado(estado);
+    @Transactional
+    public void delete(Integer id) {
+        SolicitudCredito solicitud = buscarPorId(id);
+        solicitudCreditoRepository.delete(solicitud);
     }
 
-    // Métodos privados de validación
     private void validarSolicitudCredito(SolicitudCredito solicitud) {
-        if (solicitud.getIdClienteProspecto() == null) {
-            throw new ValidationException("idClienteProspecto", "requerido");
+        if (solicitud.getMontoSolicitado() == null || solicitud.getMontoSolicitado().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ValidationException("montoSolicitado", "debe ser mayor a cero");
         }
         
-        if (solicitud.getMontoSolicitado() == null) {
-            throw new ValidationException("montoSolicitado", "requerido");
+        if (solicitud.getPlazoMeses() == null || solicitud.getPlazoMeses().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ValidationException("plazoMeses", "debe ser mayor a cero");
         }
         
-        if (solicitud.getMontoSolicitado().compareTo(MONTO_MINIMO) < 0) {
-            throw new ValidationException("montoSolicitado", "debe ser mayor a " + MONTO_MINIMO);
+        if (solicitud.getEntrada() == null || solicitud.getEntrada().compareTo(BigDecimal.ZERO) < 0) {
+            throw new ValidationException("entrada", "no puede ser negativa");
         }
         
-        if (solicitud.getMontoSolicitado().compareTo(MONTO_MAXIMO) > 0) {
-            throw new ValidationException("montoSolicitado", "debe ser menor a " + MONTO_MAXIMO);
-        }
-        
-        if (solicitud.getPlazoMeses() == null) {
-            throw new ValidationException("plazoMeses", "requerido");
-        }
-        
-        if (solicitud.getPlazoMeses() < PLAZO_MINIMO) {
-            throw new ValidationException("plazoMeses", "debe ser mayor a " + PLAZO_MINIMO);
-        }
-        
-        if (solicitud.getPlazoMeses() > PLAZO_MAXIMO) {
-            throw new ValidationException("plazoMeses", "debe ser menor a " + PLAZO_MAXIMO);
-        }
-        
-        if (solicitud.getTasaInteres() == null) {
-            throw new ValidationException("tasaInteres", "requerida");
-        }
-        
-        if (solicitud.getTasaInteres().compareTo(TASA_MINIMA) < 0) {
-            throw new ValidationException("tasaInteres", "debe ser mayor a " + TASA_MINIMA + "%");
-        }
-        
-        if (solicitud.getTasaInteres().compareTo(TASA_MAXIMA) > 0) {
-            throw new ValidationException("tasaInteres", "debe ser menor a " + TASA_MAXIMA + "%");
+        if (solicitud.getTasaAnual() == null || solicitud.getTasaAnual().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ValidationException("tasaAnual", "debe ser mayor a cero");
         }
     }
 
-    private void validarCapacidadCliente(Integer idCliente, BigDecimal montoSolicitado) {
-        if (!clienteProspectoService.puedesolicitarCredito(idCliente)) {
-            throw new BusinessException("Cliente no cumple con los requisitos para solicitar crédito", "VALIDAR_CAPACIDAD");
-        }
-        
-        BigDecimal capacidadPago = clienteProspectoService.calcularCapacidadPago(idCliente);
-        BigDecimal cuotaEstimada = calcularCuotaMensual(montoSolicitado, TASA_MAXIMA, PLAZO_MINIMO);
-        
-        if (cuotaEstimada.compareTo(capacidadPago) > 0) {
-            throw new BusinessException("El monto solicitado excede la capacidad de pago del cliente", "VALIDAR_CAPACIDAD");
+    private void validarNumeroSolicitudUnico(String numeroSolicitud) {
+        if (solicitudCreditoRepository.existsByNumeroSolicitud(numeroSolicitud)) {
+            throw new ValidationException("numeroSolicitud", "ya existe en el sistema");
         }
     }
 
-    private void validarSolicitudPendiente(Integer idCliente) {
-        if (solicitudCreditoRepository.existsByIdClienteProspectoAndEstado(idCliente, ESTADO_PENDIENTE) ||
-            solicitudCreditoRepository.existsByIdClienteProspectoAndEstado(idCliente, ESTADO_EN_REVISION)) {
-            throw new BusinessException("El cliente ya tiene una solicitud pendiente o en revisión", "VALIDAR_SOLICITUD_PENDIENTE");
+    private void validarVehiculoUnico(Integer idVehiculo) {
+        if (solicitudCreditoRepository.existsByIdVehiculo(idVehiculo)) {
+            throw new ValidationException("idVehiculo", "ya tiene una solicitud asociada");
+        }
+    }
+
+    private void validarEstadoParaCambio(SolicitudCredito solicitud, String estadoEsperado) {
+        if (!estadoEsperado.equals(solicitud.getEstado())) {
+            throw new BusinessException("La solicitud debe estar en estado " + estadoEsperado, "VALIDAR_ESTADO");
         }
     }
 } 

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SolicitudCreditoRepository extends JpaRepository<SolicitudCredito, Integer> {
@@ -27,5 +28,9 @@ public interface SolicitudCreditoRepository extends JpaRepository<SolicitudCredi
     
     boolean existsByIdClienteProspectoAndEstado(Integer idClienteProspecto, String estado);
 
-    SolicitudCredito findByNumeroSolicitud(String numeroSolicitud);
+    Optional<SolicitudCredito> findByNumeroSolicitud(String numeroSolicitud);
+
+    boolean existsByNumeroSolicitud(String numeroSolicitud);
+
+    boolean existsByIdVehiculo(Integer idVehiculo);
 } 

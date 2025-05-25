@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/documentos-adjuntos")
@@ -17,50 +16,43 @@ import java.util.stream.Collectors;
 public class DocumentoAdjuntoController {
 
     private final DocumentoAdjuntoService documentoAdjuntoService;
-    private final DocumentoAdjuntoMapper documentoAdjuntoMapper;
 
     @PostMapping
-    public ResponseEntity<DocumentoAdjuntoDTO> adjuntar(@RequestBody DocumentoAdjuntoDTO documentoDTO) {
-        DocumentoAdjunto documento = documentoAdjuntoMapper.toEntity(documentoDTO);
+    public ResponseEntity<DocumentoAdjunto> adjuntar(@RequestBody DocumentoAdjunto documento) {
         DocumentoAdjunto documentoCreado = documentoAdjuntoService.adjuntarDocumento(documento);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(documentoAdjuntoMapper.toDTO(documentoCreado));
+        return ResponseEntity.status(HttpStatus.CREATED).body(documentoCreado);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DocumentoAdjuntoDTO> buscarPorId(@PathVariable Integer id) {
+    public ResponseEntity<DocumentoAdjunto> buscarPorId(@PathVariable Integer id) {
         DocumentoAdjunto documento = documentoAdjuntoService.buscarPorId(id);
-        return ResponseEntity.ok(documentoAdjuntoMapper.toDTO(documento));
+        return ResponseEntity.ok(documento);
     }
 
     @GetMapping("/solicitud/{idSolicitud}")
-    public ResponseEntity<List<DocumentoAdjuntoDTO>> listarPorSolicitud(@PathVariable Integer idSolicitud) {
+    public ResponseEntity<List<DocumentoAdjunto>> listarPorSolicitud(@PathVariable Integer idSolicitud) {
         List<DocumentoAdjunto> documentos = documentoAdjuntoService.listarPorSolicitud(idSolicitud);
-        List<DocumentoAdjuntoDTO> documentosDTO = documentos.stream()
-                .map(documentoAdjuntoMapper::toDTO)
-                .collect(Collectors.toList());
-        
-        return ResponseEntity.ok(documentosDTO);
+        return ResponseEntity.ok(documentos);
     }
 
     @PutMapping("/{id}/reemplazar")
-    public ResponseEntity<DocumentoAdjuntoDTO> reemplazarDocumento(@PathVariable Integer id,
-                                                                 @RequestParam Integer idSolicitud,
-                                                                 @RequestParam String nuevaRuta) {
-        DocumentoAdjunto documento = documentoAdjuntoService.reemplazarDocumento(id, idSolicitud, nuevaRuta);
-        return ResponseEntity.ok(documentoAdjuntoMapper.toDTO(documento));
+    public ResponseEntity<DocumentoAdjunto> reemplazarDocumento(@PathVariable Integer id,
+                                                                @RequestParam Integer idSolicitud,
+                                                                @RequestParam String nuevaRuta) {
+        DocumentoAdjunto documento = documentoAdjuntoService.reemplazarDocumento(idSolicitud, id, nuevaRuta);
+        return ResponseEntity.ok(documento);
     }
 
     @GetMapping("/solicitud/{idSolicitud}/validar-completos")
     public ResponseEntity<Boolean> validarDocumentosCompletos(@PathVariable Integer idSolicitud,
-                                                            @RequestParam List<Integer> idsRequeridos) {
+                                                              @RequestParam List<Integer> idsRequeridos) {
         boolean completos = documentoAdjuntoService.validarDocumentosCompletos(idSolicitud, idsRequeridos);
         return ResponseEntity.ok(completos);
     }
 
     @GetMapping("/solicitud/{idSolicitud}/tipos-faltantes")
     public ResponseEntity<List<Integer>> obtenerTiposFaltantes(@PathVariable Integer idSolicitud,
-                                                             @RequestParam List<Integer> idsRequeridos) {
+                                                               @RequestParam List<Integer> idsRequeridos) {
         List<Integer> faltantes = documentoAdjuntoService.obtenerTiposDocumentosFaltantes(idSolicitud, idsRequeridos);
         return ResponseEntity.ok(faltantes);
     }
@@ -76,4 +68,4 @@ public class DocumentoAdjuntoController {
         documentoAdjuntoService.eliminarDocumentosPorSolicitud(idSolicitud);
         return ResponseEntity.noContent().build();
     }
-} 
+}

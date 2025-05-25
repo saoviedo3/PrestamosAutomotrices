@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/v1/clientes-prospectos")
+@RequestMapping("/api/clientes-prospectos")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class ClienteProspectoController {
@@ -37,7 +37,7 @@ public class ClienteProspectoController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ClienteProspecto> actualizar(@PathVariable Integer id,
-                                                       @RequestBody ClienteProspecto clienteProspecto) {
+            @RequestBody ClienteProspecto clienteProspecto) {
         try {
             ClienteProspecto clienteActualizado = clienteProspectoService.actualizar(id, clienteProspecto);
             return ResponseEntity.ok(clienteActualizado);
