@@ -49,14 +49,14 @@ public class VehiculoService {
             throw new InvalidDataException("Vehiculo", "El valor debe ser positivo");
         }
 
-        // 2. Validar existencia de concesionario (FK)
-        Long concesionarioId = vehiculo.getConcesionario().getId();
-        if (!concesionarioRepository.existsById(concesionarioId)) {
-            throw new InvalidDataException(
-                "Vehiculo",
-                "No existe Concesionario con id " + concesionarioId
-            );
-        }
+        // // 2. Validar existencia de concesionario (FK)
+        // Long concesionarioId = vehiculo.getConcesionario().getId();
+        // if (!concesionarioRepository.existsById(concesionarioId)) {
+        //     throw new InvalidDataException(
+        //         "Vehiculo",
+        //         "No existe Concesionario con id " + concesionarioId
+        //     );
+        // }
 
         // 3. Evitar duplicados (ejemplo: mismo IdentificadorVehiculo)
         Long identId = vehiculo.getIdentificadorVehiculo().getId();
