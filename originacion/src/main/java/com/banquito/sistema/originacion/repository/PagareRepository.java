@@ -10,13 +10,13 @@ import java.util.Optional;
 @Repository
 public interface PagareRepository extends JpaRepository<Pagare, Integer> {
 
-    List<Pagare> findByIdSolicitud(Integer idSolicitud);
+    List<Pagare> findBySolicitudCredito_IdSolicitud(Integer idSolicitud);
     
-    List<Pagare> findByIdSolicitudOrderByNumeroCuota(Integer idSolicitud);
+    List<Pagare> findBySolicitudCredito_IdSolicitudOrderByNumeroCuota(Integer idSolicitud);
     
-    Optional<Pagare> findByIdSolicitudAndNumeroCuota(Integer idSolicitud, Integer numeroCuota);
+    Optional<Pagare> findBySolicitudCredito_IdSolicitudAndNumeroCuota(Integer idSolicitud, Integer numeroCuota);
     
-    boolean existsByIdSolicitudAndNumeroCuota(Integer idSolicitud, Integer numeroCuota);
+    boolean existsBySolicitudCredito_IdSolicitudAndNumeroCuota(Integer idSolicitud, Integer numeroCuota);
     
-    long countByIdSolicitud(Integer idSolicitud);
+    long countBySolicitudCredito_IdSolicitud(Integer idSolicitud);
 } 

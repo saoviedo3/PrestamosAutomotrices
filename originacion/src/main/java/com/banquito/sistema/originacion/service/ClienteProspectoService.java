@@ -231,7 +231,7 @@ public class ClienteProspectoService {
 
     @Transactional(readOnly = true)
     public ClienteProspecto buscarPorIdentificacion(String identificacion) {
-        return clienteProspectoRepository.findByIdentificacion(identificacion)
+        return clienteProspectoRepository.findByCedula(identificacion)
                 .orElseThrow(() -> new ClienteProspectoNotFoundException(identificacion, "identificación"));
     }
 

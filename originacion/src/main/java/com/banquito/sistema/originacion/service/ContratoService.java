@@ -29,7 +29,7 @@ public class ContratoService {
     private static final String ESTADO_VENCIDO = "VENCIDO";
 
     // Estados de solicitud requeridos
-    private static final String SOLICITUD_APROBADA = "APROBADA";
+    private static final String SOLICITUD_APROBADA = "Aprobada";
 
     /**
      * Generar contrato desde solicitud aprobada
@@ -44,13 +44,14 @@ public class ContratoService {
             }
             
             // Verificar que no exista ya un contrato para esta solicitud
-            if (contratoRepository.existsByIdSolicitud(idSolicitud)) {
+            if (contratoRepository.existsBySolicitudCredito_IdSolicitud(idSolicitud)) {
                 throw new BusinessException("Ya existe un contrato para esta solicitud", "GENERAR_CONTRATO");
             }
             
             Contrato contrato = new Contrato();
-            contrato.setIdSolicitud(idSolicitud);
+            contrato.setSolicitudCredito(solicitud);
             contrato.setFechaGenerado(LocalDateTime.now());
+            contrato.setFechaFirma(LocalDateTime.now()); // Inicializamos con la fecha actual
             contrato.setEstado(ESTADO_GENERADO);
             contrato.setCondicionEspecial(condicionEspecial);
             
@@ -166,7 +167,7 @@ public class ContratoService {
      */
     @Transactional(readOnly = true)
     public Contrato buscarPorSolicitud(Integer idSolicitud) {
-        return contratoRepository.findByIdSolicitud(idSolicitud)
+        return contratoRepository.findBySolicitudCredito_IdSolicitud(idSolicitud)
                 .orElseThrow(() -> new NotFoundException("Solicitud: " + idSolicitud, "Contrato"));
     }
 
@@ -215,7 +216,7 @@ public class ContratoService {
      */
     @Transactional(readOnly = true)
     public boolean existeContratoPorSolicitud(Integer idSolicitud) {
-        return contratoRepository.existsByIdSolicitud(idSolicitud);
+        return contratoRepository.existsBySolicitudCredito_IdSolicitud(idSolicitud);
     }
 
     /**
@@ -265,7 +266,7 @@ public class ContratoService {
         try {
             SolicitudCredito solicitud = solicitudCreditoService.buscarPorId(idSolicitud);
             return SOLICITUD_APROBADA.equals(solicitud.getEstado()) && 
-                   !contratoRepository.existsByIdSolicitud(idSolicitud);
+                   !contratoRepository.existsBySolicitudCredito_IdSolicitud(idSolicitud);
         } catch (Exception e) {
             return false;
         }

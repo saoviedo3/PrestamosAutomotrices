@@ -2,6 +2,7 @@ package com.banquito.sistema.originacion.model;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "SolicitudesCreditos")
@@ -23,6 +24,9 @@ public class SolicitudCredito {
 
     @Column(name = "NumeroSolicitud", length = 20, nullable = false, unique = true)
     private String numeroSolicitud;
+
+    @Column(name = "FechaSolicitud", nullable = false)
+    private LocalDateTime fechaSolicitud;
 
     @Column(name = "MontoSolicitado", precision = 12, scale = 2, nullable = false)
     private BigDecimal montoSolicitado;
@@ -116,6 +120,14 @@ public class SolicitudCredito {
 
     public void setNumeroSolicitud(String numeroSolicitud) {
         this.numeroSolicitud = numeroSolicitud;
+    }
+
+    public LocalDateTime getFechaSolicitud() {
+        return fechaSolicitud;
+    }
+
+    public void setFechaSolicitud(LocalDateTime fechaSolicitud) {
+        this.fechaSolicitud = fechaSolicitud;
     }
 
     public BigDecimal getMontoSolicitado() {

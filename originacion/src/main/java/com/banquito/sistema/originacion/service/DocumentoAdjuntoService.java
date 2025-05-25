@@ -80,7 +80,7 @@ public class DocumentoAdjuntoService {
      */
     @Transactional(readOnly = true)
     public List<DocumentoAdjunto> listarPorSolicitud(Integer idSolicitud) {
-        return documentoAdjuntoRepository.findByIdSolicitud(idSolicitud);
+        return documentoAdjuntoRepository.findBySolicitudCredito_IdSolicitud(idSolicitud);
     }
 
     /**
@@ -88,7 +88,7 @@ public class DocumentoAdjuntoService {
      */
     @Transactional(readOnly = true)
     public List<DocumentoAdjunto> listarPorTipoDocumento(Integer idTipoDocumento) {
-        return documentoAdjuntoRepository.findByIdTipoDocumento(idTipoDocumento);
+        return documentoAdjuntoRepository.findByTipoDocumento_IdTipoDocumento(idTipoDocumento);
     }
 
     /**
@@ -96,7 +96,7 @@ public class DocumentoAdjuntoService {
      */
     @Transactional(readOnly = true)
     public List<DocumentoAdjunto> buscarPorSolicitudYTipo(Integer idSolicitud, Integer idTipoDocumento) {
-        return documentoAdjuntoRepository.findByIdSolicitudAndIdTipoDocumento(idSolicitud, idTipoDocumento);
+        return documentoAdjuntoRepository.findBySolicitudCredito_IdSolicitudAndTipoDocumento_IdTipoDocumento(idSolicitud, idTipoDocumento);
     }
 
     /**
@@ -150,7 +150,7 @@ public class DocumentoAdjuntoService {
      */
     @Transactional(readOnly = true)
     public boolean existeDocumentoPorSolicitudYTipo(Integer idSolicitud, Integer idTipoDocumento) {
-        return documentoAdjuntoRepository.existsByIdSolicitudAndIdTipoDocumento(idSolicitud, idTipoDocumento);
+        return documentoAdjuntoRepository.existsBySolicitudCredito_IdSolicitudAndTipoDocumento_IdTipoDocumento(idSolicitud, idTipoDocumento);
     }
 
     /**
@@ -158,7 +158,7 @@ public class DocumentoAdjuntoService {
      */
     @Transactional(readOnly = true)
     public long contarDocumentosPorSolicitud(Integer idSolicitud) {
-        return documentoAdjuntoRepository.countByIdSolicitud(idSolicitud);
+        return documentoAdjuntoRepository.countBySolicitudCredito_IdSolicitud(idSolicitud);
     }
 
     /**

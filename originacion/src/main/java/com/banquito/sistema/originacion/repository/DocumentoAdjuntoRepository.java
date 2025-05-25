@@ -9,13 +9,13 @@ import java.util.List;
 @Repository
 public interface DocumentoAdjuntoRepository extends JpaRepository<DocumentoAdjunto, Integer> {
 
-    List<DocumentoAdjunto> findByIdSolicitud(Integer idSolicitud);
+    List<DocumentoAdjunto> findBySolicitudCredito_IdSolicitud(Integer idSolicitud);
     
-    List<DocumentoAdjunto> findByIdTipoDocumento(Integer idTipoDocumento);
+    List<DocumentoAdjunto> findByTipoDocumento_IdTipoDocumento(Integer idTipoDocumento);
     
-    List<DocumentoAdjunto> findByIdSolicitudAndIdTipoDocumento(Integer idSolicitud, Integer idTipoDocumento);
+    List<DocumentoAdjunto> findBySolicitudCredito_IdSolicitudAndTipoDocumento_IdTipoDocumento(Integer idSolicitud, Integer idTipoDocumento);
     
-    boolean existsByIdSolicitudAndIdTipoDocumento(Integer idSolicitud, Integer idTipoDocumento);
+    boolean existsBySolicitudCredito_IdSolicitudAndTipoDocumento_IdTipoDocumento(Integer idSolicitud, Integer idTipoDocumento);
     
-    long countByIdSolicitud(Integer idSolicitud);
+    long countBySolicitudCredito_IdSolicitud(Integer idSolicitud);
 } 

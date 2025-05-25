@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/v1/solicitudes-creditos")
+@RequestMapping("/api/solicitudes-creditos")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class SolicitudCreditoController {

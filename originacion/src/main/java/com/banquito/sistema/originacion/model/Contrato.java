@@ -2,6 +2,8 @@ package com.banquito.sistema.originacion.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -14,11 +16,13 @@ import java.time.LocalDateTime;
 public class Contrato {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "IdContrato", nullable = false)
     private Integer idContrato;
 
-    @Column(name = "IdSolicitud", nullable = false)
-    private Integer idSolicitud;
+    @ManyToOne
+    @JoinColumn(name = "IdSolicitud", referencedColumnName = "IdSolicitud", nullable = false, insertable = true, updatable = false)
+    private SolicitudCredito solicitudCredito;
 
     @Column(name = "RutaArchivo", length = 150, nullable = false)
     private String rutaArchivo;
@@ -38,10 +42,6 @@ public class Contrato {
     @Version
     private Long version;
 
-    @ManyToOne
-    @JoinColumn(name = "IdSolicitud", referencedColumnName = "IdSolicitud")
-    private SolicitudCredito solicitudCredito;
-
     public Contrato() {
     }
 
@@ -58,11 +58,15 @@ public class Contrato {
     }
 
     public Integer getIdSolicitud() {
-        return idSolicitud;
+        return solicitudCredito != null ? solicitudCredito.getIdSolicitud() : null;
     }
 
     public void setIdSolicitud(Integer idSolicitud) {
-        this.idSolicitud = idSolicitud;
+        if (this.solicitudCredito == null) {
+            this.solicitudCredito = new SolicitudCredito(idSolicitud);
+        } else {
+            this.solicitudCredito.setIdSolicitud(idSolicitud);
+        }
     }
 
     public String getRutaArchivo() {
@@ -148,7 +152,7 @@ public class Contrato {
 
     @Override
     public String toString() {
-        return "Contrato [idContrato=" + idContrato + ", idSolicitud=" + idSolicitud + ", rutaArchivo=" + rutaArchivo
+        return "Contrato [idContrato=" + idContrato + ", idSolicitud=" + getIdSolicitud() + ", rutaArchivo=" + rutaArchivo
                 + ", fechaGenerado=" + fechaGenerado + ", fechaFirma=" + fechaFirma + ", estado=" + estado
                 + ", condicionEspecial=" + condicionEspecial + ", version=" + version + ", solicitudCredito="
                 + solicitudCredito + "]";

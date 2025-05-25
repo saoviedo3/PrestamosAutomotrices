@@ -16,8 +16,9 @@ public class Pagare {
     @Column(name = "IdPagare", nullable = false)
     private Integer idPagare;
 
-    @Column(name = "IdSolicitud", nullable = false)
-    private Integer idSolicitud;
+    @ManyToOne
+    @JoinColumn(name = "IdSolicitud", nullable = false)
+    private SolicitudCredito solicitudCredito;
 
     @Column(name = "NumeroCuota", nullable = false)
     private Integer numeroCuota;
@@ -30,10 +31,6 @@ public class Pagare {
 
     @Version
     private Long version;
-
-    @ManyToOne
-    @JoinColumn(name = "IdSolicitud", referencedColumnName = "IdSolicitud")
-    private SolicitudCredito solicitudCredito;
 
     public Pagare() {
     }
@@ -51,11 +48,14 @@ public class Pagare {
     }
 
     public Integer getIdSolicitud() {
-        return idSolicitud;
+        return solicitudCredito != null ? solicitudCredito.getIdSolicitud() : null;
     }
 
     public void setIdSolicitud(Integer idSolicitud) {
-        this.idSolicitud = idSolicitud;
+        if (this.solicitudCredito == null) {
+            this.solicitudCredito = new SolicitudCredito();
+        }
+        this.solicitudCredito.setIdSolicitud(idSolicitud);
     }
 
     public Integer getNumeroCuota() {
@@ -125,7 +125,7 @@ public class Pagare {
 
     @Override
     public String toString() {
-        return "Pagare [idPagare=" + idPagare + ", idSolicitud=" + idSolicitud + ", numeroCuota=" + numeroCuota
+        return "Pagare [idPagare=" + idPagare + ", idSolicitud=" + getIdSolicitud() + ", numeroCuota=" + numeroCuota
                 + ", rutaArchivo=" + rutaArchivo + ", fechaGenerado=" + fechaGenerado + ", version=" + version
                 + ", solicitudCredito=" + solicitudCredito + "]";
     }

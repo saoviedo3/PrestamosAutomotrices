@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -33,6 +34,7 @@ public class SolicitudCreditoService {
             validarVehiculoUnico(solicitudCredito.getIdVehiculo());
             
             solicitudCredito.setEstado(ESTADO_BORRADOR);
+            solicitudCredito.setFechaSolicitud(LocalDateTime.now());
             return solicitudCreditoRepository.save(solicitudCredito);
         } catch (Exception e) {
             throw new BusinessException("Error al crear solicitud de crédito: " + e.getMessage(), "CREAR_SOLICITUD_CREDITO");

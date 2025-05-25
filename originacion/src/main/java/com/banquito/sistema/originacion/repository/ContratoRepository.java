@@ -10,11 +10,11 @@ import java.util.Optional;
 @Repository
 public interface ContratoRepository extends JpaRepository<Contrato, Integer> {
 
-    Optional<Contrato> findByIdSolicitud(Integer idSolicitud);
+    Optional<Contrato> findBySolicitudCredito_IdSolicitud(Integer idSolicitud);
     
     List<Contrato> findByEstado(String estado);
     
-    boolean existsByIdSolicitud(Integer idSolicitud);
+    boolean existsBySolicitudCredito_IdSolicitud(Integer idSolicitud);
     
     List<Contrato> findByEstadoOrderByFechaGeneradoDesc(String estado);
 } 

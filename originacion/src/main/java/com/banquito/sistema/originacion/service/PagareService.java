@@ -1,7 +1,7 @@
 package com.banquito.sistema.originacion.service;
 
 import com.banquito.sistema.originacion.exception.BusinessException;
-import com.banquito.sistema.originacion.exception.PagareNotFoundException;
+import com.banquito.sistema.originacion.exception.NotFoundException;
 import com.banquito.sistema.originacion.exception.ValidationException;
 import com.banquito.sistema.originacion.model.Pagare;
 import com.banquito.sistema.originacion.model.SolicitudCredito;
@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
@@ -22,20 +22,21 @@ public class PagareService {
     private final PagareRepository pagareRepository;
     private final SolicitudCreditoService solicitudCreditoService;
 
-    private static final String SOLICITUD_APROBADA = "APROBADA";
-    private static final String SOLICITUD_DESEMBOLSADA = "DESEMBOLSADA";
+    private static final String SOLICITUD_APROBADA = "Aprobada";
+    private static final String SOLICITUD_DESEMBOLSADA = "Desembolsada";
 
     public List<Pagare> generarPagaresPorSolicitud(Integer idSolicitud) {
         SolicitudCredito solicitud = solicitudCreditoService.buscarPorId(idSolicitud);
         validarEstadoSolicitud(solicitud);
 
-        if (pagareRepository.countByIdSolicitud(idSolicitud) > 0) {
+        if (pagareRepository.countBySolicitudCredito_IdSolicitud(idSolicitud) > 0) {
             throw new BusinessException("Ya existen pagarés generados para esta solicitud", "GENERAR_PAGARES");
         }
 
-        List<Pagare> pagares = new java.util.ArrayList<>();
+        List<Pagare> pagares = new ArrayList<>();
+        int plazoMeses = solicitud.getPlazoMeses().intValue();
 
-        for (int cuota = 1; cuota <= solicitud.getPlazoMeses(); cuota++) {
+        for (int cuota = 1; cuota <= plazoMeses; cuota++) {
             Pagare pagare = new Pagare();
             pagare.setIdSolicitud(idSolicitud);
             pagare.setNumeroCuota(cuota);
@@ -51,11 +52,12 @@ public class PagareService {
         SolicitudCredito solicitud = solicitudCreditoService.buscarPorId(idSolicitud);
         validarEstadoSolicitud(solicitud);
 
-        if (numeroCuota < 1 || numeroCuota > solicitud.getPlazoMeses()) {
-            throw new ValidationException("numeroCuota", "debe estar entre 1 y " + solicitud.getPlazoMeses());
+        int plazoMeses = solicitud.getPlazoMeses().intValue();
+        if (numeroCuota < 1 || numeroCuota > plazoMeses) {
+            throw new ValidationException("numeroCuota", "debe estar entre 1 y " + plazoMeses);
         }
 
-        if (pagareRepository.existsByIdSolicitudAndNumeroCuota(idSolicitud, numeroCuota)) {
+        if (pagareRepository.existsBySolicitudCredito_IdSolicitudAndNumeroCuota(idSolicitud, numeroCuota)) {
             throw new BusinessException("Ya existe un pagaré para esta cuota", "GENERAR_PAGARE");
         }
 
@@ -70,20 +72,20 @@ public class PagareService {
 
     public Pagare buscarPorId(Integer id) {
         return pagareRepository.findById(id)
-                .orElseThrow(() -> new PagareNotFoundException("Pagaré no encontrado con id: " + id));
+                .orElseThrow(() -> new NotFoundException(id.toString(), "Pagare"));
     }
 
     public List<Pagare> listarPorSolicitud(Integer idSolicitud) {
-        return pagareRepository.findByIdSolicitud(idSolicitud);
+        return pagareRepository.findBySolicitudCredito_IdSolicitud(idSolicitud);
     }
 
     public List<Pagare> listarPorSolicitudOrdenados(Integer idSolicitud) {
-        return pagareRepository.findByIdSolicitudOrderByNumeroCuota(idSolicitud);
+        return pagareRepository.findBySolicitudCredito_IdSolicitudOrderByNumeroCuota(idSolicitud);
     }
 
     public Pagare buscarPorSolicitudYCuota(Integer idSolicitud, Integer numeroCuota) {
-        return pagareRepository.findByIdSolicitudAndNumeroCuota(idSolicitud, numeroCuota)
-                .orElseThrow(() -> new PagareNotFoundException("Pagaré no encontrado para solicitud " + idSolicitud + " y cuota " + numeroCuota));
+        return pagareRepository.findBySolicitudCredito_IdSolicitudAndNumeroCuota(idSolicitud, numeroCuota)
+                .orElseThrow(() -> new NotFoundException("Solicitud: " + idSolicitud + ", Cuota: " + numeroCuota, "Pagare"));
     }
 
     public Pagare regenerarArchivo(Integer id) {
@@ -105,9 +107,9 @@ public class PagareService {
 
     public boolean validarIntegridadPagares(Integer idSolicitud) {
         SolicitudCredito solicitud = solicitudCreditoService.buscarPorId(idSolicitud);
-        int plazo = solicitud.getPlazoMeses();
+        int plazo = solicitud.getPlazoMeses().intValue();
 
-        List<Pagare> pagares = pagareRepository.findByIdSolicitud(idSolicitud);
+        List<Pagare> pagares = pagareRepository.findBySolicitudCredito_IdSolicitud(idSolicitud);
         if (pagares.size() != plazo) {
             return false;
         }
@@ -127,9 +129,9 @@ public class PagareService {
 
     public List<Integer> obtenerCuotasFaltantes(Integer idSolicitud) {
         SolicitudCredito solicitud = solicitudCreditoService.buscarPorId(idSolicitud);
-        int plazo = solicitud.getPlazoMeses();
+        int plazo = solicitud.getPlazoMeses().intValue();
 
-        List<Pagare> pagares = pagareRepository.findByIdSolicitud(idSolicitud);
+        List<Pagare> pagares = pagareRepository.findBySolicitudCredito_IdSolicitud(idSolicitud);
         boolean[] cuotasEncontradas = new boolean[plazo];
         for (Pagare pagare : pagares) {
             int cuotaIndex = pagare.getNumeroCuota() - 1;
@@ -138,7 +140,7 @@ public class PagareService {
             }
         }
 
-        List<Integer> cuotasFaltantes = new java.util.ArrayList<>();
+        List<Integer> cuotasFaltantes = new ArrayList<>();
         for (int i = 0; i < plazo; i++) {
             if (!cuotasEncontradas[i]) {
                 cuotasFaltantes.add(i + 1);
@@ -148,11 +150,11 @@ public class PagareService {
     }
 
     public long contarPagaresPorSolicitud(Integer idSolicitud) {
-        return pagareRepository.countByIdSolicitud(idSolicitud);
+        return pagareRepository.countBySolicitudCredito_IdSolicitud(idSolicitud);
     }
 
     public boolean existePagarePorSolicitudYCuota(Integer idSolicitud, Integer numeroCuota) {
-        return pagareRepository.existsByIdSolicitudAndNumeroCuota(idSolicitud, numeroCuota);
+        return pagareRepository.existsBySolicitudCredito_IdSolicitudAndNumeroCuota(idSolicitud, numeroCuota);
     }
 
     public void eliminarPagare(Integer id) {
@@ -171,12 +173,7 @@ public class PagareService {
         }
     }
 
-    /**
-     * Método simulado para generar la ruta del archivo del pagaré.
-     * En una implementación real, puede implicar lógica de generación de documentos, almacenamiento, etc.
-     */
     private String generarRutaArchivoPagare(Integer idSolicitud, Integer numeroCuota) {
-        // Ejemplo de ruta: "/archivos/pagares/{idSolicitud}_{numeroCuota}.pdf"
         return "/archivos/pagares/" + idSolicitud + "_" + numeroCuota + ".pdf";
     }
 }

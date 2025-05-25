@@ -16,11 +16,13 @@ public class DocumentoAdjunto {
     @Column(name = "IdDocumento", nullable = false)
     private Integer idDocumento;
 
-    @Column(name = "IdSolicitud", nullable = false)
-    private Integer idSolicitud;
+    @ManyToOne
+    @JoinColumn(name = "IdSolicitud", nullable = false)
+    private SolicitudCredito solicitudCredito;
 
-    @Column(name = "IdTipoDocumento", nullable = false)
-    private Integer idTipoDocumento;
+    @ManyToOne
+    @JoinColumn(name = "IdTipoDocumento", nullable = false)
+    private TipoDocumento tipoDocumento;
 
     @Column(name = "RutaArchivo", length = 150, nullable = false)
     private String rutaArchivo;
@@ -30,14 +32,6 @@ public class DocumentoAdjunto {
 
     @Version
     private Long version;
-
-    @ManyToOne
-    @JoinColumn(name = "IdSolicitud", referencedColumnName = "IdSolicitud")
-    private SolicitudCredito solicitudCredito;
-
-    @ManyToOne
-    @JoinColumn(name = "IdTipoDocumento", referencedColumnName = "IdTipoDocumento")
-    private TipoDocumento tipoDocumento;
 
     public DocumentoAdjunto() {
     }
@@ -55,19 +49,25 @@ public class DocumentoAdjunto {
     }
 
     public Integer getIdSolicitud() {
-        return idSolicitud;
+        return solicitudCredito != null ? solicitudCredito.getIdSolicitud() : null;
     }
 
     public void setIdSolicitud(Integer idSolicitud) {
-        this.idSolicitud = idSolicitud;
+        if (this.solicitudCredito == null) {
+            this.solicitudCredito = new SolicitudCredito();
+        }
+        this.solicitudCredito.setIdSolicitud(idSolicitud);
     }
 
     public Integer getIdTipoDocumento() {
-        return idTipoDocumento;
+        return tipoDocumento != null ? tipoDocumento.getIdTipoDocumento() : null;
     }
 
     public void setIdTipoDocumento(Integer idTipoDocumento) {
-        this.idTipoDocumento = idTipoDocumento;
+        if (this.tipoDocumento == null) {
+            this.tipoDocumento = new TipoDocumento();
+        }
+        this.tipoDocumento.setIdTipoDocumento(idTipoDocumento);
     }
 
     public String getRutaArchivo() {
@@ -137,8 +137,8 @@ public class DocumentoAdjunto {
 
     @Override
     public String toString() {
-        return "DocumentoAdjunto [idDocumento=" + idDocumento + ", idSolicitud=" + idSolicitud + ", idTipoDocumento="
-                + idTipoDocumento + ", rutaArchivo=" + rutaArchivo + ", fechaCargado=" + fechaCargado + ", version="
+        return "DocumentoAdjunto [idDocumento=" + idDocumento + ", idSolicitud=" + getIdSolicitud() + ", idTipoDocumento="
+                + getIdTipoDocumento() + ", rutaArchivo=" + rutaArchivo + ", fechaCargado=" + fechaCargado + ", version="
                 + version + ", solicitudCredito=" + solicitudCredito + ", tipoDocumento=" + tipoDocumento + "]";
     }
 } 
