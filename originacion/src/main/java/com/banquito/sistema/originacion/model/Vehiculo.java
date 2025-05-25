@@ -18,7 +18,13 @@ public class Vehiculo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "IdVehiculo", nullable = false)
-    private Integer id;
+    private Long id;
+
+    @Column(name = "IdIdentificadorVehiculo", nullable = false)
+    private Long idIdentificadorVehiculo;
+
+    @Column(name = "IdConcesionario", nullable = false)
+    private Long idConcesionario;
 
     @Column(name = "Marca", length = 40, nullable = false)
     private String marca;
@@ -39,29 +45,45 @@ public class Vehiculo {
     private String extras;
 
     @Version
-    private Integer version;
+    private Long version;
 
     @OneToOne
     @JoinColumn(name = "IdIdentificadorVehiculo", referencedColumnName = "IdIdentificadorVehiculo", insertable = false, updatable = false)
     private IdentificadorVehiculo identificadorVehiculo;
 
     @ManyToOne
-    @JoinColumn(name = "IdConcesionario", referencedColumnName = "IdConcesionario", insertable = false, updatable = false)
+    @JoinColumn(name = "IdConcesionario", referencedColumnName = "id", insertable = false, updatable = false)
     private Concesionario concesionario;
 
     public Vehiculo() {
     }
 
-    public Vehiculo(Integer id) {
+    public Vehiculo(Long id) {
         this.id = id;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getIdIdentificadorVehiculo() {
+        return idIdentificadorVehiculo;
+    }
+
+    public void setIdIdentificadorVehiculo(Long idIdentificadorVehiculo) {
+        this.idIdentificadorVehiculo = idIdentificadorVehiculo;
+    }
+
+    public Long getIdConcesionario() {
+        return idConcesionario;
+    }
+
+    public void setIdConcesionario(Long idConcesionario) {
+        this.idConcesionario = idConcesionario;
     }
 
     public String getMarca() {
@@ -128,11 +150,11 @@ public class Vehiculo {
         this.concesionario = concesionario;
     }
 
-    public Integer getVersion() {
+    public Long getVersion() {
         return version;
     }
 
-    public void setVersion(Integer version) {
+    public void setVersion(Long version) {
         this.version = version;
     }
 
@@ -163,7 +185,8 @@ public class Vehiculo {
 
     @Override
     public String toString() {
-        return "Vehiculo [id=" + id + ", marca=" + marca + ", modelo=" + modelo + ", anio=" + anio + ", valor=" + valor
+        return "Vehiculo [id=" + id + ", idIdentificadorVehiculo=" + idIdentificadorVehiculo + ", idConcesionario="
+                + idConcesionario + ", marca=" + marca + ", modelo=" + modelo + ", anio=" + anio + ", valor=" + valor
                 + ", color=" + color + ", extras=" + extras + ", identificadorVehiculo=" + identificadorVehiculo
                 + ", concesionario=" + concesionario + "]";
     }
