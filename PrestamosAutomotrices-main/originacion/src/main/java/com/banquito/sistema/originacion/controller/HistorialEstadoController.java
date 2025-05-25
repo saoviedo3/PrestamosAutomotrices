@@ -1,15 +1,12 @@
 package com.banquito.sistema.originacion.controller;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.banquito.sistema.originacion.controller.dto.HistorialEstadoDTO;
-import com.banquito.sistema.originacion.controller.mapper.HistorialEstadoMapper;
 import com.banquito.sistema.originacion.exception.NotFoundException;
 import com.banquito.sistema.originacion.model.HistorialEstado;
 import com.banquito.sistema.originacion.service.HistorialEstadoService;
@@ -21,15 +18,13 @@ import jakarta.validation.Valid;
 public class HistorialEstadoController {
 
     private final HistorialEstadoService service;
-    private final HistorialEstadoMapper mapper;
 
-    public HistorialEstadoController(HistorialEstadoService service, HistorialEstadoMapper mapper) {
+    public HistorialEstadoController(HistorialEstadoService service) {
         this.service = service;
-        this.mapper = mapper;
     }
 
     @GetMapping
-    public ResponseEntity<List<HistorialEstadoDTO>> getAllHistorialEstados(
+    public ResponseEntity<List<HistorialEstado>> getAllHistorialEstados(
             @RequestParam(required = false) String entidadTipo,
             @RequestParam(required = false) Long entidadId,
             @RequestParam(required = false) String usuarioCambio,
@@ -53,44 +48,33 @@ public class HistorialEstadoController {
             historiales = this.service.findAll();
         }
         
-        List<HistorialEstadoDTO> dtos = new ArrayList<>(historiales.size());
-        for (HistorialEstado historial : historiales) {
-            dtos.add(mapper.toDTO(historial));
-        }
-        
-        return ResponseEntity.ok(dtos);
+        return ResponseEntity.ok(historiales);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<HistorialEstadoDTO> getHistorialEstadoById(@PathVariable("id") Long id) {
+    public ResponseEntity<HistorialEstado> getHistorialEstadoById(@PathVariable("id") Long id) {
         try {
             HistorialEstado historialEstado = this.service.findById(id);
-            return ResponseEntity.ok(this.mapper.toDTO(historialEstado));
+            return ResponseEntity.ok(historialEstado);
         } catch (NotFoundException nfe) {
             return ResponseEntity.notFound().build();
         }
     }
 
     @GetMapping("/entidad/{entidadTipo}/{entidadId}")
-    public ResponseEntity<List<HistorialEstadoDTO>> getHistorialByEntidad(
+    public ResponseEntity<List<HistorialEstado>> getHistorialByEntidad(
             @PathVariable("entidadTipo") String entidadTipo,
             @PathVariable("entidadId") Long entidadId) {
         
         List<HistorialEstado> historiales = this.service.findByEntidadTipoAndEntidadId(entidadTipo, entidadId);
-        List<HistorialEstadoDTO> dtos = new ArrayList<>(historiales.size());
         
-        for (HistorialEstado historial : historiales) {
-            dtos.add(mapper.toDTO(historial));
-        }
-        
-        return ResponseEntity.ok(dtos);
+        return ResponseEntity.ok(historiales);
     }
 
     @PostMapping
-    public ResponseEntity<HistorialEstadoDTO> createHistorialEstado(@Valid @RequestBody HistorialEstadoDTO historialEstadoDTO) {
-        HistorialEstado historialEstado = this.mapper.toEntity(historialEstadoDTO);
+    public ResponseEntity<HistorialEstado> createHistorialEstado(@Valid @RequestBody HistorialEstado historialEstado) {
         HistorialEstado savedHistorialEstado = this.service.create(historialEstado);
-        return ResponseEntity.ok(this.mapper.toDTO(savedHistorialEstado));
+        return ResponseEntity.ok(savedHistorialEstado);
     }
 
     @ExceptionHandler({NotFoundException.class})
