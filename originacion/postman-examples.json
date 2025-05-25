@@ -1,0 +1,216 @@
+{
+  "ejemplos_postman": {
+    "descripcion": "Ejemplos JSON para probar la API de Sistema de Originación de Préstamos Automotrices",
+    
+    "1_crear_cliente_prospecto": {
+      "method": "POST",
+      "url": "{{base_url}}/api/clientes-prospectos",
+      "body": {
+        "cedula": "1234567890",
+        "nombre": "Juan",
+        "apellido": "Pérez",
+        "email": "juan.perez@email.com",
+        "telefono": "0987654321",
+        "direccion": "Av. Principal 123, Quito",
+        "ingresos": 2500.00,
+        "egresos": 1200.00
+      }
+    },
+    
+    "2_crear_solicitud_credito": {
+      "method": "POST",
+      "url": "{{base_url}}/api/solicitudes-credito",
+      "body": {
+        "idClienteProspecto": 1,
+        "idVendedor": 1,
+        "montoSolicitado": 25000.00,
+        "plazoMeses": 60,
+        "tasaInteres": 12.50
+      }
+    },
+    
+    "3_crear_tipo_documento": {
+      "method": "POST",
+      "url": "{{base_url}}/api/tipos-documento",
+      "body": {
+        "nombre": "Cédula de Identidad",
+        "descripcion": "Documento de identificación personal",
+        "estado": "ACTIVO"
+      }
+    },
+    
+    "4_adjuntar_documento": {
+      "method": "POST",
+      "url": "{{base_url}}/api/documentos-adjuntos",
+      "body": {
+        "idSolicitud": 1,
+        "idTipoDocumento": 1,
+        "rutaArchivo": "/documentos/solicitud_1/cedula_1234567890.pdf"
+      }
+    },
+    
+    "endpoints_principales": {
+      "clientes": {
+        "listar_todos": "GET {{base_url}}/api/clientes-prospectos",
+        "buscar_por_id": "GET {{base_url}}/api/clientes-prospectos/1",
+        "buscar_por_cedula": "GET {{base_url}}/api/clientes-prospectos/cedula/1234567890",
+        "buscar_por_nombre": "GET {{base_url}}/api/clientes-prospectos/buscar?termino=Juan",
+        "capacidad_pago": "GET {{base_url}}/api/clientes-prospectos/1/capacidad-pago",
+        "simular_credito": "POST {{base_url}}/api/clientes-prospectos/1/simular-credito?monto=25000&tasa=12.5&plazo=60",
+        "activar": "PUT {{base_url}}/api/clientes-prospectos/1/activar",
+        "desactivar": "PUT {{base_url}}/api/clientes-prospectos/1/desactivar"
+      },
+      
+      "solicitudes": {
+        "listar_todas": "GET {{base_url}}/api/solicitudes-credito",
+        "por_estado": "GET {{base_url}}/api/solicitudes-credito?estado=PENDIENTE",
+        "por_cliente": "GET {{base_url}}/api/solicitudes-credito/cliente/1",
+        "por_vendedor": "GET {{base_url}}/api/solicitudes-credito/vendedor/1",
+        "enviar_revision": "POST {{base_url}}/api/solicitudes-credito/1/enviar-revision",
+        "aprobar": "POST {{base_url}}/api/solicitudes-credito/1/aprobar?observaciones=Aprobado",
+        "rechazar": "POST {{base_url}}/api/solicitudes-credito/1/rechazar?motivo=Ingresos insuficientes",
+        "calcular_cuota": "POST {{base_url}}/api/solicitudes-credito/calcular-cuota?monto=25000&tasa=12.5&plazo=60",
+        "simular": "POST {{base_url}}/api/solicitudes-credito/simular?monto=25000&tasa=12.5&plazo=60"
+      },
+      
+      "contratos": {
+        "generar": "POST {{base_url}}/api/contratos/generar?idSolicitud=1&condicionesEspeciales=Seguro obligatorio",
+        "buscar_por_id": "GET {{base_url}}/api/contratos/1",
+        "buscar_por_solicitud": "GET {{base_url}}/api/contratos/solicitud/1",
+        "listar_por_estado": "GET {{base_url}}/api/contratos?estado=VIGENTE",
+        "firmar": "POST {{base_url}}/api/contratos/1/firmar",
+        "activar": "POST {{base_url}}/api/contratos/1/activar",
+        "anular": "POST {{base_url}}/api/contratos/1/anular?motivo=Solicitud del cliente"
+      },
+      
+      "pagares": {
+        "generar_individual": "POST {{base_url}}/api/pagares/generar-individual?idSolicitud=1&numeroCuota=1",
+        "generar_por_solicitud": "POST {{base_url}}/api/pagares/generar-por-solicitud?idSolicitud=1",
+        "listar_por_solicitud": "GET {{base_url}}/api/pagares/solicitud/1",
+        "buscar_cuota_especifica": "GET {{base_url}}/api/pagares/solicitud/1/cuota/1",
+        "validar_integridad": "GET {{base_url}}/api/pagares/solicitud/1/validar-integridad",
+        "cuotas_faltantes": "GET {{base_url}}/api/pagares/solicitud/1/cuotas-faltantes"
+      },
+      
+      "documentos": {
+        "adjuntar": "POST {{base_url}}/api/documentos-adjuntos",
+        "listar_por_solicitud": "GET {{base_url}}/api/documentos-adjuntos/solicitud/1",
+        "validar_completos": "GET {{base_url}}/api/documentos-adjuntos/solicitud/1/validar-completos?idsRequeridos=1,2,3",
+        "tipos_faltantes": "GET {{base_url}}/api/documentos-adjuntos/solicitud/1/tipos-faltantes?idsRequeridos=1,2,3"
+      },
+      
+      "tipos_documento": {
+        "crear": "POST {{base_url}}/api/tipos-documento",
+        "listar_activos": "GET {{base_url}}/api/tipos-documento?estado=ACTIVO",
+        "buscar_por_nombre": "GET {{base_url}}/api/tipos-documento/nombre/Cédula de Identidad"
+      },
+      
+      "originacion": {
+        "estado_completo": "GET {{base_url}}/api/originacion/estado-completo/1",
+        "simular_con_capacidad": "POST {{base_url}}/api/originacion/simular-con-capacidad?idCliente=1&monto=25000&tasa=12.5&plazo=60",
+        "rechazar_completo": "POST {{base_url}}/api/originacion/rechazar-completo/1?motivo=Documentación incompleta"
+      }
+    },
+    
+    "flujo_completo_ejemplo": [
+      {
+        "paso": 1,
+        "descripcion": "Crear cliente prospecto",
+        "method": "POST",
+        "url": "{{base_url}}/api/clientes-prospectos",
+        "body": {
+          "cedula": "1234567890",
+          "nombre": "María",
+          "apellido": "González",
+          "email": "maria.gonzalez@email.com",
+          "telefono": "0998877665",
+          "direccion": "Calle Secundaria 456, Guayaquil",
+          "ingresos": 3000.00,
+          "egresos": 1500.00
+        }
+      },
+      {
+        "paso": 2,
+        "descripcion": "Verificar capacidad de pago",
+        "method": "GET",
+        "url": "{{base_url}}/api/clientes-prospectos/{{idCliente}}/capacidad-pago"
+      },
+      {
+        "paso": 3,
+        "descripcion": "Simular crédito",
+        "method": "POST",
+        "url": "{{base_url}}/api/clientes-prospectos/{{idCliente}}/simular-credito?monto=30000&tasa=13.5&plazo=72"
+      },
+      {
+        "paso": 4,
+        "descripcion": "Crear solicitud de crédito",
+        "method": "POST",
+        "url": "{{base_url}}/api/solicitudes-credito",
+        "body": {
+          "idClienteProspecto": "{{idCliente}}",
+          "idVendedor": 1,
+          "montoSolicitado": 30000.00,
+          "plazoMeses": 72,
+          "tasaInteres": 13.50
+        }
+      },
+      {
+        "paso": 5,
+        "descripcion": "Adjuntar documentos requeridos",
+        "method": "POST",
+        "url": "{{base_url}}/api/documentos-adjuntos",
+        "body": {
+          "idSolicitud": "{{idSolicitud}}",
+          "idTipoDocumento": 1,
+          "rutaArchivo": "/documentos/solicitud_{{idSolicitud}}/cedula.pdf"
+        }
+      },
+      {
+        "paso": 6,
+        "descripcion": "Enviar a revisión",
+        "method": "POST",
+        "url": "{{base_url}}/api/solicitudes-credito/{{idSolicitud}}/enviar-revision"
+      },
+      {
+        "paso": 7,
+        "descripcion": "Aprobar solicitud",
+        "method": "POST",
+        "url": "{{base_url}}/api/solicitudes-credito/{{idSolicitud}}/aprobar?observaciones=Aprobado por cumplir requisitos"
+      },
+      {
+        "paso": 8,
+        "descripcion": "Generar contrato",
+        "method": "POST",
+        "url": "{{base_url}}/api/contratos/generar?idSolicitud={{idSolicitud}}&condicionesEspeciales=Seguro de vida obligatorio"
+      },
+      {
+        "paso": 9,
+        "descripcion": "Generar pagarés",
+        "method": "POST",
+        "url": "{{base_url}}/api/pagares/generar-por-solicitud?idSolicitud={{idSolicitud}}"
+      },
+      {
+        "paso": 10,
+        "descripcion": "Firmar contrato",
+        "method": "POST",
+        "url": "{{base_url}}/api/contratos/{{idContrato}}/firmar"
+      },
+      {
+        "paso": 11,
+        "descripcion": "Activar contrato",
+        "method": "POST",
+        "url": "{{base_url}}/api/contratos/{{idContrato}}/activar"
+      }
+    ],
+    
+    "variables_postman": {
+      "base_url": "http://localhost:8080",
+      "descripcion": "Agregar estas variables en Postman para usar {{base_url}} en las URLs"
+    },
+    
+    "headers_requeridos": {
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    }
+  }
+} 
