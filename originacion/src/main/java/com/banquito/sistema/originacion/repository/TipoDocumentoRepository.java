@@ -12,7 +12,7 @@ public interface TipoDocumentoRepository extends JpaRepository<TipoDocumento, In
 
     List<TipoDocumento> findByEstado(String estado);
     
-    Optional<TipoDocumento> findByNombre(String nombre);
+    TipoDocumento findByNombre(String nombre);
     
     List<TipoDocumento> findByNombreContainingIgnoreCase(String nombre);
     

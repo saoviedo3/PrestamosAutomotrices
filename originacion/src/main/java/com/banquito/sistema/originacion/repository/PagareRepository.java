@@ -20,4 +20,6 @@ public interface PagareRepository extends JpaRepository<Pagare, Integer> {
     long countByIdSolicitud(Integer idSolicitud);
     
     boolean existsByIdSolicitudAndNumeroCuota(Integer idSolicitud, BigDecimal numeroCuota);
+
+    List<Pagare> findByIdSolicitudAndNumeroCuota(Integer idSolicitud, Integer numeroCuota);
 } 

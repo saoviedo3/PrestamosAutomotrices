@@ -26,4 +26,6 @@ public interface SolicitudCreditoRepository extends JpaRepository<SolicitudCredi
     long countByEstado(String estado);
     
     boolean existsByIdClienteProspectoAndEstado(Integer idClienteProspecto, String estado);
+
+    SolicitudCredito findByNumeroSolicitud(String numeroSolicitud);
 } 
