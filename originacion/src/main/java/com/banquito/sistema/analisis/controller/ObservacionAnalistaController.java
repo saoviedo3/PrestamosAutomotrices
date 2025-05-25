@@ -3,9 +3,7 @@ package com.banquito.sistema.analisis.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.banquito.sistema.analisis.controller.dto.ObservacionAnalistaDTO;
-import com.banquito.sistema.analisis.controller.dto.ObservacionDecisionDTO;
-import com.banquito.sistema.analisis.controller.mapper.ObservacionAnalistaMapper;
+import com.banquito.sistema.analisis.model.DecisionAnalista;
 import com.banquito.sistema.analisis.model.ObservacionAnalista;
 import com.banquito.sistema.analisis.service.ObservacionAnalistaService;
 import com.banquito.sistema.analisis.service.exception.AnalisisException;
@@ -13,7 +11,6 @@ import com.banquito.sistema.originacion.service.exception.CreditoException;
 
 import jakarta.validation.Valid;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -25,31 +22,24 @@ public class ObservacionAnalistaController {
 
     private static final Logger LOG = LoggerFactory.getLogger(ObservacionAnalistaController.class);
     private final ObservacionAnalistaService service;
-    private final ObservacionAnalistaMapper mapper;
 
-    public ObservacionAnalistaController(ObservacionAnalistaService service, ObservacionAnalistaMapper mapper) {
+    public ObservacionAnalistaController(ObservacionAnalistaService service) {
         this.service = service;
-        this.mapper = mapper;
     }
 
     @GetMapping
-    public ResponseEntity<List<ObservacionAnalistaDTO>> listarTodas() {
+    public ResponseEntity<List<ObservacionAnalista>> listarTodas() {
         LOG.info("Obteniendo todas las observaciones de analistas");
         List<ObservacionAnalista> observaciones = this.service.findAll();
-        List<ObservacionAnalistaDTO> dtos = new ArrayList<>(observaciones.size());
-        
-        for (ObservacionAnalista observacion : observaciones) {
-            dtos.add(mapper.toDTO(observacion));
-        }
-        return ResponseEntity.ok(dtos);
+        return ResponseEntity.ok(observaciones);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ObservacionAnalistaDTO> obtenerPorId(@PathVariable Integer id) {
+    public ResponseEntity<ObservacionAnalista> obtenerPorId(@PathVariable Integer id) {
         LOG.info("Obteniendo observación de analista con ID: {}", id);
         try {
             ObservacionAnalista observacion = this.service.findById(id);
-            return ResponseEntity.ok(this.mapper.toDTO(observacion));
+            return ResponseEntity.ok(observacion);
         } catch (AnalisisException e) {
             LOG.error("Error al obtener observación de analista por ID: {}", e.getMessage());
             return ResponseEntity.notFound().build();
@@ -57,36 +47,25 @@ public class ObservacionAnalistaController {
     }
 
     @GetMapping("/solicitud/{idSolicitud}")
-    public ResponseEntity<List<ObservacionAnalistaDTO>> listarPorSolicitud(@PathVariable Integer idSolicitud) {
+    public ResponseEntity<List<ObservacionAnalista>> listarPorSolicitud(@PathVariable Integer idSolicitud) {
         LOG.info("Obteniendo observaciones de analistas para la solicitud con ID: {}", idSolicitud);
         List<ObservacionAnalista> observaciones = this.service.findByIdSolicitud(idSolicitud);
-        List<ObservacionAnalistaDTO> dtos = new ArrayList<>(observaciones.size());
-        
-        for (ObservacionAnalista observacion : observaciones) {
-            dtos.add(mapper.toDTO(observacion));
-        }
-        return ResponseEntity.ok(dtos);
+        return ResponseEntity.ok(observaciones);
     }
 
     @GetMapping("/usuario/{usuario}")
-    public ResponseEntity<List<ObservacionAnalistaDTO>> listarPorUsuario(@PathVariable String usuario) {
+    public ResponseEntity<List<ObservacionAnalista>> listarPorUsuario(@PathVariable String usuario) {
         LOG.info("Obteniendo observaciones de analistas para el usuario: {}", usuario);
         List<ObservacionAnalista> observaciones = this.service.findByUsuario(usuario);
-        List<ObservacionAnalistaDTO> dtos = new ArrayList<>(observaciones.size());
-        
-        for (ObservacionAnalista observacion : observaciones) {
-            dtos.add(mapper.toDTO(observacion));
-        }
-        return ResponseEntity.ok(dtos);
+        return ResponseEntity.ok(observaciones);
     }
 
     @PostMapping
-    public ResponseEntity<ObservacionAnalistaDTO> crear(@Valid @RequestBody ObservacionAnalistaDTO observacionDTO) {
-        LOG.info("Creando nueva observación de analista para la solicitud con ID: {}", observacionDTO.getIdSolicitud());
+    public ResponseEntity<ObservacionAnalista> crear(@Valid @RequestBody ObservacionAnalista observacion) {
+        LOG.info("Creando nueva observación de analista para la solicitud con ID: {}", observacion.getIdSolicitud());
         try {
-            ObservacionAnalista observacion = this.mapper.toModel(observacionDTO);
             observacion = this.service.save(observacion);
-            return ResponseEntity.ok(this.mapper.toDTO(observacion));
+            return ResponseEntity.ok(observacion);
         } catch (AnalisisException e) {
             LOG.error("Error al crear observación de analista: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
@@ -98,13 +77,12 @@ public class ObservacionAnalistaController {
      * La decisión (Aprobada/Rechazada) cambiará el estado de la solicitud
      */
     @PostMapping("/decision")
-    public ResponseEntity<ObservacionAnalistaDTO> registrarDecision(@Valid @RequestBody ObservacionDecisionDTO decisionDTO) {
+    public ResponseEntity<ObservacionAnalista> registrarDecision(@Valid @RequestBody DecisionAnalista decision) {
         LOG.info("Registrando decisión {} para la solicitud con ID: {}", 
-                decisionDTO.getDecision(), decisionDTO.getObservacion().getIdSolicitud());
+                decision.getDecision(), decision.getObservacion().getIdSolicitud());
         try {
-            ObservacionAnalista observacion = this.mapper.toModel(decisionDTO.getObservacion());
-            observacion = this.service.saveConDecision(observacion, decisionDTO.getDecision());
-            return ResponseEntity.ok(this.mapper.toDTO(observacion));
+            ObservacionAnalista observacion = this.service.saveConDecision(decision.getObservacion(), decision.getDecision());
+            return ResponseEntity.ok(observacion);
         } catch (AnalisisException e) {
             LOG.error("Error al registrar decisión del analista: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
@@ -112,15 +90,14 @@ public class ObservacionAnalistaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ObservacionAnalistaDTO> actualizar(@PathVariable Integer id, 
-                                                         @Valid @RequestBody ObservacionAnalistaDTO observacionDTO) {
+    public ResponseEntity<ObservacionAnalista> actualizar(@PathVariable Integer id, 
+                                                       @Valid @RequestBody ObservacionAnalista observacion) {
         LOG.info("Actualizando observación de analista con ID: {}", id);
         try {
-            ObservacionAnalista observacionExistente = this.service.findById(id);
-            ObservacionAnalista observacionActualizar = this.mapper.toModel(observacionDTO);
-            observacionActualizar.setId(id);
-            observacionActualizar = this.service.update(observacionActualizar);
-            return ResponseEntity.ok(this.mapper.toDTO(observacionActualizar));
+            this.service.findById(id); // Verificar que exista
+            observacion.setId(id);
+            observacion = this.service.update(observacion);
+            return ResponseEntity.ok(observacion);
         } catch (AnalisisException e) {
             LOG.error("Error al actualizar observación de analista: {}", e.getMessage());
             return ResponseEntity.badRequest().build();

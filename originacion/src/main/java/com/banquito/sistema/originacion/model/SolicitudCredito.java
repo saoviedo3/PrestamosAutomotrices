@@ -12,6 +12,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "SolicitudesCreditos")
@@ -22,24 +28,35 @@ public class SolicitudCredito {
     @Column(name = "IdSolicitud", nullable = false)
     private Integer id;
 
+    @NotNull(message = "El ID del cliente prospecto es obligatorio")
     @Column(name = "IdClienteProspecto", nullable = false)
     private Integer idClienteProspecto;
 
+    @NotNull(message = "El ID del vehículo es obligatorio")
     @Column(name = "IdVehiculo", nullable = false)
     private Integer idVehiculo;
 
+    @NotNull(message = "El ID del vendedor es obligatorio")
     @Column(name = "IdVendedor", nullable = false)
     private Integer idVendedor;
 
+    @NotBlank(message = "El número de solicitud es obligatorio")
+    @Size(min = 5, max = 20, message = "El número de solicitud debe tener entre 5 y 20 caracteres")
     @Column(name = "NumeroSolicitud", length = 20, nullable = false)
     private String numeroSolicitud;
 
+    @NotNull(message = "El monto solicitado es obligatorio")
+    @DecimalMin(value = "1000.0", message = "El monto solicitado debe ser al menos 1000")
     @Column(name = "MontoSolicitado", precision = 12, scale = 2, nullable = false)
     private BigDecimal montoSolicitado;
 
+    @NotNull(message = "El plazo en meses es obligatorio")
+    @Min(value = 12, message = "El plazo mínimo es de 12 meses")
     @Column(name = "PlazoMeses", nullable = false)
     private Integer plazoMeses;
 
+    @NotNull(message = "La entrada es obligatoria")
+    @DecimalMin(value = "0.0", message = "La entrada debe ser mayor o igual a 0")
     @Column(name = "Entrada", precision = 12, scale = 2, nullable = false)
     private BigDecimal entrada;
 
@@ -61,6 +78,8 @@ public class SolicitudCredito {
     @Column(name = "TotalPagar", precision = 12, scale = 2, nullable = false)
     private BigDecimal totalPagar;
 
+    @Pattern(regexp = "Borrador|EnRevision|Aprobada|Rechazada|Cancelada", 
+            message = "El estado debe ser uno de: Borrador, EnRevision, Aprobada, Rechazada, Cancelada")
     @Column(name = "Estado", length = 20, nullable = false)
     private String estado;
 

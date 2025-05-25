@@ -12,6 +12,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import com.banquito.sistema.originacion.model.SolicitudCredito;
 
@@ -24,15 +27,20 @@ public class ObservacionAnalista {
     @Column(name = "IdObservacionAnalista", nullable = false)
     private Integer id;
 
+    @NotNull(message = "El ID de la solicitud es obligatorio")
     @Column(name = "IdSolicitud", nullable = false)
     private Integer idSolicitud;
 
+    @NotBlank(message = "El usuario es obligatorio")
+    @Size(max = 50, message = "El usuario debe tener máximo 50 caracteres")
     @Column(name = "Usuario", length = 50, nullable = false)
     private String usuario;
 
     @Column(name = "FechaHora", nullable = false)
     private LocalDateTime fechaHora;
 
+    @NotBlank(message = "La razón de intervención es obligatoria")
+    @Size(max = 500, message = "La razón de intervención debe tener máximo 500 caracteres")
     @Column(name = "RazonIntervencion", length = 500, nullable = false)
     private String razonIntervencion;
 
