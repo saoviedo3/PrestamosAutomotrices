@@ -6,6 +6,7 @@ public class PagareNotFoundException extends RuntimeException {
     private final String identificador;
     private final String tipoIdentificador;
 
+    
     public PagareNotFoundException(String identificador, String tipoIdentificador) {
         super();
         this.identificador = identificador;
