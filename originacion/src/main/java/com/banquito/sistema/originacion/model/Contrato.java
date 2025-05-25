@@ -11,30 +11,36 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "SolicitudesCreditos")
-public class SolicitudCredito {
+@Table(name = "Contratos")
+public class Contrato {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "IdSolicitudCredito", nullable = false)
+    @Column(name = "IdContrato", nullable = false)
     private Long id;
 
-    @Column(name = "MontoSolicitado", precision = 15, scale = 2, nullable = false)
-    private BigDecimal montoSolicitado;
+    @Column(name = "NumeroContrato", length = 50, nullable = false, unique = true)
+    private String numeroContrato;
+
+    @Column(name = "MontoFinanciado", precision = 15, scale = 2, nullable = false)
+    private BigDecimal montoFinanciado;
+
+    @Column(name = "TasaInteres", precision = 5, scale = 4, nullable = false)
+    private BigDecimal tasaInteres;
 
     @Column(name = "PlazoMeses", nullable = false)
     private Integer plazoMeses;
 
-    @Column(name = "FechaSolicitud", nullable = false)
-    private LocalDate fechaSolicitud;
+    @Column(name = "FechaContrato", nullable = false)
+    private LocalDate fechaContrato;
 
     @Column(name = "Estado", length = 20, nullable = false)
     private String estado;
 
-    public SolicitudCredito() {
+    public Contrato() {
     }
 
-    public SolicitudCredito(Long id) {
+    public Contrato(Long id) {
         this.id = id;
     }
 
@@ -46,12 +52,28 @@ public class SolicitudCredito {
         this.id = id;
     }
 
-    public BigDecimal getMontoSolicitado() {
-        return montoSolicitado;
+    public String getNumeroContrato() {
+        return numeroContrato;
     }
 
-    public void setMontoSolicitado(BigDecimal montoSolicitado) {
-        this.montoSolicitado = montoSolicitado;
+    public void setNumeroContrato(String numeroContrato) {
+        this.numeroContrato = numeroContrato;
+    }
+
+    public BigDecimal getMontoFinanciado() {
+        return montoFinanciado;
+    }
+
+    public void setMontoFinanciado(BigDecimal montoFinanciado) {
+        this.montoFinanciado = montoFinanciado;
+    }
+
+    public BigDecimal getTasaInteres() {
+        return tasaInteres;
+    }
+
+    public void setTasaInteres(BigDecimal tasaInteres) {
+        this.tasaInteres = tasaInteres;
     }
 
     public Integer getPlazoMeses() {
@@ -62,12 +84,12 @@ public class SolicitudCredito {
         this.plazoMeses = plazoMeses;
     }
 
-    public LocalDate getFechaSolicitud() {
-        return fechaSolicitud;
+    public LocalDate getFechaContrato() {
+        return fechaContrato;
     }
 
-    public void setFechaSolicitud(LocalDate fechaSolicitud) {
-        this.fechaSolicitud = fechaSolicitud;
+    public void setFechaContrato(LocalDate fechaContrato) {
+        this.fechaContrato = fechaContrato;
     }
 
     public String getEstado() {
@@ -94,7 +116,7 @@ public class SolicitudCredito {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        SolicitudCredito other = (SolicitudCredito) obj;
+        Contrato other = (Contrato) obj;
         if (id == null) {
             if (other.id != null)
                 return false;
@@ -105,8 +127,9 @@ public class SolicitudCredito {
 
     @Override
     public String toString() {
-        return "SolicitudCredito [id=" + id + ", montoSolicitado=" + montoSolicitado + 
-               ", plazoMeses=" + plazoMeses + ", fechaSolicitud=" + fechaSolicitud + 
+        return "Contrato [id=" + id + ", numeroContrato=" + numeroContrato + 
+               ", montoFinanciado=" + montoFinanciado + ", tasaInteres=" + tasaInteres + 
+               ", plazoMeses=" + plazoMeses + ", fechaContrato=" + fechaContrato + 
                ", estado=" + estado + "]";
     }
-}
+} 
