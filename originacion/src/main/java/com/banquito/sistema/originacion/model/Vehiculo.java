@@ -20,12 +20,6 @@ public class Vehiculo {
     @Column(name = "IdVehiculo", nullable = false)
     private Long id;
 
-    @Column(name = "IdIdentificadorVehiculo", nullable = false)
-    private Long idIdentificadorVehiculo;
-
-    @Column(name = "IdConcesionario", nullable = false)
-    private Long idConcesionario;
-
     @Column(name = "Marca", length = 40, nullable = false)
     private String marca;
 
@@ -70,21 +64,6 @@ public class Vehiculo {
         this.id = id;
     }
 
-    public Long getIdIdentificadorVehiculo() {
-        return idIdentificadorVehiculo;
-    }
-
-    public void setIdIdentificadorVehiculo(Long idIdentificadorVehiculo) {
-        this.idIdentificadorVehiculo = idIdentificadorVehiculo;
-    }
-
-    public Long getIdConcesionario() {
-        return idConcesionario;
-    }
-
-    public void setIdConcesionario(Long idConcesionario) {
-        this.idConcesionario = idConcesionario;
-    }
 
     public String getMarca() {
         return marca;
@@ -185,8 +164,7 @@ public class Vehiculo {
 
     @Override
     public String toString() {
-        return "Vehiculo [id=" + id + ", idIdentificadorVehiculo=" + idIdentificadorVehiculo + ", idConcesionario="
-                + idConcesionario + ", marca=" + marca + ", modelo=" + modelo + ", anio=" + anio + ", valor=" + valor
+        return "Vehiculo [id=" + id + ", marca=" + marca + ", modelo=" + modelo + ", anio=" + anio + ", valor=" + valor
                 + ", color=" + color + ", extras=" + extras + ", identificadorVehiculo=" + identificadorVehiculo
                 + ", concesionario=" + concesionario + "]";
     }

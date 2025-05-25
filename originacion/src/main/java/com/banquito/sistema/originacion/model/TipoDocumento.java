@@ -3,8 +3,8 @@ package com.banquito.sistema.originacion.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
-@Entity
-@Table(name = "TiposDocumentos")
+//@Entity
+//@Table(name = "TiposDocumentos")
 public class TipoDocumento {
 
 }
