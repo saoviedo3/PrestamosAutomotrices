@@ -1,7 +1,7 @@
 package com.banquito.sistema.exception;
 
 public class AlreadyExistsException extends RuntimeException {
-    private final Integer errorCode = 1004;      // código único para “entidad ya existe”
+    private final Integer errorCode = 1004; // código único para “entidad ya existe”
     private final String entityName;
 
     public AlreadyExistsException(String entityName, String message) {
@@ -12,8 +12,8 @@ public class AlreadyExistsException extends RuntimeException {
     @Override
     public String getMessage() {
         return "Error code: " + errorCode +
-               ", entity: " + entityName +
-               ", message: " + super.getMessage();
+                ", entity: " + entityName +
+                ", message: " + super.getMessage();
     }
 
     public Integer getErrorCode() {

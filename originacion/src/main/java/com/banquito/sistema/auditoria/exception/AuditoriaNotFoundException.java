@@ -3,7 +3,7 @@ package com.banquito.sistema.auditoria.exception;
 public class AuditoriaNotFoundException extends RuntimeException {
     private final Integer errorCode;
 
-    public AuditoriaNotFoundException(Long id) {
+    public AuditoriaNotFoundException(Integer id) {
         super("Auditoria not found with id " + id);
         this.errorCode = 1003;
     }

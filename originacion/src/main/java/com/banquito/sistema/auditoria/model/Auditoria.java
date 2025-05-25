@@ -16,7 +16,7 @@ public class Auditoria {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "IdAuditoria", nullable = false)
-    private Long id;
+    private Integer id;
 
     @Column(name = "Tabla", length = 40, nullable = false)
     private String tabla;
@@ -30,15 +30,15 @@ public class Auditoria {
     public Auditoria() {
     }
 
-    public Auditoria(Long id) {
+    public Auditoria(Integer id) {
         this.id = id;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

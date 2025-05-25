@@ -18,7 +18,7 @@ public class Vehiculo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "IdVehiculo", nullable = false)
-    private Long id;
+    private Integer id;
 
     @Column(name = "Marca", length = 40, nullable = false)
     private String marca;
@@ -39,7 +39,7 @@ public class Vehiculo {
     private String extras;
 
     @Version
-    private Long version;
+    private Integer version;
 
     @OneToOne
     @JoinColumn(name = "IdIdentificadorVehiculo", referencedColumnName = "IdIdentificadorVehiculo", insertable = false, updatable = false)
@@ -52,18 +52,17 @@ public class Vehiculo {
     public Vehiculo() {
     }
 
-    public Vehiculo(Long id) {
+    public Vehiculo(Integer id) {
         this.id = id;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
-
 
     public String getMarca() {
         return marca;
@@ -129,11 +128,11 @@ public class Vehiculo {
         this.concesionario = concesionario;
     }
 
-    public Long getVersion() {
+    public Integer getVersion() {
         return version;
     }
 
-    public void setVersion(Long version) {
+    public void setVersion(Integer version) {
         this.version = version;
     }
 

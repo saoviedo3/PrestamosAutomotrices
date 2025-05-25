@@ -27,9 +27,9 @@ public class VehiculoService {
     }
 
     @Transactional(readOnly = true)
-    public Vehiculo getVehiculoById(Long id) {
+    public Vehiculo getVehiculoById(Integer id) {
         return vehiculoRepository.findById(id)
-            .orElseThrow(() -> new VehiculoNotFoundException(id));
+                .orElseThrow(() -> new VehiculoNotFoundException(id));
     }
 
     @Transactional
@@ -50,21 +50,20 @@ public class VehiculoService {
         }
 
         // // 2. Validar existencia de concesionario (FK)
-        // Long concesionarioId = vehiculo.getConcesionario().getId();
+        // Integer concesionarioId = vehiculo.getConcesionario().getId();
         // if (!concesionarioRepository.existsById(concesionarioId)) {
-        //     throw new InvalidDataException(
-        //         "Vehiculo",
-        //         "No existe Concesionario con id " + concesionarioId
-        //     );
+        // throw new InvalidDataException(
+        // "Vehiculo",
+        // "No existe Concesionario con id " + concesionarioId
+        // );
         // }
 
         // 3. Evitar duplicados (ejemplo: mismo IdentificadorVehiculo)
-        Long identId = vehiculo.getIdentificadorVehiculo().getId();
+        Integer identId = vehiculo.getIdentificadorVehiculo().getId();
         if (vehiculoRepository.existsByIdentificadorVehiculoId(identId)) {
             throw new AlreadyExistsException(
-                "Vehiculo",
-                "Ya existe un Vehiculo con IdentificadorVehiculo id " + identId
-            );
+                    "Vehiculo",
+                    "Ya existe un Vehiculo con IdentificadorVehiculo id " + identId);
         }
 
         // 4. Persistencia y manejo de errores en BD
@@ -72,9 +71,8 @@ public class VehiculoService {
             return vehiculoRepository.save(vehiculo);
         } catch (DataAccessException ex) {
             throw new CreateEntityException(
-                "Vehiculo",
-                "Error al crear Vehiculo en la base de datos: " + ex.getMostSpecificCause().getMessage()
-            );
+                    "Vehiculo",
+                    "Error al crear Vehiculo en la base de datos: " + ex.getMostSpecificCause().getMessage());
         }
     }
 }

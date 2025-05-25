@@ -25,9 +25,9 @@ public class IdentificadorVehiculoService {
     }
 
     @Transactional(readOnly = true)
-    public IdentificadorVehiculo getById(Long id) {
+    public IdentificadorVehiculo getById(Integer id) {
         return identificadorRepository.findById(id)
-            .orElseThrow(() -> new IdentificadorVehiculoNotFoundException(id));
+                .orElseThrow(() -> new IdentificadorVehiculoNotFoundException(id));
     }
 
     @Transactional
@@ -35,41 +35,35 @@ public class IdentificadorVehiculoService {
         // 1) VALIDACIONES BÁSICAS
         if (entity.getVin() == null || entity.getVin().length() != 17) {
             throw new InvalidDataException(
-                "IdentificadorVehiculo",
-                "VIN inválido: debe tener exactamente 17 caracteres"
-            );
+                    "IdentificadorVehiculo",
+                    "VIN inválido: debe tener exactamente 17 caracteres");
         }
         if (entity.getNumeroMotor() == null || entity.getNumeroMotor().isBlank()) {
             throw new InvalidDataException(
-                "IdentificadorVehiculo",
-                "Número de motor es obligatorio"
-            );
+                    "IdentificadorVehiculo",
+                    "Número de motor es obligatorio");
         }
         if (entity.getPlaca() == null || entity.getPlaca().isBlank()) {
             throw new InvalidDataException(
-                "IdentificadorVehiculo",
-                "Placa es obligatoria"
-            );
+                    "IdentificadorVehiculo",
+                    "Placa es obligatoria");
         }
 
         // 2) YA EXISTE?
         if (identificadorRepository.existsByVin(entity.getVin())) {
             throw new AlreadyExistsException(
-                "IdentificadorVehiculo",
-                "Ya existe un Identificador con VIN: " + entity.getVin()
-            );
+                    "IdentificadorVehiculo",
+                    "Ya existe un Identificador con VIN: " + entity.getVin());
         }
         if (identificadorRepository.existsByNumeroMotor(entity.getNumeroMotor())) {
             throw new AlreadyExistsException(
-                "IdentificadorVehiculo",
-                "Ya existe un Identificador con Número de Motor: " + entity.getNumeroMotor()
-            );
+                    "IdentificadorVehiculo",
+                    "Ya existe un Identificador con Número de Motor: " + entity.getNumeroMotor());
         }
         if (identificadorRepository.existsByPlaca(entity.getPlaca())) {
             throw new AlreadyExistsException(
-                "IdentificadorVehiculo",
-                "Ya existe un Identificador con Placa: " + entity.getPlaca()
-            );
+                    "IdentificadorVehiculo",
+                    "Ya existe un Identificador con Placa: " + entity.getPlaca());
         }
 
         // 3) GRABAR O LANZAR ERROR AL CREAR
@@ -77,9 +71,8 @@ public class IdentificadorVehiculoService {
             return identificadorRepository.save(entity);
         } catch (Exception e) {
             throw new CreateEntityException(
-                "IdentificadorVehiculo",
-                "Error al crear IdentificadorVehiculo: " + e.getMessage()
-            );
+                    "IdentificadorVehiculo",
+                    "Error al crear IdentificadorVehiculo: " + e.getMessage());
         }
     }
 }

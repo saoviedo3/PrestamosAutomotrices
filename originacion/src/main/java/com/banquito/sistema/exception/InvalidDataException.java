@@ -1,7 +1,7 @@
 package com.banquito.sistema.exception;
 
 public class InvalidDataException extends RuntimeException {
-    private final Integer errorCode = 1005;      // código único para “datos inválidos”
+    private final Integer errorCode = 1005; // código único para “datos inválidos”
     private final String entityName;
 
     public InvalidDataException(String entityName, String message) {
@@ -12,8 +12,8 @@ public class InvalidDataException extends RuntimeException {
     @Override
     public String getMessage() {
         return "Error code: " + errorCode +
-               ", entity: " + entityName +
-               ", message: " + super.getMessage();
+                ", entity: " + entityName +
+                ", message: " + super.getMessage();
     }
 
     public Integer getErrorCode() {

@@ -24,7 +24,7 @@ public class AuditoriaController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Auditoria> getById(@PathVariable Long id) {
+    public ResponseEntity<Auditoria> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(auditoriaService.getById(id));
     }
 
