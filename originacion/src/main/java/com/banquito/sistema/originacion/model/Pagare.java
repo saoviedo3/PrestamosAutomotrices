@@ -1,53 +1,132 @@
 package com.banquito.sistema.originacion.model;
 
-import jakarta.persistence.*;
-import lombok.*;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 @Entity
-@Table(name = "pagares")
-@Getter
-@Setter
-@NoArgsConstructor
-@ToString
+@Table(name = "Pagares")
 public class Pagare {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_pagare")
+    @Column(name = "IdPagare", nullable = false)
     private Integer idPagare;
 
-    @Column(name = "id_solicitud", nullable = false)
+    @Column(name = "IdSolicitud", nullable = false)
     private Integer idSolicitud;
 
-    @Column(name = "numero_cuota", precision = 3, scale = 0, nullable = false)
-    private BigDecimal numeroCuota;
+    @Column(name = "NumeroCuota", nullable = false)
+    private Integer numeroCuota;
 
-    @Column(name = "ruta_archivo", length = 150)
+    @Column(name = "RutaArchivo", length = 150, nullable = false)
     private String rutaArchivo;
 
-    @Column(name = "fecha_generado", nullable = false)
-    private LocalDateTime fechaGenerado;
+    @Column(name = "FechaGenerado", nullable = false)
+    private java.time.LocalDateTime fechaGenerado;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_solicitud", insertable = false, updatable = false)
+    @Version
+    private Long version;
+
+    @ManyToOne
+    @JoinColumn(name = "IdSolicitud", referencedColumnName = "IdSolicitud")
     private SolicitudCredito solicitudCredito;
+
+    public Pagare() {
+    }
 
     public Pagare(Integer idPagare) {
         this.idPagare = idPagare;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        Pagare that = (Pagare) obj;
-        return idPagare != null ? idPagare.equals(that.idPagare) : that.idPagare == null;
+    public Integer getIdPagare() {
+        return idPagare;
+    }
+
+    public void setIdPagare(Integer idPagare) {
+        this.idPagare = idPagare;
+    }
+
+    public Integer getIdSolicitud() {
+        return idSolicitud;
+    }
+
+    public void setIdSolicitud(Integer idSolicitud) {
+        this.idSolicitud = idSolicitud;
+    }
+
+    public Integer getNumeroCuota() {
+        return numeroCuota;
+    }
+
+    public void setNumeroCuota(Integer numeroCuota) {
+        this.numeroCuota = numeroCuota;
+    }
+
+    public String getRutaArchivo() {
+        return rutaArchivo;
+    }
+
+    public void setRutaArchivo(String rutaArchivo) {
+        this.rutaArchivo = rutaArchivo;
+    }
+
+    public java.time.LocalDateTime getFechaGenerado() {
+        return fechaGenerado;
+    }
+
+    public void setFechaGenerado(java.time.LocalDateTime fechaGenerado) {
+        this.fechaGenerado = fechaGenerado;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
+    public SolicitudCredito getSolicitudCredito() {
+        return solicitudCredito;
+    }
+
+    public void setSolicitudCredito(SolicitudCredito solicitudCredito) {
+        this.solicitudCredito = solicitudCredito;
     }
 
     @Override
     public int hashCode() {
-        return idPagare != null ? idPagare.hashCode() : 0;
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((idPagare == null) ? 0 : idPagare.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Pagare other = (Pagare) obj;
+        if (idPagare == null) {
+            if (other.idPagare != null)
+                return false;
+        } else if (!idPagare.equals(other.idPagare))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Pagare [idPagare=" + idPagare + ", idSolicitud=" + idSolicitud + ", numeroCuota=" + numeroCuota
+                + ", rutaArchivo=" + rutaArchivo + ", fechaGenerado=" + fechaGenerado + ", version=" + version
+                + ", solicitudCredito=" + solicitudCredito + "]";
     }
 } 
