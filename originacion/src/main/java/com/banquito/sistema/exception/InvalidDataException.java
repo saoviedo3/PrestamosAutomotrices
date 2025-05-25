@@ -1,10 +1,10 @@
-package com.banquito.sistema.originacion.exception;
+package com.banquito.sistema.exception;
 
-public class CreateEntityException extends RuntimeException {
-    private final Integer errorCode = 1002;      // elige un código único para “crear entidad”
+public class InvalidDataException extends RuntimeException {
+    private final Integer errorCode = 1005;      // código único para “datos inválidos”
     private final String entityName;
 
-    public CreateEntityException(String entityName, String message) {
+    public InvalidDataException(String entityName, String message) {
         super(message);
         this.entityName = entityName;
     }

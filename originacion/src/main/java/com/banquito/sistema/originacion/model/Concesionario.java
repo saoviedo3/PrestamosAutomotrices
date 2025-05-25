@@ -15,12 +15,12 @@ import jakarta.persistence.Version;
 @Table(name = "concesionarios")
 public class Concesionario {
 
-    @Id                              // 3) Declara el identificador
+    @Id                              
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "IdConcesionario", nullable = false)
     private Long id;
 
-    @Column(name = "RazonSocial")        // tu columna nombre
+    @Column(name = "RazonSocial")        
     private String RazonSocial;
 
     @Column(name = "Direccion")        // tu columna nombre
