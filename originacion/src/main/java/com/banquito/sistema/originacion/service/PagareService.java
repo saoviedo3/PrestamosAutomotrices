@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,10 +47,10 @@ public class PagareService {
             List<Pagare> pagares = new ArrayList<>();
             
             // Generar un pagaré por cada cuota del crédito
-            for (int cuota = 1; cuota <= solicitud.getPlazoMeses(); cuota++) {
+            for (int cuota = 1; cuota <= solicitud.getPlazoMeses().intValue(); cuota++) {
                 Pagare pagare = new Pagare();
                 pagare.setIdSolicitud(idSolicitud);
-                pagare.setNumeroCuota(BigDecimal.valueOf(cuota));
+                pagare.setNumeroCuota(cuota);
                 pagare.setFechaGenerado(LocalDateTime.now());
                 
                 // Generar ruta del archivo
@@ -83,19 +82,18 @@ public class PagareService {
             }
             
             // Validar número de cuota
-            if (numeroCuota < 1 || numeroCuota > solicitud.getPlazoMeses()) {
+            if (numeroCuota < 1 || numeroCuota > solicitud.getPlazoMeses().intValue()) {
                 throw new ValidationException("numeroCuota", "debe estar entre 1 y " + solicitud.getPlazoMeses());
             }
             
             // Verificar que no exista ya un pagaré para esta cuota
-            BigDecimal numeroCuotaBD = BigDecimal.valueOf(numeroCuota);
-            if (pagareRepository.existsByIdSolicitudAndNumeroCuota(idSolicitud, numeroCuotaBD)) {
+            if (pagareRepository.existsByIdSolicitudAndNumeroCuota(idSolicitud, numeroCuota)) {
                 throw new BusinessException("Ya existe un pagaré para esta cuota", "GENERAR_PAGARE");
             }
             
             Pagare pagare = new Pagare();
             pagare.setIdSolicitud(idSolicitud);
-            pagare.setNumeroCuota(numeroCuotaBD);
+            pagare.setNumeroCuota(numeroCuota);
             pagare.setFechaGenerado(LocalDateTime.now());
             
             // Generar ruta del archivo
@@ -123,8 +121,7 @@ public class PagareService {
      */
     @Transactional(readOnly = true)
     public Pagare buscarPorSolicitudYCuota(Integer idSolicitud, Integer numeroCuota) {
-        BigDecimal numeroCuotaBD = BigDecimal.valueOf(numeroCuota);
-        return pagareRepository.findByIdSolicitudAndNumeroCuota(idSolicitud, numeroCuotaBD)
+        return pagareRepository.findByIdSolicitudAndNumeroCuota(idSolicitud, numeroCuota)
                 .orElseThrow(() -> new NotFoundException(
                     String.format("Solicitud: %d, Cuota: %d", idSolicitud, numeroCuota), "Pagare"));
     }
@@ -174,7 +171,7 @@ public class PagareService {
             // Generar nueva ruta de archivo
             String nuevaRuta = generarRutaArchivoPagare(
                 pagare.getIdSolicitud(), 
-                pagare.getNumeroCuota().intValue()
+                pagare.getNumeroCuota()
             );
             pagare.setRutaArchivo(nuevaRuta);
             
@@ -195,7 +192,7 @@ public class PagareService {
             for (Pagare pagare : pagares) {
                 String nuevaRuta = generarRutaArchivoPagare(
                     pagare.getIdSolicitud(), 
-                    pagare.getNumeroCuota().intValue()
+                    pagare.getNumeroCuota()
                 );
                 pagare.setRutaArchivo(nuevaRuta);
             }
@@ -254,8 +251,7 @@ public class PagareService {
      */
     @Transactional(readOnly = true)
     public boolean existePagarePorSolicitudYCuota(Integer idSolicitud, Integer numeroCuota) {
-        BigDecimal numeroCuotaBD = BigDecimal.valueOf(numeroCuota);
-        return pagareRepository.existsByIdSolicitudAndNumeroCuota(idSolicitud, numeroCuotaBD);
+        return pagareRepository.existsByIdSolicitudAndNumeroCuota(idSolicitud, numeroCuota);
     }
 
     /**
@@ -267,7 +263,7 @@ public class PagareService {
             SolicitudCredito solicitud = solicitudCreditoService.buscarPorId(idSolicitud);
             long pagaresGenerados = contarPagaresPorSolicitud(idSolicitud);
             
-            return pagaresGenerados == solicitud.getPlazoMeses();
+            return pagaresGenerados == solicitud.getPlazoMeses().longValue();
             
         } catch (Exception e) {
             return false;
@@ -285,10 +281,10 @@ public class PagareService {
             
             List<Integer> cuotasFaltantes = new ArrayList<>();
             
-            for (int cuota = 1; cuota <= solicitud.getPlazoMeses(); cuota++) {
+            for (int cuota = 1; cuota <= solicitud.getPlazoMeses().intValue(); cuota++) {
                 final int cuotaFinal = cuota;
                 boolean existe = pagaresExistentes.stream()
-                    .anyMatch(p -> p.getNumeroCuota().intValue() == cuotaFinal);
+                    .anyMatch(p -> p.getNumeroCuota() == cuotaFinal);
                 
                 if (!existe) {
                     cuotasFaltantes.add(cuota);

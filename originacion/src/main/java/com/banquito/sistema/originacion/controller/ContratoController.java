@@ -1,7 +1,5 @@
 package com.banquito.sistema.originacion.controller;
 
-import com.banquito.sistema.originacion.dto.ContratoDTO;
-import com.banquito.sistema.originacion.mapper.ContratoMapper;
 import com.banquito.sistema.originacion.model.Contrato;
 import com.banquito.sistema.originacion.service.ContratoService;
 import lombok.RequiredArgsConstructor;

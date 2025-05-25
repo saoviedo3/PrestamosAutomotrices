@@ -5,13 +5,13 @@ import com.banquito.sistema.originacion.exception.NotFoundException;
 import com.banquito.sistema.originacion.exception.ValidationException;
 import com.banquito.sistema.originacion.model.ClienteProspecto;
 import com.banquito.sistema.originacion.repository.ClienteProspectoRepository;
+import com.banquito.sistema.originacion.exception.ClienteProspectoNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Service
@@ -85,7 +85,7 @@ public class ClienteProspectoService {
     @Transactional(readOnly = true)
     public ClienteProspecto buscarPorId(Integer id) {
         return clienteProspectoRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(id.toString(), "ClienteProspecto"));
+                .orElseThrow(() -> new ClienteProspectoNotFoundException(id.toString(), "ID"));
     }
 
     /**
@@ -222,5 +222,35 @@ public class ClienteProspectoService {
         if (clienteProspectoRepository.existsByEmail(email)) {
             throw new ValidationException("email", "ya existe en el sistema");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<ClienteProspecto> listarTodos() {
+        return clienteProspectoRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public ClienteProspecto buscarPorIdentificacion(String identificacion) {
+        return clienteProspectoRepository.findByIdentificacion(identificacion)
+                .orElseThrow(() -> new ClienteProspectoNotFoundException(identificacion, "identificación"));
+    }
+
+    @Transactional(readOnly = true)
+    public ClienteProspecto buscarPorEmail(String email) {
+        return clienteProspectoRepository.findByEmail(email)
+                .orElseThrow(() -> new ClienteProspectoNotFoundException(email, "email"));
+    }
+
+    @Transactional(readOnly = true)
+    public List<ClienteProspecto> buscarPorEstado(String estado) {
+        return clienteProspectoRepository.findByEstado(estado);
+    }
+
+    @Transactional
+    public void eliminar(Integer id) {
+        if (!clienteProspectoRepository.existsById(id)) {
+            throw new ClienteProspectoNotFoundException(id.toString(), "ID");
+        }
+        clienteProspectoRepository.deleteById(id);
     }
 } 

@@ -6,12 +6,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import java.math.BigDecimal;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 
 @Entity
 @Table(name = "ClientesProspectos")
 public class ClienteProspecto {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "IdClienteProspecto", nullable = false)
     private Integer idClienteProspecto;
 
@@ -111,19 +114,19 @@ public class ClienteProspecto {
         this.direccion = direccion;
     }
 
-    public BigDecimal  getIngresos() {
+    public BigDecimal getIngresos() {
         return ingresos;
     }
 
-    public void setIngresos(BigDecimal  ingresos) {
+    public void setIngresos(BigDecimal ingresos) {
         this.ingresos = ingresos;
     }
 
-    public BigDecimal  getEgresos() {
+    public BigDecimal getEgresos() {
         return egresos;
     }
 
-    public void setEgresos(BigDecimal  egresos) {
+    public void setEgresos(BigDecimal egresos) {
         this.egresos = egresos;
     }
 
@@ -183,4 +186,4 @@ public class ClienteProspecto {
                 + direccion + ", ingresos=" + ingresos + ", egresos=" + egresos + ", actividadEconomica="
                 + actividadEconomica + ", estado=" + estado + ", version=" + version + "]";
     }
-} 
+}

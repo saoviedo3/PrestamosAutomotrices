@@ -1,105 +1,141 @@
 package com.banquito.sistema.originacion.controller;
 
-import com.banquito.sistema.originacion.dto.ClienteProspectoDTO;
-import com.banquito.sistema.originacion.dto.SimulacionCreditoDTO;
-import com.banquito.sistema.originacion.mapper.ClienteProspectoMapper;
 import com.banquito.sistema.originacion.model.ClienteProspecto;
 import com.banquito.sistema.originacion.service.ClienteProspectoService;
 import com.banquito.sistema.originacion.service.SolicitudCreditoService;
+import com.banquito.sistema.originacion.exception.ClienteProspectoNotFoundException;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api/clientes-prospectos")
+@RequestMapping("/v1/clientes-prospectos")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class ClienteProspectoController {
 
     private final ClienteProspectoService clienteProspectoService;
     private final SolicitudCreditoService solicitudCreditoService;
-    private final ClienteProspectoMapper clienteProspectoMapper;
 
     @PostMapping
-    public ResponseEntity<ClienteProspectoDTO> crear(@RequestBody ClienteProspectoDTO clienteDTO) {
-        ClienteProspecto cliente = clienteProspectoMapper.toEntity(clienteDTO);
-        ClienteProspecto clienteCreado = clienteProspectoService.crear(cliente);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(clienteProspectoMapper.toDTO(clienteCreado));
+    public ResponseEntity<ClienteProspecto> crear(@RequestBody ClienteProspecto clienteProspecto) {
+        try {
+            ClienteProspecto clienteCreado = clienteProspectoService.crear(clienteProspecto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(clienteCreado);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ClienteProspectoDTO> actualizar(@PathVariable Integer id, 
-                                                        @RequestBody ClienteProspectoDTO clienteDTO) {
-        ClienteProspecto cliente = clienteProspectoMapper.toEntity(clienteDTO);
-        ClienteProspecto clienteActualizado = clienteProspectoService.actualizar(id, cliente);
-        return ResponseEntity.ok(clienteProspectoMapper.toDTO(clienteActualizado));
+    public ResponseEntity<ClienteProspecto> actualizar(@PathVariable Integer id,
+                                                       @RequestBody ClienteProspecto clienteProspecto) {
+        try {
+            ClienteProspecto clienteActualizado = clienteProspectoService.actualizar(id, clienteProspecto);
+            return ResponseEntity.ok(clienteActualizado);
+        } catch (ClienteProspectoNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClienteProspectoDTO> buscarPorId(@PathVariable Integer id) {
-        ClienteProspecto cliente = clienteProspectoService.buscarPorId(id);
-        return ResponseEntity.ok(clienteProspectoMapper.toDTO(cliente));
-    }
-
-    @GetMapping("/cedula/{cedula}")
-    public ResponseEntity<ClienteProspectoDTO> buscarPorCedula(@PathVariable String cedula) {
-        ClienteProspecto cliente = clienteProspectoService.buscarPorCedula(cedula);
-        return ResponseEntity.ok(clienteProspectoMapper.toDTO(cliente));
+    public ResponseEntity<ClienteProspecto> buscarPorId(@PathVariable Integer id) {
+        try {
+            ClienteProspecto cliente = clienteProspectoService.buscarPorId(id);
+            return ResponseEntity.ok(cliente);
+        } catch (ClienteProspectoNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping
-    public ResponseEntity<List<ClienteProspectoDTO>> listarTodos(@RequestParam(required = false) String estado) {
-        List<ClienteProspecto> clientes;
-        
-        if (estado != null && !estado.isEmpty()) {
-            clientes = clienteProspectoService.listarPorEstado(estado);
-        } else {
-            clientes = clienteProspectoService.listarActivos();
+    public ResponseEntity<List<ClienteProspecto>> listarTodos(@RequestParam(required = false) String estado) {
+        try {
+            List<ClienteProspecto> clientes;
+            if (estado != null && !estado.isEmpty()) {
+                clientes = clienteProspectoService.buscarPorEstado(estado);
+            } else {
+                clientes = clienteProspectoService.listarTodos();
+            }
+            return ResponseEntity.ok(clientes);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
         }
-        
-        List<ClienteProspectoDTO> clientesDTO = clientes.stream()
-                .map(clienteProspectoMapper::toDTO)
-                .collect(Collectors.toList());
-        
-        return ResponseEntity.ok(clientesDTO);
     }
 
-    @GetMapping("/buscar")
-    public ResponseEntity<List<ClienteProspectoDTO>> buscarPorNombreOApellido(@RequestParam String termino) {
-        List<ClienteProspecto> clientes = clienteProspectoService.buscarPorNombreOApellido(termino);
-        List<ClienteProspectoDTO> clientesDTO = clientes.stream()
-                .map(clienteProspectoMapper::toDTO)
-                .collect(Collectors.toList());
-        
-        return ResponseEntity.ok(clientesDTO);
+    @GetMapping("/identificacion/{identificacion}")
+    public ResponseEntity<ClienteProspecto> buscarPorIdentificacion(@PathVariable String identificacion) {
+        try {
+            ClienteProspecto cliente = clienteProspectoService.buscarPorIdentificacion(identificacion);
+            return ResponseEntity.ok(cliente);
+        } catch (ClienteProspectoNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/email/{email}")
+    public ResponseEntity<ClienteProspecto> buscarPorEmail(@PathVariable String email) {
+        try {
+            ClienteProspecto cliente = clienteProspectoService.buscarPorEmail(email);
+            return ResponseEntity.ok(cliente);
+        } catch (ClienteProspectoNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PutMapping("/{id}/activar")
-    public ResponseEntity<ClienteProspectoDTO> activar(@PathVariable Integer id) {
-        ClienteProspecto cliente = clienteProspectoService.activar(id);
-        return ResponseEntity.ok(clienteProspectoMapper.toDTO(cliente));
+    public ResponseEntity<ClienteProspecto> activar(@PathVariable Integer id) {
+        try {
+            ClienteProspecto cliente = clienteProspectoService.activar(id);
+            return ResponseEntity.ok(cliente);
+        } catch (ClienteProspectoNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PutMapping("/{id}/desactivar")
-    public ResponseEntity<ClienteProspectoDTO> desactivar(@PathVariable Integer id) {
-        ClienteProspecto cliente = clienteProspectoService.desactivar(id);
-        return ResponseEntity.ok(clienteProspectoMapper.toDTO(cliente));
+    public ResponseEntity<ClienteProspecto> desactivar(@PathVariable Integer id) {
+        try {
+            ClienteProspecto cliente = clienteProspectoService.desactivar(id);
+            return ResponseEntity.ok(cliente);
+        } catch (ClienteProspectoNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @PutMapping("/{id}/rechazar")
-    public ResponseEntity<ClienteProspectoDTO> rechazar(@PathVariable Integer id) {
-        ClienteProspecto cliente = clienteProspectoService.rechazar(id);
-        return ResponseEntity.ok(clienteProspectoMapper.toDTO(cliente));
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
+        try {
+            clienteProspectoService.eliminar(id);
+            return ResponseEntity.noContent().build();
+        } catch (ClienteProspectoNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @ExceptionHandler(ClienteProspectoNotFoundException.class)
+    public ResponseEntity<Void> handleClienteProspectoNotFoundException(ClienteProspectoNotFoundException e) {
+        return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<List<ClienteProspecto>> buscarPorNombreOApellido(@RequestParam String termino) {
+        List<ClienteProspecto> clientes = clienteProspectoService.buscarPorNombreOApellido(termino);
+        return ResponseEntity.ok(clientes);
     }
 
     @GetMapping("/{id}/puede-solicitar-credito")
-    public ResponseEntity<Boolean> puedesolicitarCredito(@PathVariable Integer id) {
+    public ResponseEntity<Boolean> puedeSolicitarCredito(@PathVariable Integer id) {
         boolean puede = clienteProspectoService.puedesolicitarCredito(id);
         return ResponseEntity.ok(puede);
     }
@@ -111,31 +147,29 @@ public class ClienteProspectoController {
     }
 
     @PostMapping("/{id}/simular-credito")
-    public ResponseEntity<SimulacionCreditoDTO> simularCredito(@PathVariable Integer id,
-                                                             @RequestParam BigDecimal monto,
-                                                             @RequestParam BigDecimal tasa,
-                                                             @RequestParam Integer plazo) {
-        // Calcular capacidad de pago
+    public ResponseEntity<Map<String, Object>> simularCredito(
+            @PathVariable Integer id,
+            @RequestParam BigDecimal monto,
+            @RequestParam BigDecimal tasa,
+            @RequestParam Integer plazo) {
+
         BigDecimal capacidadPago = clienteProspectoService.calcularCapacidadPago(id);
-        
-        // Simular crédito
         BigDecimal cuotaMensual = solicitudCreditoService.calcularCuotaMensual(monto, tasa, plazo);
-        
-        // Evaluar viabilidad
+
         boolean esViable = cuotaMensual.compareTo(capacidadPago) <= 0;
         BigDecimal porcentajeCompromiso = cuotaMensual
-                .divide(capacidadPago, 4, BigDecimal.ROUND_HALF_UP)
-                .multiply(new BigDecimal("100"));
-        
-        SimulacionCreditoDTO simulacion = new SimulacionCreditoDTO();
-        simulacion.setMontoSolicitado(monto);
-        simulacion.setPlazoMeses(plazo);
-        simulacion.setTasaInteres(tasa);
-        simulacion.setCuotaMensual(cuotaMensual);
-        simulacion.setCapacidadPago(capacidadPago);
-        simulacion.setEsViable(esViable);
-        simulacion.setPorcentajeCompromiso(porcentajeCompromiso);
-        
+                .divide(capacidadPago, 4, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100));
+
+        Map<String, Object> simulacion = new HashMap<>();
+        simulacion.put("montoSolicitado", monto);
+        simulacion.put("plazoMeses", plazo);
+        simulacion.put("tasaInteres", tasa);
+        simulacion.put("cuotaMensual", cuotaMensual);
+        simulacion.put("capacidadPago", capacidadPago);
+        simulacion.put("esViable", esViable);
+        simulacion.put("porcentajeCompromiso", porcentajeCompromiso);
+
         return ResponseEntity.ok(simulacion);
     }
-} 
+}

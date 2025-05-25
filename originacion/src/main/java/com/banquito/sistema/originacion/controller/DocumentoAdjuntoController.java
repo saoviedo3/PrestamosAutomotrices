@@ -1,7 +1,5 @@
 package com.banquito.sistema.originacion.controller;
 
-import com.banquito.sistema.originacion.dto.DocumentoAdjuntoDTO;
-import com.banquito.sistema.originacion.mapper.DocumentoAdjuntoMapper;
 import com.banquito.sistema.originacion.model.DocumentoAdjunto;
 import com.banquito.sistema.originacion.service.DocumentoAdjuntoService;
 import lombok.RequiredArgsConstructor;

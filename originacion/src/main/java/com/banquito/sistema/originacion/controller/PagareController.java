@@ -1,91 +1,83 @@
 package com.banquito.sistema.originacion.controller;
 
-import com.banquito.sistema.originacion.dto.PagareDTO;
-import com.banquito.sistema.originacion.mapper.PagareMapper;
 import com.banquito.sistema.originacion.model.Pagare;
 import com.banquito.sistema.originacion.service.PagareService;
+import com.banquito.sistema.originacion.exception.PagareNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/pagares")
+@RequestMapping("/v1/pagares")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class PagareController {
 
     private final PagareService pagareService;
-    private final PagareMapper pagareMapper;
 
     @PostMapping("/generar-individual")
-    public ResponseEntity<PagareDTO> generarPagareIndividual(@RequestParam Integer idSolicitud,
+    public ResponseEntity<Pagare> generarPagareIndividual(@RequestParam Integer idSolicitud,
                                                            @RequestParam Integer numeroCuota) {
         Pagare pagare = pagareService.generarPagareIndividual(idSolicitud, numeroCuota);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(pagareMapper.toDTO(pagare));
+        return ResponseEntity.status(HttpStatus.CREATED).body(pagare);
     }
 
     @PostMapping("/generar-por-solicitud")
-    public ResponseEntity<List<PagareDTO>> generarPagaresPorSolicitud(@RequestParam Integer idSolicitud) {
+    public ResponseEntity<List<Pagare>> generarPagaresPorSolicitud(@RequestParam Integer idSolicitud) {
         List<Pagare> pagares = pagareService.generarPagaresPorSolicitud(idSolicitud);
-        List<PagareDTO> pagaresDTO = pagares.stream()
-                .map(pagareMapper::toDTO)
-                .collect(Collectors.toList());
-        
-        return ResponseEntity.status(HttpStatus.CREATED).body(pagaresDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(pagares);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PagareDTO> buscarPorId(@PathVariable Integer id) {
-        Pagare pagare = pagareService.buscarPorId(id);
-        return ResponseEntity.ok(pagareMapper.toDTO(pagare));
+    public ResponseEntity<Pagare> buscarPorId(@PathVariable Integer id) {
+        try {
+            Pagare pagare = pagareService.buscarPorId(id);
+            return ResponseEntity.ok(pagare);
+        } catch (PagareNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/solicitud/{idSolicitud}")
-    public ResponseEntity<List<PagareDTO>> listarPorSolicitud(@PathVariable Integer idSolicitud) {
+    public ResponseEntity<List<Pagare>> listarPorSolicitud(@PathVariable Integer idSolicitud) {
         List<Pagare> pagares = pagareService.listarPorSolicitud(idSolicitud);
-        List<PagareDTO> pagaresDTO = pagares.stream()
-                .map(pagareMapper::toDTO)
-                .collect(Collectors.toList());
-        
-        return ResponseEntity.ok(pagaresDTO);
+        return ResponseEntity.ok(pagares);
     }
 
     @GetMapping("/solicitud/{idSolicitud}/ordenados")
-    public ResponseEntity<List<PagareDTO>> listarPorSolicitudOrdenados(@PathVariable Integer idSolicitud) {
+    public ResponseEntity<List<Pagare>> listarPorSolicitudOrdenados(@PathVariable Integer idSolicitud) {
         List<Pagare> pagares = pagareService.listarPorSolicitudOrdenados(idSolicitud);
-        List<PagareDTO> pagaresDTO = pagares.stream()
-                .map(pagareMapper::toDTO)
-                .collect(Collectors.toList());
-        
-        return ResponseEntity.ok(pagaresDTO);
+        return ResponseEntity.ok(pagares);
     }
 
     @GetMapping("/solicitud/{idSolicitud}/cuota/{numeroCuota}")
-    public ResponseEntity<PagareDTO> buscarPorSolicitudYCuota(@PathVariable Integer idSolicitud,
+    public ResponseEntity<Pagare> buscarPorSolicitudYCuota(@PathVariable Integer idSolicitud,
                                                             @PathVariable Integer numeroCuota) {
-        Pagare pagare = pagareService.buscarPorSolicitudYCuota(idSolicitud, numeroCuota);
-        return ResponseEntity.ok(pagareMapper.toDTO(pagare));
+        try {
+            Pagare pagare = pagareService.buscarPorSolicitudYCuota(idSolicitud, numeroCuota);
+            return ResponseEntity.ok(pagare);
+        } catch (PagareNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping("/{id}/regenerar-archivo")
-    public ResponseEntity<PagareDTO> regenerarArchivo(@PathVariable Integer id) {
-        Pagare pagare = pagareService.regenerarArchivo(id);
-        return ResponseEntity.ok(pagareMapper.toDTO(pagare));
+    public ResponseEntity<Pagare> regenerarArchivo(@PathVariable Integer id) {
+        try {
+            Pagare pagare = pagareService.regenerarArchivo(id);
+            return ResponseEntity.ok(pagare);
+        } catch (PagareNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping("/solicitud/{idSolicitud}/regenerar-archivos")
-    public ResponseEntity<List<PagareDTO>> regenerarArchivosPorSolicitud(@PathVariable Integer idSolicitud) {
+    public ResponseEntity<List<Pagare>> regenerarArchivosPorSolicitud(@PathVariable Integer idSolicitud) {
         List<Pagare> pagares = pagareService.regenerarArchivosPorSolicitud(idSolicitud);
-        List<PagareDTO> pagaresDTO = pagares.stream()
-                .map(pagareMapper::toDTO)
-                .collect(Collectors.toList());
-        
-        return ResponseEntity.ok(pagaresDTO);
+        return ResponseEntity.ok(pagares);
     }
 
     @GetMapping("/solicitud/{idSolicitud}/validar-integridad")
@@ -115,13 +107,22 @@ public class PagareController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
-        pagareService.eliminarPagare(id);
-        return ResponseEntity.noContent().build();
+        try {
+            pagareService.eliminarPagare(id);
+            return ResponseEntity.noContent().build();
+        } catch (PagareNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping("/solicitud/{idSolicitud}")
     public ResponseEntity<Void> eliminarPorSolicitud(@PathVariable Integer idSolicitud) {
         pagareService.eliminarPagaresPorSolicitud(idSolicitud);
         return ResponseEntity.noContent().build();
+    }
+
+    @ExceptionHandler(PagareNotFoundException.class)
+    public ResponseEntity<Void> handlePagareNotFoundException(PagareNotFoundException e) {
+        return ResponseEntity.notFound().build();
     }
 } 

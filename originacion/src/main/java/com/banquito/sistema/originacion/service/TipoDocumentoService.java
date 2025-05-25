@@ -5,6 +5,7 @@ import com.banquito.sistema.originacion.exception.NotFoundException;
 import com.banquito.sistema.originacion.exception.ValidationException;
 import com.banquito.sistema.originacion.model.TipoDocumento;
 import com.banquito.sistema.originacion.repository.TipoDocumentoRepository;
+import com.banquito.sistema.originacion.exception.TipoDocumentoNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,7 +67,7 @@ public class TipoDocumentoService {
     @Transactional(readOnly = true)
     public TipoDocumento buscarPorId(Integer id) {
         return tipoDocumentoRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(id.toString(), "TipoDocumento"));
+                .orElseThrow(() -> new TipoDocumentoNotFoundException(id.toString(), "ID"));
     }
 
     /**
@@ -74,8 +75,11 @@ public class TipoDocumentoService {
      */
     @Transactional(readOnly = true)
     public TipoDocumento buscarPorNombre(String nombre) {
-        return tipoDocumentoRepository.findByNombre(nombre)
-                .orElseThrow(() -> new NotFoundException(nombre, "TipoDocumento"));
+        TipoDocumento tipoDocumento = tipoDocumentoRepository.findByNombre(nombre);
+        if (tipoDocumento == null) {
+            throw new TipoDocumentoNotFoundException(nombre, "nombre");
+        }
+        return tipoDocumento;
     }
 
     /**

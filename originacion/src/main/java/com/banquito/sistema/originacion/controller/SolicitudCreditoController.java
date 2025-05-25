@@ -1,9 +1,8 @@
 package com.banquito.sistema.originacion.controller;
 
-import com.banquito.sistema.originacion.dto.SolicitudCreditoDTO;
-import com.banquito.sistema.originacion.mapper.SolicitudCreditoMapper;
 import com.banquito.sistema.originacion.model.SolicitudCredito;
 import com.banquito.sistema.originacion.service.SolicitudCreditoService;
+import com.banquito.sistema.originacion.exception.SolicitudCreditoNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/solicitudes-credito")
+@RequestMapping("/v1/solicitudes-creditos")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class SolicitudCreditoController {
@@ -23,20 +22,78 @@ public class SolicitudCreditoController {
     private final SolicitudCreditoService solicitudCreditoService;
     private final SolicitudCreditoMapper solicitudCreditoMapper;
 
+    @GetMapping
+    public ResponseEntity<List<SolicitudCredito>> findAll() {
+        return ResponseEntity.ok(solicitudCreditoService.findAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<SolicitudCredito> findById(@PathVariable Integer id) {
+        try {
+            return ResponseEntity.ok(solicitudCreditoService.findById(id));
+        } catch (SolicitudCreditoNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/numero/{numeroSolicitud}")
+    public ResponseEntity<SolicitudCredito> findByNumeroSolicitud(@PathVariable String numeroSolicitud) {
+        try {
+            return ResponseEntity.ok(solicitudCreditoService.findByNumeroSolicitud(numeroSolicitud));
+        } catch (SolicitudCreditoNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping
+    public ResponseEntity<SolicitudCredito> create(@RequestBody SolicitudCredito solicitudCredito) {
+        try {
+            return ResponseEntity.ok(solicitudCreditoService.create(solicitudCredito));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<SolicitudCredito> update(@PathVariable Integer id, @RequestBody SolicitudCredito solicitudCredito) {
+        try {
+            return ResponseEntity.ok(solicitudCreditoService.update(id, solicitudCredito));
+        } catch (SolicitudCreditoNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+        try {
+            solicitudCreditoService.delete(id);
+            return ResponseEntity.noContent().build();
+        } catch (SolicitudCreditoNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/estado/{estado}")
+    public ResponseEntity<List<SolicitudCredito>> findByEstado(@PathVariable String estado) {
+        return ResponseEntity.ok(solicitudCreditoService.findByEstado(estado));
+    }
+
+    @GetMapping("/cliente/{idClienteProspecto}")
+    public ResponseEntity<List<SolicitudCredito>> findByIdClienteProspecto(@PathVariable Integer idClienteProspecto) {
+        return ResponseEntity.ok(solicitudCreditoService.findByIdClienteProspecto(idClienteProspecto));
+    }
+
+    @ExceptionHandler(SolicitudCreditoNotFoundException.class)
+    public ResponseEntity<Void> handleSolicitudCreditoNotFoundException(SolicitudCreditoNotFoundException e) {
+        return ResponseEntity.notFound().build();
+    }
+
     @PostMapping
     public ResponseEntity<SolicitudCreditoDTO> crear(@RequestBody SolicitudCreditoDTO solicitudDTO) {
         SolicitudCredito solicitud = solicitudCreditoMapper.toEntity(solicitudDTO);
         SolicitudCredito solicitudCreada = solicitudCreditoService.crear(solicitud);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(solicitudCreditoMapper.toDTO(solicitudCreada));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<SolicitudCreditoDTO> actualizar(@PathVariable Integer id,
-                                                        @RequestBody SolicitudCreditoDTO solicitudDTO) {
-        SolicitudCredito solicitud = solicitudCreditoMapper.toEntity(solicitudDTO);
-        SolicitudCredito solicitudActualizada = solicitudCreditoService.actualizar(id, solicitud);
-        return ResponseEntity.ok(solicitudCreditoMapper.toDTO(solicitudActualizada));
     }
 
     @GetMapping("/{id}")

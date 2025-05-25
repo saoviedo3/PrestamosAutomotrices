@@ -21,6 +21,5 @@ public interface ClienteProspectoRepository extends JpaRepository<ClienteProspec
     List<ClienteProspecto> findByNombreContainingIgnoreCaseOrApellidoContainingIgnoreCase(String nombre, String apellido);
     
     boolean existsByCedula(String cedula);
-    
     boolean existsByEmail(String email);
 } 

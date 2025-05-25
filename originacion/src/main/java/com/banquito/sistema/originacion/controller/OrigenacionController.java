@@ -1,7 +1,5 @@
 package com.banquito.sistema.originacion.controller;
 
-import com.banquito.sistema.originacion.dto.EstadoSolicitudCompletoDTO;
-import com.banquito.sistema.originacion.mapper.EstadoSolicitudCompletoMapper;
 import com.banquito.sistema.originacion.service.OrigenacionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
