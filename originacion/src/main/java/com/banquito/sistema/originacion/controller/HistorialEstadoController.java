@@ -1,6 +1,6 @@
 package com.banquito.sistema.originacion.controller;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -28,9 +28,9 @@ public class HistorialEstadoController {
             @RequestParam(required = false) Long idSolicitud,
             @RequestParam(required = false) String usuario,
             @RequestParam(required = false) String estado,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaInicio,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaFin) {
-        
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Timestamp fechaInicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Timestamp fechaFin) {
+
         List<HistorialEstado> historiales;
         
         if (idSolicitud != null) {

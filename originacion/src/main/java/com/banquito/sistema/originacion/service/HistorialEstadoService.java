@@ -1,6 +1,7 @@
 package com.banquito.sistema.originacion.service;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,7 +47,7 @@ public class HistorialEstadoService {
     }
 
     @Transactional(readOnly = true)
-    public List<HistorialEstado> findByFechaHoraBetween(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+    public List<HistorialEstado> findByFechaHoraBetween(Timestamp fechaInicio, Timestamp fechaFin) {
         return this.repository.findByFechaHoraBetween(fechaInicio, fechaFin);
     }
 
@@ -56,6 +57,7 @@ public class HistorialEstadoService {
     }
 
     public HistorialEstado create(HistorialEstado historialEstado) {
+        historialEstado.setFechaHora(Timestamp.from(Instant.now()));
         return this.repository.save(historialEstado);
     }
 
@@ -66,7 +68,7 @@ public class HistorialEstadoService {
         historial.setEstado(estado);
         historial.setMotivo(motivo);
         historial.setUsuario(usuario);
-        historial.setFechaHora(null);
+        historial.setFechaHora(Timestamp.from(Instant.now()));
         return this.repository.save(historial);
     }
 } 

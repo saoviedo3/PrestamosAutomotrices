@@ -1,19 +1,12 @@
 package com.banquito.sistema.originacion.model;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.Objects;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.*;
 
 @Entity
 @Table(name = "HistorialEstados")
-@Getter
-@Setter
-@NoArgsConstructor
-@ToString
 public class HistorialEstado {
 
     @Id
@@ -46,27 +39,100 @@ public class HistorialEstado {
     @Column(name = "version")
     private Long version;
 
+
+    public HistorialEstado() {
+ 
+    }
+
     public HistorialEstado(Long id) {
         this.id = id;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        HistorialEstado that = (HistorialEstado) o;
-        return Objects.equals(id, that.id);
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getIdSolicitud() {
+        return idSolicitud;
+    }
+
+    public void setIdSolicitud(Long idSolicitud) {
+        this.idSolicitud = idSolicitud;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public Timestamp getFechaHora() {
+        return fechaHora;
+    }
+
+    public void setFechaHora(Timestamp fechaHora) {
+        this.fechaHora = fechaHora;
+    }
+
+    public String getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
+    }
+
+    public String getMotivo() {
+        return motivo;
+    }
+
+    public void setMotivo(String motivo) {
+        this.motivo = motivo;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        return result;
     }
 
-    @PrePersist
-    protected void onCreate() {
-        if (fechaHora == null) {
-            fechaHora = Timestamp.valueOf(LocalDateTime.now());
-        }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        HistorialEstado other = (HistorialEstado) obj;
+        if (id == null) {
+            if (other.id != null)
+                return false;
+        } else if (!id.equals(other.id))
+            return false;
+        return true;
     }
-} 
+
+    @Override
+    public String toString() {
+        return "HistorialEstado [id=" + id + ", idSolicitud=" + idSolicitud + ", estado=" + estado + ", fechaHora="
+                + fechaHora + ", usuario=" + usuario + ", motivo=" + motivo + ", version=" + version + "]";
+    }
+
+}

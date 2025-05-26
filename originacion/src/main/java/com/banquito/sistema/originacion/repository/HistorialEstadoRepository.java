@@ -1,6 +1,6 @@
 package com.banquito.sistema.originacion.repository;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,7 +15,7 @@ public interface HistorialEstadoRepository extends JpaRepository<HistorialEstado
     
     List<HistorialEstado> findByUsuario(String usuario);
     
-    List<HistorialEstado> findByFechaHoraBetween(LocalDateTime fechaInicio, LocalDateTime fechaFin);
+    List<HistorialEstado> findByFechaHoraBetween(Timestamp fechaInicio, Timestamp fechaFin);
     
     List<HistorialEstado> findByIdSolicitudOrderByFechaHoraDesc(Long idSolicitud);
     
