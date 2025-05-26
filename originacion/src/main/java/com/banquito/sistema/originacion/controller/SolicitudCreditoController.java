@@ -40,14 +40,14 @@ public class SolicitudCreditoController {
     }
 
     // @GetMapping("/cliente/{idCliente}")
-    // public ResponseEntity<List<SolicitudCredito>> listarPorCliente(@PathVariable Integer idCliente) {
+    // public ResponseEntity<List<SolicitudCredito>> listarPorCliente(@PathVariable Long idCliente) {
     //     LOG.info("Obteniendo solicitudes de crédito para el cliente con ID: {}", idCliente);
     //     List<SolicitudCredito> solicitudes = this.service.findByIdClienteProspecto(idCliente);
     //     return ResponseEntity.ok(solicitudes);
     // }
 
     // @GetMapping("/vendedor/{idVendedor}")
-    // public ResponseEntity<List<SolicitudCredito>> listarPorVendedor(@PathVariable Integer idVendedor) {
+    // public ResponseEntity<List<SolicitudCredito>> listarPorVendedor(@PathVariable Long idVendedor) {
     //     LOG.info("Obteniendo solicitudes de crédito para el vendedor con ID: {}", idVendedor);
     //     List<SolicitudCredito> solicitudes = this.service.findByIdVendedor(idVendedor);
     //     return ResponseEntity.ok(solicitudes);
@@ -60,7 +60,7 @@ public class SolicitudCreditoController {
             SolicitudCredito solicitud = this.service.findById(id);
             return ResponseEntity.ok(solicitud);
         } catch (CreditoException e) {
-            LOG.error("Error al obtener solicitud de crédito por ID: {}", e.getMessage());
+            LOG.error("Error al obtener solicitud de crédito: {}", e.getMessage());
             return ResponseEntity.notFound().build();
         }
     }
@@ -72,7 +72,7 @@ public class SolicitudCreditoController {
             SolicitudCredito solicitud = this.service.findByNumeroSolicitud(numeroSolicitud);
             return ResponseEntity.ok(solicitud);
         } catch (CreditoException e) {
-            LOG.error("Error al obtener solicitud de crédito por número: {}", e.getMessage());
+            LOG.error("Error al obtener solicitud de crédito: {}", e.getMessage());
             return ResponseEntity.notFound().build();
         }
     }
@@ -121,10 +121,10 @@ public class SolicitudCreditoController {
         }
     }
 
-    @PatchMapping("/{id}/estado")
+    @PutMapping("/{id}/estado/{estado}")
     public ResponseEntity<SolicitudCredito> cambiarEstado(@PathVariable Long id, 
-                                                       @RequestParam String estado) {
-        LOG.info("Cambiando estado de solicitud de crédito con ID: {} a estado: {}", id, estado);
+                                                        @PathVariable String estado) {
+        LOG.info("Cambiando estado de solicitud de crédito con ID: {} a {}", id, estado);
         try {
             SolicitudCredito solicitud = this.service.cambiarEstado(id, estado);
             return ResponseEntity.ok(solicitud);
@@ -139,7 +139,7 @@ public class SolicitudCreditoController {
         LOG.info("Eliminando solicitud de crédito con ID: {}", id);
         try {
             this.service.delete(id);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.noContent().build();
         } catch (CreditoException e) {
             LOG.error("Error al eliminar solicitud de crédito: {}", e.getMessage());
             return ResponseEntity.badRequest().build();

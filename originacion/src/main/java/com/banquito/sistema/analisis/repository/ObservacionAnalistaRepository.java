@@ -8,9 +8,9 @@ import com.banquito.sistema.analisis.model.ObservacionAnalista;
 import java.util.List;
 
 @Repository
-public interface ObservacionAnalistaRepository extends JpaRepository<ObservacionAnalista, Integer> {
+public interface ObservacionAnalistaRepository extends JpaRepository<ObservacionAnalista, Long> {
     
-    List<ObservacionAnalista> findByIdSolicitud(Integer idSolicitud);
+    List<ObservacionAnalista> findByIdSolicitud(Long idSolicitud);
     
     List<ObservacionAnalista> findByUsuario(String usuario);
 } 

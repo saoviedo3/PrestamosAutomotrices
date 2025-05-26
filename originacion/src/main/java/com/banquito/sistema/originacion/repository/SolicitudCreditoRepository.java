@@ -13,11 +13,11 @@ public interface SolicitudCreditoRepository extends JpaRepository<SolicitudCredi
     
     Optional<SolicitudCredito> findByNumeroSolicitud(String numeroSolicitud);
     
-    //List<SolicitudCredito> findByIdClienteProspecto(Integer idClienteProspecto);
+    //List<SolicitudCredito> findByIdClienteProspecto(Long idClienteProspecto);
     
     List<SolicitudCredito> findByEstado(String estado);
     
-    //List<SolicitudCredito> findByIdVendedor(Integer idVendedor);
+    //List<SolicitudCredito> findByIdVendedor(Long idVendedor);
     
     boolean existsByNumeroSolicitud(String numeroSolicitud);
 

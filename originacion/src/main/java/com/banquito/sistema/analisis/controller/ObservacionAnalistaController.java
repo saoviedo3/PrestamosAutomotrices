@@ -35,7 +35,7 @@ public class ObservacionAnalistaController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ObservacionAnalista> obtenerPorId(@PathVariable Integer id) {
+    public ResponseEntity<ObservacionAnalista> obtenerPorId(@PathVariable Long id) {
         LOG.info("Obteniendo observación de analista con ID: {}", id);
         try {
             ObservacionAnalista observacion = this.service.findById(id);
@@ -47,7 +47,7 @@ public class ObservacionAnalistaController {
     }
 
     @GetMapping("/solicitud/{idSolicitud}")
-    public ResponseEntity<List<ObservacionAnalista>> listarPorSolicitud(@PathVariable Integer idSolicitud) {
+    public ResponseEntity<List<ObservacionAnalista>> listarPorSolicitud(@PathVariable Long idSolicitud) {
         LOG.info("Obteniendo observaciones de analistas para la solicitud con ID: {}", idSolicitud);
         List<ObservacionAnalista> observaciones = this.service.findByIdSolicitud(idSolicitud);
         return ResponseEntity.ok(observaciones);
@@ -90,7 +90,7 @@ public class ObservacionAnalistaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ObservacionAnalista> actualizar(@PathVariable Integer id, 
+    public ResponseEntity<ObservacionAnalista> actualizar(@PathVariable Long id, 
                                                        @Valid @RequestBody ObservacionAnalista observacion) {
         LOG.info("Actualizando observación de analista con ID: {}", id);
         try {
@@ -105,7 +105,7 @@ public class ObservacionAnalistaController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         LOG.info("Eliminando observación de analista con ID: {}", id);
         try {
             this.service.delete(id);

@@ -25,7 +25,7 @@ public class ObservacionAnalista {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "IdObservacionAnalista", nullable = false)
-    private Integer id;
+    private Long id;
 
     @NotNull(message = "El ID de la solicitud es obligatorio")
     @Column(name = "IdSolicitud", nullable = false)
@@ -55,15 +55,15 @@ public class ObservacionAnalista {
     public ObservacionAnalista() {
     }
 
-    public ObservacionAnalista(Integer id) {
+    public ObservacionAnalista(Long id) {
         this.id = id;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -135,6 +135,6 @@ public class ObservacionAnalista {
     @Override
     public String toString() {
         return "ObservacionAnalista [id=" + id + ", idSolicitud=" + idSolicitud + ", usuario=" + usuario
-                + ", fechaHora=" + fechaHora + "]";
+                + ", fechaHora=" + fechaHora + ", razonIntervencion=" + razonIntervencion + ", version=" + version + "]";
     }
 }

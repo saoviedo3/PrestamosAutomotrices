@@ -1,7 +1,7 @@
 package com.banquito.sistema.originacion.model;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
 
@@ -20,49 +20,56 @@ public class SolicitudCredito {
     @Column(name = "IdVehiculo", nullable = false)
     private Long idVehiculo;
 
-    @Column(name = "MontoSolicitado", precision = 15, scale = 2, nullable = false)
+    @Column(name = "MontoSolicitado", precision = 12, scale = 2, nullable = false)
     private BigDecimal montoSolicitado;
 
     @Column(name = "PlazoMeses", nullable = false)
-    private Integer plazoMeses;
+    private Short plazoMeses;
 
     @Column(name = "FechaSolicitud", nullable = false)
-    private LocalDate fechaSolicitud;
+    private LocalDateTime fechaSolicitud;
 
-    @Column(name = "ScoreInterno", precision = 10, scale = 2)
+    @Column(name = "ScoreInterno", precision = 6, scale = 2)
     private BigDecimal scoreInterno;
 
-    @Column(name = "ScoreExterno", precision = 10, scale = 2)
+    @Column(name = "ScoreExterno", precision = 6, scale = 2)
     private BigDecimal scoreExterno;
 
-    @Column(name = "RelacionCuotaIngreso", precision = 10, scale = 2)
+    @Column(name = "RelacionCuotaIngreso", precision = 5, scale = 2)
     private BigDecimal relacionCuotaIngreso;
 
-    @Column(name = "TasaAnual", precision = 10, scale = 6, nullable = false)
+    @Column(name = "TasaAnual", precision = 5, scale = 2, nullable = false)
     private BigDecimal tasaAnual;
 
-    @Column(name = "CuotaMensual", precision = 15, scale = 2, nullable = false)
+    @Column(name = "CuotaMensual", precision = 8, scale = 2, nullable = false)
     private BigDecimal cuotaMensual;
 
-    @Column(name = "TotalPagar", precision = 15, scale = 2, nullable = false)
+    @Column(name = "TotalPagar", precision = 12, scale = 2, nullable = false)
     private BigDecimal totalPagar;
 
     @Column(name = "Estado", length = 20, nullable = false)
     private String estado;
 
-    @Column(name = "Entrada") // No uses precision ni scale, ya que es un varchar
-    private String entrada;
+    @Column(name = "Entrada", precision = 12, scale = 2, nullable = false)
+    private BigDecimal entrada;
 
-    @Column(name = "version")
-    private BigDecimal version;
+    @Version
+    @Column(name = "Version", nullable = false)
+    private Long version;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "IdClienteProspecto", nullable = false)
+    @JoinColumn(name = "IdClienteProspecto", nullable = false, insertable = false, updatable = false)
     private ClienteProspecto clienteProspecto;
 
+    @Column(name = "IdClienteProspecto", nullable = false)
+    private Long idClienteProspecto;
+
     @ManyToOne(optional = false)
-    @JoinColumn(name = "IdVendedor", nullable = false)
+    @JoinColumn(name = "IdVendedor", nullable = false, insertable = false, updatable = false)
     private Vendedor vendedor;
+
+    @Column(name = "IdVendedor", nullable = false)
+    private Long idVendedor;
 
     public SolicitudCredito() {
     }
@@ -87,19 +94,19 @@ public class SolicitudCredito {
         this.montoSolicitado = montoSolicitado;
     }
 
-    public Integer getPlazoMeses() {
+    public Short getPlazoMeses() {
         return plazoMeses;
     }
 
-    public void setPlazoMeses(Integer plazoMeses) {
+    public void setPlazoMeses(Short plazoMeses) {
         this.plazoMeses = plazoMeses;
     }
 
-    public LocalDate getFechaSolicitud() {
+    public LocalDateTime getFechaSolicitud() {
         return fechaSolicitud;
     }
 
-    public void setFechaSolicitud(LocalDate fechaSolicitud) {
+    public void setFechaSolicitud(LocalDateTime fechaSolicitud) {
         this.fechaSolicitud = fechaSolicitud;
     }
 
@@ -114,6 +121,7 @@ public class SolicitudCredito {
     public String getNumeroSolicitud() {
         return numeroSolicitud;
     }
+    
     public void setNumeroSolicitud(String numeroSolicitud) {
         this.numeroSolicitud = numeroSolicitud;
     }
@@ -121,6 +129,7 @@ public class SolicitudCredito {
     public Long getIdVehiculo() {
         return idVehiculo;
     }
+    
     public void setIdVehiculo(Long idVehiculo) {
         this.idVehiculo = idVehiculo;
     }
@@ -128,6 +137,7 @@ public class SolicitudCredito {
     public BigDecimal getScoreInterno() {
         return scoreInterno;
     }
+    
     public void setScoreInterno(BigDecimal scoreInterno) {
         this.scoreInterno = scoreInterno;
     }
@@ -135,6 +145,7 @@ public class SolicitudCredito {
     public BigDecimal getScoreExterno() {
         return scoreExterno;
     }
+    
     public void setScoreExterno(BigDecimal scoreExterno) {
         this.scoreExterno = scoreExterno;
     }
@@ -142,17 +153,21 @@ public class SolicitudCredito {
     public BigDecimal getRelacionCuotaIngreso() {
         return relacionCuotaIngreso;
     }
+    
     public void setRelacionCuotaIngreso(BigDecimal relacionCuotaIngreso) {
         this.relacionCuotaIngreso = relacionCuotaIngreso;
     }
 
     public BigDecimal getTasaAnual() { return tasaAnual; }
+    
     public void setTasaAnual(BigDecimal tasaAnual) { this.tasaAnual = tasaAnual; }
 
     public BigDecimal getCuotaMensual() { return cuotaMensual; }
+    
     public void setCuotaMensual(BigDecimal cuotaMensual) { this.cuotaMensual = cuotaMensual; }
 
     public BigDecimal getTotalPagar() { return totalPagar; }
+    
     public void setTotalPagar(BigDecimal totalPagar) { this.totalPagar = totalPagar; }
 
     public ClienteProspecto getClienteProspecto() {
@@ -171,20 +186,36 @@ public class SolicitudCredito {
         this.vendedor = vendedor;
     }
 
-    public String getEntrada() {
+    public BigDecimal getEntrada() {
         return entrada;
     }
 
-    public void setEntrada(String entrada) {
+    public void setEntrada(BigDecimal entrada) {
         this.entrada = entrada;
     }
 
-    public BigDecimal getVersion() {
+    public Long getVersion() {
         return version;
     }
 
-    public void setVersion(BigDecimal version) {
+    public void setVersion(Long version) {
         this.version = version;
+    }
+
+    public Long getIdClienteProspecto() {
+        return idClienteProspecto;
+    }
+
+    public void setIdClienteProspecto(Long idClienteProspecto) {
+        this.idClienteProspecto = idClienteProspecto;
+    }
+
+    public Long getIdVendedor() {
+        return idVendedor;
+    }
+
+    public void setIdVendedor(Long idVendedor) {
+        this.idVendedor = idVendedor;
     }
 
     @Override
@@ -214,12 +245,14 @@ public class SolicitudCredito {
 
     @Override
     public String toString() {
-        return "SolicitudCredito [id=" + id + ", montoSolicitado=" + montoSolicitado + 
+        return "SolicitudCredito [id=" + id + ", numeroSolicitud=" + numeroSolicitud + 
+               ", idVehiculo=" + idVehiculo + ", montoSolicitado=" + montoSolicitado + 
                ", plazoMeses=" + plazoMeses + ", fechaSolicitud=" + fechaSolicitud + 
-               ", estado=" + estado +
-                ", entrada=" + entrada +
-                ", version=" + version +
-                ", clienteProspecto=" + (clienteProspecto != null ? clienteProspecto.getId() : null) +
-                ", vendedor=" + (vendedor != null ? vendedor.getId() : null) + "]";
+               ", scoreInterno=" + scoreInterno + ", scoreExterno=" + scoreExterno + 
+               ", relacionCuotaIngreso=" + relacionCuotaIngreso + ", tasaAnual=" + tasaAnual + 
+               ", cuotaMensual=" + cuotaMensual + ", totalPagar=" + totalPagar + 
+               ", estado=" + estado + ", entrada=" + entrada + 
+               ", version=" + version + ", idClienteProspecto=" + idClienteProspecto + 
+               ", idVendedor=" + idVendedor + "]";
     }
 }

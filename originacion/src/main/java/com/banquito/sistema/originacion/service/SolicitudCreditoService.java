@@ -35,11 +35,11 @@ public class SolicitudCreditoService {
         return this.solicitudCreditoRepository.findByEstado(estado);
     }
 
-    // public List<SolicitudCredito> findByIdClienteProspecto(Integer idClienteProspecto) {
+    // public List<SolicitudCredito> findByIdClienteProspecto(Long idClienteProspecto) {
     //     return this.solicitudCreditoRepository.findByIdClienteProspecto(idClienteProspecto);
     // }
 
-    // public List<SolicitudCredito> findByIdVendedor(Integer idVendedor) {
+    // public List<SolicitudCredito> findByIdVendedor(Long idVendedor) {
     //     return this.solicitudCreditoRepository.findByIdVendedor(idVendedor);
     // }
 
@@ -141,41 +141,73 @@ public class SolicitudCreditoService {
             throw new CreditoException("Solo se pueden evaluar solicitudes en estado Borrador");
         }
         
-        // Simulamos la consulta al buró de crédito y establecemos el score externo
-        // En un caso real, aquí llamaríamos a un servicio externo
+        // Calcular el score combinado (promedio entre interno y externo)
+        BigDecimal scoreCombinado = solicitud.getScoreInterno().add(solicitud.getScoreExterno())
+                                    .divide(new BigDecimal("2"), 2, RoundingMode.HALF_UP);
         
-        // Aplicar reglas automáticas de rechazo
-        if (solicitud.getScoreExterno().compareTo(SCORE_RECHAZO_AUTOMATICO) < 0) {
-            // Score menor a 500, rechazo automático
+        // Verificar si cumple el score mínimo o debe ser rechazada automáticamente
+        if (scoreCombinado.compareTo(SCORE_RECHAZO_AUTOMATICO) < 0) {
             solicitud.setEstado("Rechazada");
             return this.solicitudCreditoRepository.save(solicitud);
         }
         
-        // Verificación de relación cuota/ingreso no debe superar el 30%
-        if (solicitud.getRelacionCuotaIngreso().compareTo(new BigDecimal("0.3")) > 0) {
-            // Relación cuota/ingreso mayor al 30%, enviar a revisión manual
-            solicitud.setEstado("EnRevision");
-        } else {
-            // Evaluación automática pasada, determinar si necesita revisión manual
-            if (solicitud.getScoreExterno().compareTo(SCORE_CLIENTE_B) >= 0) {
-                // Cliente A - Aprobación automática
-                solicitud.setEstado("Aprobada");
-            } else {
-                // Cliente B o C - Enviar a revisión manual
-                solicitud.setEstado("EnRevision");
-            }
+        // Verificar que la relación cuota/ingreso sea aceptable (máximo 30%)
+        if (solicitud.getRelacionCuotaIngreso().compareTo(new BigDecimal("30.0")) > 0) {
+            solicitud.setEstado("Rechazada");
+            return this.solicitudCreditoRepository.save(solicitud);
         }
         
+        // Si pasa las validaciones automáticas, pasa a estado EnRevision para análisis manual
+        solicitud.setEstado("EnRevision");
         return this.solicitudCreditoRepository.save(solicitud);
     }
+    
+    private void calcularValoresFinancieros(SolicitudCredito solicitud) {
+        // Implementar cálculo de cuota mensual, total a pagar, etc.
+        // Este es un cálculo simplificado, en la realidad se usaría
+        // una fórmula financiera más compleja
+        
+        BigDecimal tasaMensual = solicitud.getTasaAnual().divide(new BigDecimal("12"), 10, RoundingMode.HALF_UP)
+                                .divide(new BigDecimal("100"), 10, RoundingMode.HALF_UP);
+        
+        BigDecimal montoFinanciado = solicitud.getMontoSolicitado().subtract(solicitud.getEntrada());
+        BigDecimal plazoMesesBD = new BigDecimal(solicitud.getPlazoMeses());
+        
+        // Fórmula: cuota = P * r * (1 + r)^n / ((1 + r)^n - 1)
+        BigDecimal numerador = tasaMensual.add(BigDecimal.ONE).pow(solicitud.getPlazoMeses());
+        BigDecimal denominador = numerador.subtract(BigDecimal.ONE);
+        BigDecimal factor = tasaMensual.multiply(numerador).divide(denominador, 10, RoundingMode.HALF_UP);
+        
+        BigDecimal cuotaMensual = montoFinanciado.multiply(factor).setScale(2, RoundingMode.HALF_UP);
+        solicitud.setCuotaMensual(cuotaMensual);
+        
+        BigDecimal totalPagar = cuotaMensual.multiply(plazoMesesBD).setScale(2, RoundingMode.HALF_UP);
+        solicitud.setTotalPagar(totalPagar);
+    }
+    
+    private void validarTransicionEstado(String estadoActual, String nuevoEstado) {
+        // Definir transiciones válidas de estados
+        switch (estadoActual) {
+            case "Borrador":
+                if (!("EnRevision".equals(nuevoEstado) || "Cancelada".equals(nuevoEstado))) {
+                    throw new CreditoException("Desde Borrador solo se puede pasar a EnRevision o Cancelada");
+                }
+                break;
+            case "EnRevision":
+                if (!("Aprobada".equals(nuevoEstado) || "Rechazada".equals(nuevoEstado) || "Cancelada".equals(nuevoEstado))) {
+                    throw new CreditoException("Desde EnRevision solo se puede pasar a Aprobada, Rechazada o Cancelada");
+                }
+                break;
+            case "Aprobada":
+            case "Rechazada":
+                throw new CreditoException("No se puede cambiar el estado de una solicitud Aprobada o Rechazada");
+            case "Cancelada":
+                throw new CreditoException("No se puede cambiar el estado de una solicitud Cancelada");
+            default:
+                throw new CreditoException("Estado no reconocido: " + estadoActual);
+        }
+    }
 
-    /**
-     * Método para que un analista cambie el estado de una solicitud
-     * @param id ID de la solicitud
-     * @param nuevoEstado Nuevo estado de la solicitud
-     * @param motivoCambio Motivo del cambio de estado (será registrado en ObservacionAnalista)
-     * @return La solicitud con el estado actualizado
-     */
     @Transactional
     public SolicitudCredito cambiarEstado(Long id, String nuevoEstado) {
         Optional<SolicitudCredito> solicitudOpt = this.solicitudCreditoRepository.findById(id);
@@ -214,78 +246,6 @@ public class SolicitudCreditoService {
         }
         
         this.solicitudCreditoRepository.delete(solicitud);
-    }
-    
-    private void calcularValoresFinancieros(SolicitudCredito solicitud) {
-        // En un caso real, aquí se aplicarían reglas de negocio para calcular
-        // la tasa anual basada en perfil del cliente, plazo, monto, etc.
-        BigDecimal tasaAnual = new BigDecimal("12.5"); // Tasa ejemplo
-        
-        // Para clientes de mayor riesgo, aplicar una tasa más alta
-        if (solicitud.getScoreExterno() != null) {
-            if (solicitud.getScoreExterno().compareTo(SCORE_CLIENTE_C) < 0) {
-                // Cliente C - mayor tasa
-                tasaAnual = new BigDecimal("18.5");
-            } else if (solicitud.getScoreExterno().compareTo(SCORE_CLIENTE_B) < 0) {
-                // Cliente B - tasa media
-                tasaAnual = new BigDecimal("15.0");
-            }
-        }
-        
-        solicitud.setTasaAnual(tasaAnual);
-        
-        // Cálculo de cuota mensual usando fórmula de amortización
-        BigDecimal tasaMensual = tasaAnual.divide(new BigDecimal("12"), 6, RoundingMode.HALF_UP)
-                .divide(new BigDecimal("100"), 6, RoundingMode.HALF_UP);
-        
-        BigDecimal factor = BigDecimal.ONE.add(tasaMensual).pow(solicitud.getPlazoMeses());
-        BigDecimal cuotaMensual = solicitud.getMontoSolicitado().multiply(tasaMensual.multiply(factor))
-                .divide(factor.subtract(BigDecimal.ONE), 2, RoundingMode.HALF_UP);
-        
-        solicitud.setCuotaMensual(cuotaMensual);
-        solicitud.setTotalPagar(cuotaMensual.multiply(new BigDecimal(solicitud.getPlazoMeses())));
-    }
-    
-    private void validarTransicionEstado(String estadoActual, String nuevoEstado) {
-        // Definir las transiciones permitidas
-        boolean transicionValida = false;
-        
-        switch (estadoActual) {
-            case "Borrador":
-                transicionValida = "EnRevision".equals(nuevoEstado) || "Cancelada".equals(nuevoEstado);
-                break;
-            case "EnRevision":
-                transicionValida = "Aprobada".equals(nuevoEstado) || "Rechazada".equals(nuevoEstado) 
-                        || "Cancelada".equals(nuevoEstado);
-                break;
-            case "Aprobada":
-            case "Rechazada":
-            case "Cancelada":
-                // Estados finales, no pueden cambiar
-                transicionValida = false;
-                break;
-            default:
-                transicionValida = false;
-        }
-        
-        if (!transicionValida) {
-            throw new CreditoException("No se permite cambiar el estado de " + estadoActual + " a " + nuevoEstado);
-        }
-    }
-    
-    /**
-     * Clasifica al cliente según su score crediticio
-     * @param scoreExterno Score externo del cliente
-     * @return Clasificación del cliente (A, B, C)
-     */
-    public String clasificarCliente(BigDecimal scoreExterno) {
-        if (scoreExterno.compareTo(SCORE_CLIENTE_B) >= 0) {
-            return "A"; // Riesgo bajo
-        } else if (scoreExterno.compareTo(SCORE_CLIENTE_C) >= 0) {
-            return "B"; // Riesgo medio
-        } else {
-            return "C"; // Riesgo alto
-        }
     }
 
     @Transactional(readOnly = true)

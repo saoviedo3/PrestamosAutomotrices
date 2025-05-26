@@ -35,7 +35,7 @@ public class ObservacionAnalistaService {
         return this.observacionAnalistaRepository.findAll();
     }
 
-    public ObservacionAnalista findById(Integer id) {
+    public ObservacionAnalista findById(Long id) {
         Optional<ObservacionAnalista> observacionOpt = this.observacionAnalistaRepository.findById(id);
         if (observacionOpt.isPresent()) {
             return observacionOpt.get();
@@ -44,7 +44,7 @@ public class ObservacionAnalistaService {
         }
     }
 
-    public List<ObservacionAnalista> findByIdSolicitud(Integer idSolicitud) {
+    public List<ObservacionAnalista> findByIdSolicitud(Long idSolicitud) {
         return this.observacionAnalistaRepository.findByIdSolicitud(idSolicitud);
     }
 
@@ -170,7 +170,7 @@ public class ObservacionAnalistaService {
     }
 
     @Transactional
-    public void delete(Integer id) {
+    public void delete(Long id) {
         Optional<ObservacionAnalista> observacionOpt = this.observacionAnalistaRepository.findById(id);
         if (!observacionOpt.isPresent()) {
             throw new AnalisisException("No existe la observación del analista con ID: " + id);
