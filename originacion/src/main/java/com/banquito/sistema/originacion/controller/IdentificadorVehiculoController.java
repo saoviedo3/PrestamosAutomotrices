@@ -24,7 +24,7 @@ public class IdentificadorVehiculoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<IdentificadorVehiculo> getById(@PathVariable Integer id) {
+    public ResponseEntity<IdentificadorVehiculo> getById(@PathVariable Long id) {
         return ResponseEntity.ok(service.getById(id));
     }
 

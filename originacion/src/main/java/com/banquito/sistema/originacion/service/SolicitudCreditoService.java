@@ -35,13 +35,13 @@ public class SolicitudCreditoService {
         return this.solicitudCreditoRepository.findByEstado(estado);
     }
 
-    public List<SolicitudCredito> findByIdClienteProspecto(Integer idClienteProspecto) {
-        return this.solicitudCreditoRepository.findByIdClienteProspecto(idClienteProspecto);
-    }
+    // public List<SolicitudCredito> findByIdClienteProspecto(Integer idClienteProspecto) {
+    //     return this.solicitudCreditoRepository.findByIdClienteProspecto(idClienteProspecto);
+    // }
 
-    public List<SolicitudCredito> findByIdVendedor(Integer idVendedor) {
-        return this.solicitudCreditoRepository.findByIdVendedor(idVendedor);
-    }
+    // public List<SolicitudCredito> findByIdVendedor(Integer idVendedor) {
+    //     return this.solicitudCreditoRepository.findByIdVendedor(idVendedor);
+    // }
 
     public SolicitudCredito findById(Long id) {
         Optional<SolicitudCredito> solicitudOpt = this.solicitudCreditoRepository.findById(id);

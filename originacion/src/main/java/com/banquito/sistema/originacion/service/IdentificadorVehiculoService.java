@@ -25,7 +25,7 @@ public class IdentificadorVehiculoService {
     }
 
     @Transactional(readOnly = true)
-    public IdentificadorVehiculo getById(Integer id) {
+    public IdentificadorVehiculo getById(Long id) {
         return identificadorRepository.findById(id)
                 .orElseThrow(() -> new IdentificadorVehiculoNotFoundException(id));
     }

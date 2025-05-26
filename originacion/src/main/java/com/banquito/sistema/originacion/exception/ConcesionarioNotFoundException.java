@@ -1,10 +1,10 @@
 package com.banquito.sistema.originacion.exception;
 
-public class IdentificadorVehiculoNotFoundException extends RuntimeException {
-    private final Integer errorCode;
+public class ConcesionarioNotFoundException extends RuntimeException {
+        private final Integer errorCode;
 
-    public IdentificadorVehiculoNotFoundException(Long id) {
-        super("IdentificadorVehiculo not found with id " + id);
+    public ConcesionarioNotFoundException(Long id) {
+        super("Concesionario not found with id " + id);
         this.errorCode = 1002;
     }
 

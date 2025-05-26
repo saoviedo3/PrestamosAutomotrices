@@ -39,19 +39,19 @@ public class SolicitudCreditoController {
         return ResponseEntity.ok(solicitudes);
     }
 
-    @GetMapping("/cliente/{idCliente}")
-    public ResponseEntity<List<SolicitudCredito>> listarPorCliente(@PathVariable Integer idCliente) {
-        LOG.info("Obteniendo solicitudes de crédito para el cliente con ID: {}", idCliente);
-        List<SolicitudCredito> solicitudes = this.service.findByIdClienteProspecto(idCliente);
-        return ResponseEntity.ok(solicitudes);
-    }
+    // @GetMapping("/cliente/{idCliente}")
+    // public ResponseEntity<List<SolicitudCredito>> listarPorCliente(@PathVariable Integer idCliente) {
+    //     LOG.info("Obteniendo solicitudes de crédito para el cliente con ID: {}", idCliente);
+    //     List<SolicitudCredito> solicitudes = this.service.findByIdClienteProspecto(idCliente);
+    //     return ResponseEntity.ok(solicitudes);
+    // }
 
-    @GetMapping("/vendedor/{idVendedor}")
-    public ResponseEntity<List<SolicitudCredito>> listarPorVendedor(@PathVariable Integer idVendedor) {
-        LOG.info("Obteniendo solicitudes de crédito para el vendedor con ID: {}", idVendedor);
-        List<SolicitudCredito> solicitudes = this.service.findByIdVendedor(idVendedor);
-        return ResponseEntity.ok(solicitudes);
-    }
+    // @GetMapping("/vendedor/{idVendedor}")
+    // public ResponseEntity<List<SolicitudCredito>> listarPorVendedor(@PathVariable Integer idVendedor) {
+    //     LOG.info("Obteniendo solicitudes de crédito para el vendedor con ID: {}", idVendedor);
+    //     List<SolicitudCredito> solicitudes = this.service.findByIdVendedor(idVendedor);
+    //     return ResponseEntity.ok(solicitudes);
+    // }
 
     @GetMapping("/{id}")
     public ResponseEntity<SolicitudCredito> obtenerPorId(@PathVariable Long id) {

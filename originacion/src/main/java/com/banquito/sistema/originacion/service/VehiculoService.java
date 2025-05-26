@@ -1,10 +1,16 @@
 package com.banquito.sistema.originacion.service;
 
+import com.banquito.sistema.originacion.model.Concesionario;
+import com.banquito.sistema.originacion.model.IdentificadorVehiculo;
 import com.banquito.sistema.originacion.model.Vehiculo;
+import com.banquito.sistema.originacion.repository.ConcesionarioRepository;
+import com.banquito.sistema.originacion.repository.IdentificadorVehiculoRepository;
 import com.banquito.sistema.originacion.repository.VehiculoRepository;
 import com.banquito.sistema.exception.AlreadyExistsException;
 import com.banquito.sistema.exception.CreateEntityException;
 import com.banquito.sistema.exception.InvalidDataException;
+import com.banquito.sistema.originacion.exception.ConcesionarioNotFoundException;
+import com.banquito.sistema.originacion.exception.IdentificadorVehiculoNotFoundException;
 import com.banquito.sistema.originacion.exception.VehiculoNotFoundException;
 
 import org.springframework.dao.DataAccessException;
@@ -16,9 +22,15 @@ import java.util.List;
 @Service
 public class VehiculoService {
     private final VehiculoRepository vehiculoRepository;
+    private final IdentificadorVehiculoRepository identificadorRepo;
+    private final ConcesionarioRepository concesionarioRepo;
 
-    public VehiculoService(VehiculoRepository vehiculoRepository) {
-        this.vehiculoRepository = vehiculoRepository;
+    public VehiculoService(VehiculoRepository vehiculoRepository,
+                      IdentificadorVehiculoRepository identificadorRepo,
+                      ConcesionarioRepository concesionarioRepo) {
+    this.vehiculoRepository = vehiculoRepository;
+    this.identificadorRepo   = identificadorRepo;
+    this.concesionarioRepo   = concesionarioRepo;
     }
 
     @Transactional(readOnly = true)
@@ -27,7 +39,7 @@ public class VehiculoService {
     }
 
     @Transactional(readOnly = true)
-    public Vehiculo getVehiculoById(Integer id) {
+    public Vehiculo getVehiculoById(Long id) {
         return vehiculoRepository.findById(id)
                 .orElseThrow(() -> new VehiculoNotFoundException(id));
     }
@@ -49,24 +61,29 @@ public class VehiculoService {
             throw new InvalidDataException("Vehiculo", "El valor debe ser positivo");
         }
 
-        // // 2. Validar existencia de concesionario (FK)
-        // Integer concesionarioId = vehiculo.getConcesionario().getId();
-        // if (!concesionarioRepository.existsById(concesionarioId)) {
-        // throw new InvalidDataException(
-        // "Vehiculo",
-        // "No existe Concesionario con id " + concesionarioId
-        // );
-        // }
+        // 2. Validar FK IdentificadorVehiculo
+        Long identId = vehiculo.getIdIdentificadorVehiculo();
+        IdentificadorVehiculo ident = identificadorRepo.findById(identId)
+            .orElseThrow(() -> new IdentificadorVehiculoNotFoundException(identId));
 
-        // 3. Evitar duplicados (ejemplo: mismo IdentificadorVehiculo)
-        Long identId = vehiculo.getIdentificadorVehiculo().getId();
+        // 3. Validar FK Concesionario
+        Long consId = vehiculo.getIdConcesionario();
+        Concesionario cons = concesionarioRepo.findById(consId)
+            .orElseThrow(() -> new ConcesionarioNotFoundException(consId));
+
+         // 4. Evitar duplicados por identificador
         if (vehiculoRepository.existsByIdentificadorVehiculoId(identId)) {
             throw new AlreadyExistsException(
-                    "Vehiculo",
-                    "Ya existe un Vehiculo con IdentificadorVehiculo id " + identId);
+                "Vehiculo",
+                "Ya existe un Vehiculo con IdentificadorVehiculo id " + identId
+            );
         }
 
-        // 4. Persistencia y manejo de errores en BD
+        // 5. Asociar las referencias antes de guardar
+        vehiculo.setIdentificadorVehiculo(ident);
+        vehiculo.setConcesionario(cons);
+
+        // 6. Persistencia y manejo de errores en BD
         try {
             return vehiculoRepository.save(vehiculo);
         } catch (DataAccessException ex) {
