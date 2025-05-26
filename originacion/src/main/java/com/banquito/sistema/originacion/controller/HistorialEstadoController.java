@@ -14,7 +14,7 @@ import com.banquito.sistema.originacion.service.HistorialEstadoService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/v1/historial-estados")
+@RequestMapping("/api/historial-estados")
 public class HistorialEstadoController {
 
     private final HistorialEstadoService service;

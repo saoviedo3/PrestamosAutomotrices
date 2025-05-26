@@ -14,7 +14,7 @@ import com.banquito.sistema.originacion.service.ConcesionarioService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/v1/concesionarios")
+@RequestMapping("/api/concesionarios")
 public class ConcesionarioController {
 
     private final ConcesionarioService service;

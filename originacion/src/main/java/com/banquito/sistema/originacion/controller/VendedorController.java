@@ -14,7 +14,7 @@ import com.banquito.sistema.originacion.service.VendedorService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/v1/vendedores")
+@RequestMapping("/api/vendedores")
 public class VendedorController {
 
     private final VendedorService service;
