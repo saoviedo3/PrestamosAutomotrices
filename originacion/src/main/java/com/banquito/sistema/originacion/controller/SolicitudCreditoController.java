@@ -54,7 +54,7 @@ public class SolicitudCreditoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SolicitudCredito> obtenerPorId(@PathVariable Integer id) {
+    public ResponseEntity<SolicitudCredito> obtenerPorId(@PathVariable Long id) {
         LOG.info("Obteniendo solicitud de crédito con ID: {}", id);
         try {
             SolicitudCredito solicitud = this.service.findById(id);
@@ -93,7 +93,7 @@ public class SolicitudCreditoController {
      * Inicia la evaluación automática de una solicitud de crédito
      */
     @PostMapping("/{id}/evaluar")
-    public ResponseEntity<SolicitudCredito> evaluarSolicitud(@PathVariable Integer id) {
+    public ResponseEntity<SolicitudCredito> evaluarSolicitud(@PathVariable Long id) {
         LOG.info("Iniciando evaluación automática de solicitud de crédito con ID: {}", id);
         try {
             SolicitudCredito solicitud = this.service.findById(id);
@@ -107,7 +107,7 @@ public class SolicitudCreditoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<SolicitudCredito> actualizar(@PathVariable Integer id, 
+    public ResponseEntity<SolicitudCredito> actualizar(@PathVariable Long id, 
                                                     @Valid @RequestBody SolicitudCredito solicitud) {
         LOG.info("Actualizando solicitud de crédito con ID: {}", id);
         try {
@@ -122,7 +122,7 @@ public class SolicitudCreditoController {
     }
 
     @PatchMapping("/{id}/estado")
-    public ResponseEntity<SolicitudCredito> cambiarEstado(@PathVariable Integer id, 
+    public ResponseEntity<SolicitudCredito> cambiarEstado(@PathVariable Long id, 
                                                        @RequestParam String estado) {
         LOG.info("Cambiando estado de solicitud de crédito con ID: {} a estado: {}", id, estado);
         try {
@@ -135,7 +135,7 @@ public class SolicitudCreditoController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         LOG.info("Eliminando solicitud de crédito con ID: {}", id);
         try {
             this.service.delete(id);

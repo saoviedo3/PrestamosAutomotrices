@@ -19,6 +19,12 @@ public class SolicitudCredito {
     @Column(name = "IdSolicitudCredito", nullable = false)
     private Long id;
 
+    @Column(name = "NumeroSolicitud", length = 50, nullable = false, unique = true)
+    private String numeroSolicitud;
+
+    @Column(name = "IdVehiculo", nullable = false)
+    private Long idVehiculo;
+
     @Column(name = "MontoSolicitado", precision = 15, scale = 2, nullable = false)
     private BigDecimal montoSolicitado;
 
@@ -27,6 +33,24 @@ public class SolicitudCredito {
 
     @Column(name = "FechaSolicitud", nullable = false)
     private LocalDate fechaSolicitud;
+
+    @Column(name = "ScoreInterno", precision = 10, scale = 2)
+    private BigDecimal scoreInterno;
+
+    @Column(name = "ScoreExterno", precision = 10, scale = 2)
+    private BigDecimal scoreExterno;
+
+    @Column(name = "RelacionCuotaIngreso", precision = 10, scale = 2)
+    private BigDecimal relacionCuotaIngreso;
+
+    @Column(name = "TasaAnual", precision = 10, scale = 6, nullable = false)
+    private BigDecimal tasaAnual;
+
+    @Column(name = "CuotaMensual", precision = 15, scale = 2, nullable = false)
+    private BigDecimal cuotaMensual;
+
+    @Column(name = "TotalPagar", precision = 15, scale = 2, nullable = false)
+    private BigDecimal totalPagar;
 
     @Column(name = "Estado", length = 20, nullable = false)
     private String estado;
@@ -77,6 +101,51 @@ public class SolicitudCredito {
     public void setEstado(String estado) {
         this.estado = estado;
     }
+
+    public String getNumeroSolicitud() {
+        return numeroSolicitud;
+    }
+    public void setNumeroSolicitud(String numeroSolicitud) {
+        this.numeroSolicitud = numeroSolicitud;
+    }
+
+    public Long getIdVehiculo() {
+        return idVehiculo;
+    }
+    public void setIdVehiculo(Long idVehiculo) {
+        this.idVehiculo = idVehiculo;
+    }
+
+    public BigDecimal getScoreInterno() {
+        return scoreInterno;
+    }
+    public void setScoreInterno(BigDecimal scoreInterno) {
+        this.scoreInterno = scoreInterno;
+    }
+
+    public BigDecimal getScoreExterno() {
+        return scoreExterno;
+    }
+    public void setScoreExterno(BigDecimal scoreExterno) {
+        this.scoreExterno = scoreExterno;
+    }
+
+    public BigDecimal getRelacionCuotaIngreso() {
+        return relacionCuotaIngreso;
+    }
+    public void setRelacionCuotaIngreso(BigDecimal relacionCuotaIngreso) {
+        this.relacionCuotaIngreso = relacionCuotaIngreso;
+    }
+
+    public BigDecimal getTasaAnual() { return tasaAnual; }
+    public void setTasaAnual(BigDecimal tasaAnual) { this.tasaAnual = tasaAnual; }
+
+    public BigDecimal getCuotaMensual() { return cuotaMensual; }
+    public void setCuotaMensual(BigDecimal cuotaMensual) { this.cuotaMensual = cuotaMensual; }
+
+    public BigDecimal getTotalPagar() { return totalPagar; }
+    public void setTotalPagar(BigDecimal totalPagar) { this.totalPagar = totalPagar; }
+
 
     @Override
     public int hashCode() {

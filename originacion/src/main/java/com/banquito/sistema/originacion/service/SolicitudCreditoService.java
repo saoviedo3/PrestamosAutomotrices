@@ -43,7 +43,7 @@ public class SolicitudCreditoService {
         return this.solicitudCreditoRepository.findByIdVendedor(idVendedor);
     }
 
-    public SolicitudCredito findById(Integer id) {
+    public SolicitudCredito findById(Long id) {
         Optional<SolicitudCredito> solicitudOpt = this.solicitudCreditoRepository.findById(id);
         if (solicitudOpt.isPresent()) {
             return solicitudOpt.get();
@@ -177,7 +177,7 @@ public class SolicitudCreditoService {
      * @return La solicitud con el estado actualizado
      */
     @Transactional
-    public SolicitudCredito cambiarEstado(Integer id, String nuevoEstado) {
+    public SolicitudCredito cambiarEstado(Long id, String nuevoEstado) {
         Optional<SolicitudCredito> solicitudOpt = this.solicitudCreditoRepository.findById(id);
         if (!solicitudOpt.isPresent()) {
             throw new CreditoException("No existe la solicitud de crédito con ID: " + id);
@@ -200,7 +200,7 @@ public class SolicitudCreditoService {
     }
 
     @Transactional
-    public void delete(Integer id) {
+    public void delete(Long id) {
         Optional<SolicitudCredito> solicitudOpt = this.solicitudCreditoRepository.findById(id);
         if (!solicitudOpt.isPresent()) {
             throw new CreditoException("No existe la solicitud de crédito con ID: " + id);

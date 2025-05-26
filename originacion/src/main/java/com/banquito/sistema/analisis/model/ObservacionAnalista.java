@@ -29,7 +29,7 @@ public class ObservacionAnalista {
 
     @NotNull(message = "El ID de la solicitud es obligatorio")
     @Column(name = "IdSolicitud", nullable = false)
-    private Integer idSolicitud;
+    private Long idSolicitud;
 
     @NotBlank(message = "El usuario es obligatorio")
     @Size(max = 50, message = "El usuario debe tener máximo 50 caracteres")
@@ -67,11 +67,11 @@ public class ObservacionAnalista {
         this.id = id;
     }
 
-    public Integer getIdSolicitud() {
+    public Long getIdSolicitud() {
         return idSolicitud;
     }
 
-    public void setIdSolicitud(Integer idSolicitud) {
+    public void setIdSolicitud(Long idSolicitud) {
         this.idSolicitud = idSolicitud;
     }
 

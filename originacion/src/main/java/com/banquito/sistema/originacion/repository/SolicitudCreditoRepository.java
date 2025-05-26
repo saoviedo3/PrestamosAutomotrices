@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface SolicitudCreditoRepository extends JpaRepository<SolicitudCredito, Integer> {
+public interface SolicitudCreditoRepository extends JpaRepository<SolicitudCredito, Long> {
     
     Optional<SolicitudCredito> findByNumeroSolicitud(String numeroSolicitud);
     
@@ -19,5 +19,7 @@ public interface SolicitudCreditoRepository extends JpaRepository<SolicitudCredi
     
     List<SolicitudCredito> findByIdVendedor(Integer idVendedor);
     
-    boolean existsByIdVehiculo(Integer idVehiculo);
+    boolean existsByNumeroSolicitud(String numeroSolicitud);
+
+    boolean existsByIdVehiculo(Long idVehiculo);
 } 

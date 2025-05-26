@@ -59,7 +59,7 @@ public class VehiculoService {
         // }
 
         // 3. Evitar duplicados (ejemplo: mismo IdentificadorVehiculo)
-        Integer identId = vehiculo.getIdentificadorVehiculo().getId();
+        Long identId = vehiculo.getIdentificadorVehiculo().getId();
         if (vehiculoRepository.existsByIdentificadorVehiculoId(identId)) {
             throw new AlreadyExistsException(
                     "Vehiculo",
