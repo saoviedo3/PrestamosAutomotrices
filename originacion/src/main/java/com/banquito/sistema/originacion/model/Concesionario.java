@@ -3,7 +3,6 @@ package com.banquito.sistema.originacion.model;
 import java.util.Objects;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 
 @Entity
 @Table(name = "Concesionarios")

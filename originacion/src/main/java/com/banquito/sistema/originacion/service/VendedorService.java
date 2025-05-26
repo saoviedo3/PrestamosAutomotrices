@@ -19,14 +19,13 @@ public class VendedorService {
 
     private final VendedorRepository repository;
     private final ConcesionarioService concesionarioService;
-    private final HistorialEstadoService historialEstadoService;
 
     public VendedorService(VendedorRepository repository,
             ConcesionarioService concesionarioService,
             HistorialEstadoService historialEstadoService) {
         this.repository = repository;
         this.concesionarioService = concesionarioService;
-        this.historialEstadoService = historialEstadoService;
+
     }
 
     @Transactional(readOnly = true)
