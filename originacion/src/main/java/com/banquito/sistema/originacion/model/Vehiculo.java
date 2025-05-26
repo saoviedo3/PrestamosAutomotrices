@@ -55,7 +55,7 @@ public class Vehiculo {
     private IdentificadorVehiculo identificadorVehiculo;
 
     @ManyToOne
-    @JoinColumn(name = "IdConcesionario", referencedColumnName = "id", insertable = false, updatable = false)
+    @JoinColumn(name = "IdConcesionario", referencedColumnName = "IdConcesionario", insertable = false, updatable = false)
     private Concesionario concesionario;
 
     public Vehiculo() {

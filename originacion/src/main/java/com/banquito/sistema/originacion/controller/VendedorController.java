@@ -14,7 +14,7 @@ import com.banquito.sistema.originacion.service.VendedorService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/v1/vendedores")
+@RequestMapping("/api/vendedores")
 public class VendedorController {
 
     private final VendedorService service;
@@ -48,26 +48,6 @@ public class VendedorController {
     public ResponseEntity<Vendedor> getVendedorById(@PathVariable("id") Long id) {
         try {
             Vendedor vendedor = this.service.findById(id);
-            return ResponseEntity.ok(vendedor);
-        } catch (NotFoundException nfe) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/codigo/{codigo}")
-    public ResponseEntity<Vendedor> getVendedorByCodigo(@PathVariable("codigo") String codigo) {
-        try {
-            Vendedor vendedor = this.service.findByCodigo(codigo);
-            return ResponseEntity.ok(vendedor);
-        } catch (NotFoundException nfe) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/cedula/{cedula}")
-    public ResponseEntity<Vendedor> getVendedorByCedula(@PathVariable("cedula") String cedula) {
-        try {
-            Vendedor vendedor = this.service.findByCedula(cedula);
             return ResponseEntity.ok(vendedor);
         } catch (NotFoundException nfe) {
             return ResponseEntity.notFound().build();

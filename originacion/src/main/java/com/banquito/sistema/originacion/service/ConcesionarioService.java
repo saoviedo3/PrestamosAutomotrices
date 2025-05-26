@@ -17,11 +17,9 @@ import com.banquito.sistema.originacion.repository.ConcesionarioRepository;
 public class ConcesionarioService {
 
     private final ConcesionarioRepository repository;
-    private final HistorialEstadoService historialEstadoService;
 
-    public ConcesionarioService(ConcesionarioRepository repository, HistorialEstadoService historialEstadoService) {
+    public ConcesionarioService(ConcesionarioRepository repository) {
         this.repository = repository;
-        this.historialEstadoService = historialEstadoService;
     }
 
     @Transactional(readOnly = true)
@@ -39,48 +37,22 @@ public class ConcesionarioService {
     }
 
     @Transactional(readOnly = true)
-    public Concesionario findByCodigo(String codigo) {
-        Optional<Concesionario> concesionario = this.repository.findByCodigo(codigo);
-        if (concesionario.isEmpty()) {
-            throw new NotFoundException(codigo, "Concesionario");
-        }
-        return concesionario.get();
-    }
-
-    @Transactional(readOnly = true)
     public List<Concesionario> findByEstado(String estado) {
         return this.repository.findByEstado(estado);
     }
 
     @Transactional(readOnly = true)
-    public List<Concesionario> findByCiudad(String ciudad) {
-        return this.repository.findByCiudad(ciudad);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Concesionario> findByProvincia(String provincia) {
-        return this.repository.findByProvincia(provincia);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Concesionario> findByNombre(String nombre) {
-        return this.repository.findByNombreContainingIgnoreCase(nombre);
+    public List<Concesionario> findByRazonSocial(String razonSocial) {
+        return this.repository.findByRazonSocialContainingIgnoreCase(razonSocial);
     }
 
     public Concesionario create(Concesionario concesionario) {
         this.validateForCreate(concesionario);
-        concesionario.setEstado("ACTIVO");
+        if (concesionario.getEstado() == null || concesionario.getEstado().trim().isEmpty()) {
+            concesionario.setEstado("ACTIVO");
+        }
         Concesionario savedConcesionario = this.repository.save(concesionario);
-        
-        // Registrar en historial
-        this.historialEstadoService.registrarCambioEstado(
-            "CONCESIONARIO", 
-            savedConcesionario.getId(), 
-            null, 
-            "ACTIVO", 
-            "Creación de concesionario", 
-            "SISTEMA"
-        );
+
         
         return savedConcesionario;
     }
@@ -88,9 +60,9 @@ public class ConcesionarioService {
     public Concesionario update(Long id, Concesionario concesionario) {
         Concesionario existingConcesionario = this.findById(id);
         this.validateForUpdate(concesionario, existingConcesionario);
-        
-        concesionario.setId(id);
-        concesionario.setFechaCreacion(existingConcesionario.getFechaCreacion());
+
+        concesionario.setIdConcesionario(id);
+        concesionario.setVersion(existingConcesionario.getVersion());
         
         return this.repository.save(concesionario);
     }
@@ -104,39 +76,20 @@ public class ConcesionarioService {
         concesionario.setEstado(newState);
         Concesionario updatedConcesionario = this.repository.save(concesionario);
         
-        // Registrar en historial
-        this.historialEstadoService.registrarCambioEstado(
-            "CONCESIONARIO", 
-            id, 
-            oldState, 
-            newState, 
-            motivo, 
-            usuario
-        );
-        
         return updatedConcesionario;
     }
 
     private void validateForCreate(Concesionario concesionario) {
-        if (this.repository.existsByCodigo(concesionario.getCodigo())) {
-            throw new DuplicateException(concesionario.getCodigo(), "Concesionario con código");
-        }
-        
-        if (concesionario.getEmail() != null && this.repository.existsByEmail(concesionario.getEmail())) {
-            throw new DuplicateException(concesionario.getEmail(), "Concesionario con email");
+        if (concesionario.getEmailContacto() != null && this.repository.existsByEmailContacto(concesionario.getEmailContacto())) {
+            throw new DuplicateException(concesionario.getEmailContacto(), "Concesionario con email");
         }
     }
 
     private void validateForUpdate(Concesionario concesionario, Concesionario existing) {
-        if (!existing.getCodigo().equals(concesionario.getCodigo()) && 
-            this.repository.existsByCodigo(concesionario.getCodigo())) {
-            throw new DuplicateException(concesionario.getCodigo(), "Concesionario con código");
-        }
-        
-        if (concesionario.getEmail() != null && 
-            !concesionario.getEmail().equals(existing.getEmail()) && 
-            this.repository.existsByEmail(concesionario.getEmail())) {
-            throw new DuplicateException(concesionario.getEmail(), "Concesionario con email");
+        if (concesionario.getEmailContacto() != null && 
+            !concesionario.getEmailContacto().equals(existing.getEmailContacto()) && 
+            this.repository.existsByEmailContacto(concesionario.getEmailContacto())) {
+            throw new DuplicateException(concesionario.getEmailContacto(), "Concesionario con email");
         }
     }
 

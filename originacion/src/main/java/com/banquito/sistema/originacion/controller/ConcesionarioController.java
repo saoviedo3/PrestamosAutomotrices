@@ -14,7 +14,7 @@ import com.banquito.sistema.originacion.service.ConcesionarioService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/v1/concesionarios")
+@RequestMapping("/api/concesionarios")
 public class ConcesionarioController {
 
     private final ConcesionarioService service;
@@ -26,20 +26,14 @@ public class ConcesionarioController {
     @GetMapping
     public ResponseEntity<List<Concesionario>> getAllConcesionarios(
             @RequestParam(required = false) String estado,
-            @RequestParam(required = false) String ciudad,
-            @RequestParam(required = false) String provincia,
-            @RequestParam(required = false) String nombre) {
+            @RequestParam(required = false) String razonSocial) {
         
         List<Concesionario> concesionarios;
         
         if (estado != null) {
             concesionarios = this.service.findByEstado(estado);
-        } else if (ciudad != null) {
-            concesionarios = this.service.findByCiudad(ciudad);
-        } else if (provincia != null) {
-            concesionarios = this.service.findByProvincia(provincia);
-        } else if (nombre != null) {
-            concesionarios = this.service.findByNombre(nombre);
+        } else if (razonSocial != null) {
+            concesionarios = this.service.findByRazonSocial(razonSocial);
         } else {
             concesionarios = this.service.findAll();
         }
@@ -51,16 +45,6 @@ public class ConcesionarioController {
     public ResponseEntity<Concesionario> getConcesionarioById(@PathVariable("id") Long id) {
         try {
             Concesionario concesionario = this.service.findById(id);
-            return ResponseEntity.ok(concesionario);
-        } catch (NotFoundException nfe) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/codigo/{codigo}")
-    public ResponseEntity<Concesionario> getConcesionarioByCodigo(@PathVariable("codigo") String codigo) {
-        try {
-            Concesionario concesionario = this.service.findByCodigo(codigo);
             return ResponseEntity.ok(concesionario);
         } catch (NotFoundException nfe) {
             return ResponseEntity.notFound().build();

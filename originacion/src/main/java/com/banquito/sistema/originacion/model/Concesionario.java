@@ -1,95 +1,106 @@
 package com.banquito.sistema.originacion.model;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.*;
 
 @Entity
-@Table(name = "concesionarios")
-@Getter
-@Setter
-@NoArgsConstructor
-@ToString
+@Table(name = "Concesionarios")
 public class Concesionario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
+    @Column(name = "IdConcesionario")
+    private Long idConcesionario;
 
-    @NotBlank(message = "El código es obligatorio")
-    @Size(max = 20, message = "El código no puede tener más de 20 caracteres")
-    @Column(name = "codigo", unique = true, nullable = false, length = 20)
-    private String codigo;
+    @Column(name = "RazonSocial", nullable = false, length = 50)
+    private String razonSocial;
 
-    @NotBlank(message = "El nombre es obligatorio")
-    @Size(max = 100, message = "El nombre no puede tener más de 100 caracteres")
-    @Column(name = "nombre", nullable = false, length = 100)
-    private String nombre;
 
-    @NotBlank(message = "La dirección es obligatoria")
-    @Size(max = 200, message = "La dirección no puede tener más de 200 caracteres")
-    @Column(name = "direccion", nullable = false, length = 200)
+    @Column(name = "Direccion", nullable = false, length = 120)
     private String direccion;
 
-    @Size(max = 15, message = "El teléfono no puede tener más de 15 caracteres")
-    @Column(name = "telefono", length = 15)
+
+    @Column(name = "Telefono", length = 20)
     private String telefono;
 
-    @Email(message = "El email debe tener un formato válido")
-    @Size(max = 100, message = "El email no puede tener más de 100 caracteres")
-    @Column(name = "email", length = 100)
-    private String email;
+    @Column(name = "EmailContacto", length = 50)
+    private String emailContacto;
 
-    @NotBlank(message = "La ciudad es obligatoria")
-    @Size(max = 50, message = "La ciudad no puede tener más de 50 caracteres")
-    @Column(name = "ciudad", nullable = false, length = 50)
-    private String ciudad;
+    @Column(name = "Estado", length = 20, nullable = false)
+    private String estado;
 
-    @NotBlank(message = "La provincia es obligatoria")
-    @Size(max = 50, message = "La provincia no puede tener más de 50 caracteres")
-    @Column(name = "provincia", nullable = false, length = 50)
-    private String provincia;
+    @Version
+    private Long version; 
 
-    @NotBlank(message = "El estado es obligatorio")
-    @Pattern(regexp = "ACTIVO|INACTIVO|SUSPENDIDO", message = "El estado debe ser ACTIVO, INACTIVO o SUSPENDIDO")
-    @Column(name = "estado", nullable = false, length = 20)
-    private String estado; 
-
-    @Column(name = "fecha_creacion", nullable = false)
-    private LocalDateTime fechaCreacion;
-
-    @Column(name = "fecha_actualizacion")
-    private LocalDateTime fechaActualizacion;
-
-    public Concesionario(Long id) {
-        this.id = id;
+    public Concesionario() {
     }
-
+    public Concesionario(Long idConcesionario) {
+        this.idConcesionario = idConcesionario;
+    }
+    public Long getIdConcesionario() {
+        return idConcesionario;
+    }
+    public void setIdConcesionario(Long idConcesionario) {
+        this.idConcesionario = idConcesionario;
+    }
+    public String getRazonSocial() {
+        return razonSocial;
+    }
+    public void setRazonSocial(String razonSocial) {
+        this.razonSocial = razonSocial;
+    }
+    public String getDireccion() {
+        return direccion;
+    }
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
+    }
+    public String getTelefono() {
+        return telefono;
+    }
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+    public String getEmailContacto() {
+        return emailContacto;
+    }
+    public void setEmailContacto(String emailContacto) {
+        this.emailContacto = emailContacto;
+    }
+    public String getEstado() {
+        return estado;
+    }
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+    public Long getVersion() {
+        return version;
+    }
+    public void setVersion(Long version) {
+        this.version = version;
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Concesionario that = (Concesionario) o;
-        return Objects.equals(id, that.id);
+        if (!(o instanceof Concesionario that)) return false;
+        return Objects.equals(idConcesionario, that.idConcesionario);
     }
-
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(idConcesionario);
     }
-
-    @PrePersist
-    protected void onCreate() {
-        fechaCreacion = LocalDateTime.now();
-        fechaActualizacion = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        fechaActualizacion = LocalDateTime.now();
-    }
+    @Override
+    public String toString() {
+        return "Concesionario{" +
+                "idConcesionario=" + idConcesionario +
+                ", razonSocial='" + razonSocial + '\'' +
+                ", direccion='" + direccion + '\'' +
+                ", telefono='" + telefono + '\'' +
+                ", emailContacto='" + emailContacto + '\'' +
+                ", estado='" + estado + '\'' +
+                ", version=" + version +
+                '}';
+    }   
 }

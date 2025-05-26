@@ -1,121 +1,118 @@
 package com.banquito.sistema.originacion.model;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-import lombok.*;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
-@Table(name = "vendedores")
-@Getter
-@Setter
-@NoArgsConstructor
-@ToString
+@Table(name = "Vendedores")
 public class Vendedor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "IdVendedor")
     private Long id;
 
-    @NotBlank(message = "El código es obligatorio")
-    @Size(max = 20, message = "El código no puede tener más de 20 caracteres")
-    @Column(name = "codigo", unique = true, nullable = false, length = 20)
-    private String codigo;
+    @Column(name = "IdConcesionario", nullable = false)
+    private Long idConcesionario;
 
-    @NotBlank(message = "La cédula es obligatoria")
-    @Size(min = 10, max = 10, message = "La cédula debe tener exactamente 10 caracteres")
-    @Pattern(regexp = "\\d{10}", message = "La cédula debe contener solo números")
-    @Column(name = "cedula", unique = true, nullable = false, length = 10)
-    private String cedula;
+    @Column(name = "Nombre", nullable = false, length = 100)
+    private String nombre;
 
-    @NotBlank(message = "Los nombres son obligatorios")
-    @Size(max = 100, message = "Los nombres no pueden tener más de 100 caracteres")
-    @Column(name = "nombres", nullable = false, length = 100)
-    private String nombres;
-
-    @NotBlank(message = "Los apellidos son obligatorios")
-    @Size(max = 100, message = "Los apellidos no pueden tener más de 100 caracteres")
-    @Column(name = "apellidos", nullable = false, length = 100)
-    private String apellidos;
-
-    @Size(max = 15, message = "El teléfono no puede tener más de 15 caracteres")
-    @Column(name = "telefono", length = 15)
+    @Column(name = "Telefono", length = 20)
     private String telefono;
 
-    @Email(message = "El email debe tener un formato válido")
-    @Size(max = 100, message = "El email no puede tener más de 100 caracteres")
-    @Column(name = "email", length = 100)
+    @Column(name = "Email", length = 60)
     private String email;
 
-    @NotBlank(message = "El estado es obligatorio")
-    @Pattern(regexp = "ACTIVO|INACTIVO|SUSPENDIDO", message = "El estado debe ser ACTIVO, INACTIVO o SUSPENDIDO")
-    @Column(name = "estado", nullable = false, length = 20)
-    private String estado; 
+    @Column(name = "Estado", length = 20, nullable = false)
+    private String estado;
 
-    @NotNull(message = "La fecha de ingreso es obligatoria")
-    @Column(name = "fecha_ingreso", nullable = false)
-    private LocalDateTime fechaIngreso;
+    @Version
+    @Column(name = "Version")
+    private Long version;
 
-    @Column(name = "fecha_creacion", nullable = false)
-    private LocalDateTime fechaCreacion;
-
-    @Column(name = "fecha_actualizacion")
-    private LocalDateTime fechaActualizacion;
-
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "concesionario_id", nullable = false)
+    //relacion concesionario
+    @ManyToOne
+    @JoinColumn(name = "IdConcesionario", referencedColumnName = "IdConcesionario", insertable = false, updatable = false)
     private Concesionario concesionario;
 
-    
-    @JsonProperty("concesionarioId")
-    public Long getConcesionarioId() {
-        return concesionario != null ? concesionario.getId() : null;
-    }
 
-    @JsonProperty("concesionarioNombre")
-    public String getConcesionarioNombre() {
-        return concesionario != null ? concesionario.getNombre() : null;
+    public Vendedor() {
     }
-
-    
-    @JsonProperty("concesionarioId")
-    public void setConcesionarioId(Long concesionarioId) {
-        if (concesionarioId != null) {
-            this.concesionario = new Concesionario(concesionarioId);
-        }
-    }
-
     public Vendedor(Long id) {
         this.id = id;
     }
-
+    public Long getId() {
+        return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
+    public Long getIdConcesionario() {
+        return idConcesionario;
+    }
+    public void setIdConcesionario(Long idConcesionario) {
+        this.idConcesionario = idConcesionario;
+    }
+    public String getNombre() {
+        return nombre;
+    }
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+    public String getTelefono() {
+        return telefono;
+    }
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+    public String getEmail() {
+        return email;
+    }
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    public String getEstado() {
+        return estado;
+    }
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+    public Long getVersion() {
+        return version;
+    }
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+    public Concesionario getConcesionario() {
+        return concesionario;
+    }
+    public void setConcesionario(Concesionario concesionario) {
+        this.concesionario = concesionario;
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Vendedor)) return false;
         Vendedor vendedor = (Vendedor) o;
         return Objects.equals(id, vendedor.id);
     }
-
     @Override
     public int hashCode() {
         return Objects.hash(id);
     }
-
-    @PrePersist
-    protected void onCreate() {
-        fechaCreacion = LocalDateTime.now();
-        fechaActualizacion = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        fechaActualizacion = LocalDateTime.now();
+    @Override
+    public String toString() {
+        return "Vendedor{" +
+                "id=" + id +
+                ", idConcesionario=" + idConcesionario +
+                ", nombres='" + nombre + '\'' +
+                ", telefono='" + telefono + '\'' +
+                ", email='" + email + '\'' +
+                ", estado='" + estado + '\'' +
+                ", version=" + version +
+                ", concesionario=" + (concesionario != null ? concesionario.getIdConcesionario() : null) +
+                '}';
     }
 }

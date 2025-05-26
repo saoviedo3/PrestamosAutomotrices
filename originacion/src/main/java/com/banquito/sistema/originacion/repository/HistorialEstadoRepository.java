@@ -11,15 +11,13 @@ import com.banquito.sistema.originacion.model.HistorialEstado;
 @Repository
 public interface HistorialEstadoRepository extends JpaRepository<HistorialEstado, Long> {
 
-    List<HistorialEstado> findByEntidadTipoAndEntidadId(String entidadTipo, Long entidadId);
+    List<HistorialEstado> findByIdSolicitud(Long idSolicitud);
     
-    List<HistorialEstado> findByEntidadTipo(String entidadTipo);
+    List<HistorialEstado> findByUsuario(String usuario);
     
-    List<HistorialEstado> findByUsuarioCambio(String usuarioCambio);
+    List<HistorialEstado> findByFechaHoraBetween(LocalDateTime fechaInicio, LocalDateTime fechaFin);
     
-    List<HistorialEstado> findByFechaCambioBetween(LocalDateTime fechaInicio, LocalDateTime fechaFin);
+    List<HistorialEstado> findByIdSolicitudOrderByFechaHoraDesc(Long idSolicitud);
     
-    List<HistorialEstado> findByEntidadTipoAndEntidadIdOrderByFechaCambioDesc(String entidadTipo, Long entidadId);
-    
-    List<HistorialEstado> findByEstadoNuevo(String estadoNuevo);
+    List<HistorialEstado> findByEstado(String estado);
 } 

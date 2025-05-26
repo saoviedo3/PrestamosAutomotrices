@@ -36,54 +36,37 @@ public class HistorialEstadoService {
     }
 
     @Transactional(readOnly = true)
-    public List<HistorialEstado> findByEntidadTipoAndEntidadId(String entidadTipo, Long entidadId) {
-        return this.repository.findByEntidadTipoAndEntidadIdOrderByFechaCambioDesc(entidadTipo, entidadId);
+    public List<HistorialEstado> findByIdSolicitud(Long idSolicitud) {
+        return this.repository.findByIdSolicitudOrderByFechaHoraDesc(idSolicitud);
     }
 
     @Transactional(readOnly = true)
-    public List<HistorialEstado> findByEntidadTipo(String entidadTipo) {
-        return this.repository.findByEntidadTipo(entidadTipo);
+    public List<HistorialEstado> findByUsuario(String usuario) {
+        return this.repository.findByUsuario(usuario);
     }
 
     @Transactional(readOnly = true)
-    public List<HistorialEstado> findByUsuarioCambio(String usuarioCambio) {
-        return this.repository.findByUsuarioCambio(usuarioCambio);
+    public List<HistorialEstado> findByFechaHoraBetween(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        return this.repository.findByFechaHoraBetween(fechaInicio, fechaFin);
     }
 
     @Transactional(readOnly = true)
-    public List<HistorialEstado> findByFechaCambioBetween(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-        return this.repository.findByFechaCambioBetween(fechaInicio, fechaFin);
-    }
-
-    @Transactional(readOnly = true)
-    public List<HistorialEstado> findByEstadoNuevo(String estadoNuevo) {
-        return this.repository.findByEstadoNuevo(estadoNuevo);
+    public List<HistorialEstado> findByEstado(String estado) {
+        return this.repository.findByEstado(estado);
     }
 
     public HistorialEstado create(HistorialEstado historialEstado) {
         return this.repository.save(historialEstado);
     }
 
-    public HistorialEstado registrarCambioEstado(String entidadTipo, Long entidadId, 
-                                                String estadoAnterior, String estadoNuevo, 
-                                                String motivo, String usuarioCambio) {
-        return this.registrarCambioEstado(entidadTipo, entidadId, estadoAnterior, 
-                                        estadoNuevo, motivo, usuarioCambio, null);
-    }
-
-    public HistorialEstado registrarCambioEstado(String entidadTipo, Long entidadId, 
-                                                String estadoAnterior, String estadoNuevo, 
-                                                String motivo, String usuarioCambio, 
-                                                String observaciones) {
+    public HistorialEstado registrarCambioEstado(Long idSolicitud, String estado, 
+                                                String motivo, String usuario) {
         HistorialEstado historial = new HistorialEstado();
-        historial.setEntidadTipo(entidadTipo);
-        historial.setEntidadId(entidadId);
-        historial.setEstadoAnterior(estadoAnterior);
-        historial.setEstadoNuevo(estadoNuevo);
+        historial.setIdSolicitud(idSolicitud);
+        historial.setEstado(estado);
         historial.setMotivo(motivo);
-        historial.setUsuarioCambio(usuarioCambio);
-        historial.setObservaciones(observaciones);
-        
+        historial.setUsuario(usuario);
+        historial.setFechaHora(null);
         return this.repository.save(historial);
     }
 } 
