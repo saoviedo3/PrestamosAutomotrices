@@ -2,48 +2,68 @@ package com.banquito.sistema.originacion.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+import java.math.BigDecimal;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 
 @Entity
-@Table(name = "ClientesProspectos")
+@Table(name = "clientesprospectos")
 public class ClienteProspecto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "IdClienteProspecto", nullable = false)
-    private Long id;
+    private Integer idClienteProspecto;
 
-    @Column(name = "Cedula", length = 10, nullable = false)
+    @Column(name = "Cedula", length = 10, nullable = false, unique = true)
     private String cedula;
 
-    @Column(name = "Nombres", length = 100, nullable = false)
-    private String nombres;
+    @Column(name = "Nombre", length = 50, nullable = false)
+    private String nombre;
 
-    @Column(name = "Apellidos", length = 100, nullable = false)
-    private String apellidos;
+    @Column(name = "Apellido", length = 50, nullable = false)
+    private String apellido;
 
-    @Column(name = "Email", length = 100)
+    @Column(name = "telefono", length = 20, nullable = false)
+    private String telefono;
+
+    @Column(name = "Email", length = 60, nullable = false)
     private String email;
 
-    @Column(name = "Telefono", length = 15)
-    private String telefono;
+    @Column(name = "Direccion", length = 120, nullable = false)
+    private String direccion;
+
+    @Column(name = "ingresos", precision = 12, scale = 2, nullable = false)
+    private BigDecimal ingresos;
+
+    @Column(name = "egresos", precision = 12, scale = 2, nullable = false)
+    private BigDecimal egresos;
+
+    @Column(name = "actividad_economica", length = 120, nullable = false)
+    private String actividadEconomica;
+
+    @Column(name = "Estado", length = 20, nullable = false)
+    private String estado;
+
+    @Version
+    private Long version;
 
     public ClienteProspecto() {
     }
 
-    public ClienteProspecto(Long id) {
-        this.id = id;
+    public ClienteProspecto(Integer idClienteProspecto) {
+        this.idClienteProspecto = idClienteProspecto;
     }
 
-    public Long getId() {
-        return id;
+    public Integer getIdClienteProspecto() {
+        return idClienteProspecto;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdClienteProspecto(Integer idClienteProspecto) {
+        this.idClienteProspecto = idClienteProspecto;
     }
 
     public String getCedula() {
@@ -54,28 +74,20 @@ public class ClienteProspecto {
         this.cedula = cedula;
     }
 
-    public String getNombres() {
-        return nombres;
+    public String getNombre() {
+        return nombre;
     }
 
-    public void setNombres(String nombres) {
-        this.nombres = nombres;
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
-    public String getApellidos() {
-        return apellidos;
+    public String getApellido() {
+        return apellido;
     }
 
-    public void setApellidos(String apellidos) {
-        this.apellidos = apellidos;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    public void setApellido(String apellido) {
+        this.apellido = apellido;
     }
 
     public String getTelefono() {
@@ -86,11 +98,71 @@ public class ClienteProspecto {
         this.telefono = telefono;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
+    }
+
+    public BigDecimal getIngresos() {
+        return ingresos;
+    }
+
+    public void setIngresos(BigDecimal ingresos) {
+        this.ingresos = ingresos;
+    }
+
+    public BigDecimal getEgresos() {
+        return egresos;
+    }
+
+    public void setEgresos(BigDecimal egresos) {
+        this.egresos = egresos;
+    }
+
+    public String getActividadEconomica() {
+        return actividadEconomica;
+    }
+
+    public void setActividadEconomica(String actividadEconomica) {
+        this.actividadEconomica = actividadEconomica;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
+    public Integer getId() {
+        return this.idClienteProspecto;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((idClienteProspecto == null) ? 0 : idClienteProspecto.hashCode());
         return result;
     }
 
@@ -103,17 +175,20 @@ public class ClienteProspecto {
         if (getClass() != obj.getClass())
             return false;
         ClienteProspecto other = (ClienteProspecto) obj;
-        if (id == null) {
-            if (other.id != null)
+        if (idClienteProspecto == null) {
+            if (other.idClienteProspecto != null)
                 return false;
-        } else if (!id.equals(other.id))
+        } else if (!idClienteProspecto.equals(other.idClienteProspecto))
             return false;
         return true;
     }
 
     @Override
     public String toString() {
-        return "ClienteProspecto [id=" + id + ", cedula=" + cedula + ", nombres=" + nombres + 
-               ", apellidos=" + apellidos + ", email=" + email + ", telefono=" + telefono + "]";
+        return "ClienteProspecto [idClienteProspecto=" + idClienteProspecto + ", cedula=" + cedula + ", nombre="
+                + nombre
+                + ", apellido=" + apellido + ", telefono=" + telefono + ", email=" + email + ", direccion=" + direccion
+                + ", ingresos=" + ingresos + ", egresos=" + egresos + ", actividadEconomica=" + actividadEconomica
+                + ", estado=" + estado + ", version=" + version + "]";
     }
 }

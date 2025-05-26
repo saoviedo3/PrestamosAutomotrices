@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RestController
-@RequestMapping("/v1/solicitudes-credito")
+@RequestMapping("/api/solicitudes")
 public class SolicitudCreditoController {
 
     private static final Logger LOG = LoggerFactory.getLogger(SolicitudCreditoController.class);

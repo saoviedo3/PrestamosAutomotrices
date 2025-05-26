@@ -1,17 +1,18 @@
 package com.banquito.sistema.originacion.model;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
+import java.time.LocalDateTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 @Entity
-@Table(name = "Contratos")
+@Table(name = "contratos")
 public class Contrato {
 
     @Id
@@ -19,23 +20,31 @@ public class Contrato {
     @Column(name = "IdContrato", nullable = false)
     private Long id;
 
-    @Column(name = "NumeroContrato", length = 50, nullable = false, unique = true)
-    private String numeroContrato;
+    @Column(name = "IdSolicitud", nullable = false)
+    private Long idSolicitud;
 
-    @Column(name = "MontoFinanciado", precision = 15, scale = 2, nullable = false)
-    private BigDecimal montoFinanciado;
+    @Column(name = "RutaArchivo", nullable = false, length = 150)
+    private String rutaArchivo;
 
-    @Column(name = "TasaInteres", precision = 5, scale = 4, nullable = false)
-    private BigDecimal tasaInteres;
+    @Column(name = "FechaGenerado", nullable = false)
+    private LocalDateTime fechaGenerado;
 
-    @Column(name = "PlazoMeses", nullable = false)
-    private Integer plazoMeses;
+    @Column(name = "FechaFirma", nullable = false)
+    private LocalDateTime fechaFirma;
 
-    @Column(name = "FechaContrato", nullable = false)
-    private LocalDate fechaContrato;
-
-    @Column(name = "Estado", length = 20, nullable = false)
+    @Column(name = "Estado", nullable = false, length = 20)
     private String estado;
+
+    @Column(name = "CondicionEspecial", length = 120)
+    private String condicionEspecial;
+
+    @Version
+    @Column(name = "Version", nullable = false)
+    private Long version;
+
+    @ManyToOne
+    @JoinColumn(name = "IdSolicitud", referencedColumnName = "IdSolicitud", insertable = false, updatable = false)
+    private SolicitudCredito solicitudCredito;
 
     public Contrato() {
     }
@@ -52,44 +61,36 @@ public class Contrato {
         this.id = id;
     }
 
-    public String getNumeroContrato() {
-        return numeroContrato;
+    public Long getIdSolicitud() {
+        return idSolicitud;
     }
 
-    public void setNumeroContrato(String numeroContrato) {
-        this.numeroContrato = numeroContrato;
+    public void setIdSolicitud(Long idSolicitud) {
+        this.idSolicitud = idSolicitud;
     }
 
-    public BigDecimal getMontoFinanciado() {
-        return montoFinanciado;
+    public String getRutaArchivo() {
+        return rutaArchivo;
     }
 
-    public void setMontoFinanciado(BigDecimal montoFinanciado) {
-        this.montoFinanciado = montoFinanciado;
+    public void setRutaArchivo(String rutaArchivo) {
+        this.rutaArchivo = rutaArchivo;
     }
 
-    public BigDecimal getTasaInteres() {
-        return tasaInteres;
+    public LocalDateTime getFechaGenerado() {
+        return fechaGenerado;
     }
 
-    public void setTasaInteres(BigDecimal tasaInteres) {
-        this.tasaInteres = tasaInteres;
+    public void setFechaGenerado(LocalDateTime fechaGenerado) {
+        this.fechaGenerado = fechaGenerado;
     }
 
-    public Integer getPlazoMeses() {
-        return plazoMeses;
+    public LocalDateTime getFechaFirma() {
+        return fechaFirma;
     }
 
-    public void setPlazoMeses(Integer plazoMeses) {
-        this.plazoMeses = plazoMeses;
-    }
-
-    public LocalDate getFechaContrato() {
-        return fechaContrato;
-    }
-
-    public void setFechaContrato(LocalDate fechaContrato) {
-        this.fechaContrato = fechaContrato;
+    public void setFechaFirma(LocalDateTime fechaFirma) {
+        this.fechaFirma = fechaFirma;
     }
 
     public String getEstado() {
@@ -98,6 +99,30 @@ public class Contrato {
 
     public void setEstado(String estado) {
         this.estado = estado;
+    }
+
+    public String getCondicionEspecial() {
+        return condicionEspecial;
+    }
+
+    public void setCondicionEspecial(String condicionEspecial) {
+        this.condicionEspecial = condicionEspecial;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
+    public SolicitudCredito getSolicitudCredito() {
+        return solicitudCredito;
+    }
+
+    public void setSolicitudCredito(SolicitudCredito solicitudCredito) {
+        this.solicitudCredito = solicitudCredito;
     }
 
     @Override
@@ -127,9 +152,9 @@ public class Contrato {
 
     @Override
     public String toString() {
-        return "Contrato [id=" + id + ", numeroContrato=" + numeroContrato + 
-               ", montoFinanciado=" + montoFinanciado + ", tasaInteres=" + tasaInteres + 
-               ", plazoMeses=" + plazoMeses + ", fechaContrato=" + fechaContrato + 
-               ", estado=" + estado + "]";
+        return "Contrato [id=" + id + ", idSolicitud=" + idSolicitud + ", rutaArchivo=" + rutaArchivo
+                + ", fechaGenerado=" + fechaGenerado + ", fechaFirma=" + fechaFirma + ", estado=" + estado
+                + ", condicionEspecial=" + condicionEspecial + ", version=" + version + ", solicitudCredito="
+                + solicitudCredito + "]";
     }
 } 

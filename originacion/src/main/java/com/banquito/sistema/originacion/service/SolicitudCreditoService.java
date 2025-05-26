@@ -3,10 +3,10 @@ package com.banquito.sistema.originacion.service;
 import com.banquito.sistema.originacion.model.SolicitudCredito;
 import com.banquito.sistema.originacion.repository.SolicitudCreditoRepository;
 import com.banquito.sistema.originacion.service.exception.CreditoException;
-
-import jakarta.transaction.Transactional;
+import com.banquito.sistema.originacion.exception.SolicitudCreditoNotFoundException;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -286,5 +286,11 @@ public class SolicitudCreditoService {
         } else {
             return "C"; // Riesgo alto
         }
+    }
+
+    @Transactional(readOnly = true)
+    public SolicitudCredito getById(Long id) {
+        return solicitudCreditoRepository.findById(id)
+                .orElseThrow(() -> new SolicitudCreditoNotFoundException(id));
     }
 } 

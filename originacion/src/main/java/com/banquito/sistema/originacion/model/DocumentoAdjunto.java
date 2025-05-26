@@ -1,40 +1,48 @@
 package com.banquito.sistema.originacion.model;
 
 import java.time.LocalDateTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 @Entity
-@Table(name = "DocumentosAdjuntos")
+@Table(name = "documentosadjuntos")
 public class DocumentoAdjunto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "IdDocumentoAdjunto", nullable = false)
+    @Column(name = "IdDocumento", nullable = false)
     private Long id;
 
-    @Column(name = "NombreArchivo", length = 255, nullable = false)
-    private String nombreArchivo;
+    @Column(name = "IdSolicitud", nullable = false)
+    private Long idSolicitud;
 
-    @Column(name = "RutaArchivo", length = 500, nullable = false)
+    @Column(name = "IdTipoDocumento", nullable = false)
+    private Long idTipoDocumento;
+
+    @Column(name = "RutaArchivo", nullable = false, length = 150)
     private String rutaArchivo;
 
-    @Column(name = "TipoMime", length = 100)
-    private String tipoMime;
+    @Column(name = "FechaCargado", nullable = false)
+    private LocalDateTime fechaCargado;
 
-    @Column(name = "Tamaño")
-    private Long tamaño;
+    @Version
+    @Column(name = "Version", nullable = false)
+    private Long version;
 
-    @Column(name = "FechaSubida", nullable = false)
-    private LocalDateTime fechaSubida;
+    @ManyToOne
+    @JoinColumn(name = "IdSolicitud", referencedColumnName = "IdSolicitud", insertable = false, updatable = false)
+    private SolicitudCredito solicitudCredito;
 
-    @Column(name = "Estado", length = 20, nullable = false)
-    private String estado;
+    @ManyToOne
+    @JoinColumn(name = "IdTipoDocumento", referencedColumnName = "IdTipoDocumento", insertable = false, updatable = false)
+    private TipoDocumento tipoDocumento;
 
     public DocumentoAdjunto() {
     }
@@ -51,12 +59,20 @@ public class DocumentoAdjunto {
         this.id = id;
     }
 
-    public String getNombreArchivo() {
-        return nombreArchivo;
+    public Long getIdSolicitud() {
+        return idSolicitud;
     }
 
-    public void setNombreArchivo(String nombreArchivo) {
-        this.nombreArchivo = nombreArchivo;
+    public void setIdSolicitud(Long idSolicitud) {
+        this.idSolicitud = idSolicitud;
+    }
+
+    public Long getIdTipoDocumento() {
+        return idTipoDocumento;
+    }
+
+    public void setIdTipoDocumento(Long idTipoDocumento) {
+        this.idTipoDocumento = idTipoDocumento;
     }
 
     public String getRutaArchivo() {
@@ -67,36 +83,36 @@ public class DocumentoAdjunto {
         this.rutaArchivo = rutaArchivo;
     }
 
-    public String getTipoMime() {
-        return tipoMime;
+    public LocalDateTime getFechaCargado() {
+        return fechaCargado;
     }
 
-    public void setTipoMime(String tipoMime) {
-        this.tipoMime = tipoMime;
+    public void setFechaCargado(LocalDateTime fechaCargado) {
+        this.fechaCargado = fechaCargado;
     }
 
-    public Long getTamaño() {
-        return tamaño;
+    public Long getVersion() {
+        return version;
     }
 
-    public void setTamaño(Long tamaño) {
-        this.tamaño = tamaño;
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
-    public LocalDateTime getFechaSubida() {
-        return fechaSubida;
+    public SolicitudCredito getSolicitudCredito() {
+        return solicitudCredito;
     }
 
-    public void setFechaSubida(LocalDateTime fechaSubida) {
-        this.fechaSubida = fechaSubida;
+    public void setSolicitudCredito(SolicitudCredito solicitudCredito) {
+        this.solicitudCredito = solicitudCredito;
     }
 
-    public String getEstado() {
-        return estado;
+    public TipoDocumento getTipoDocumento() {
+        return tipoDocumento;
     }
 
-    public void setEstado(String estado) {
-        this.estado = estado;
+    public void setTipoDocumento(TipoDocumento tipoDocumento) {
+        this.tipoDocumento = tipoDocumento;
     }
 
     @Override
@@ -126,8 +142,8 @@ public class DocumentoAdjunto {
 
     @Override
     public String toString() {
-        return "DocumentoAdjunto [id=" + id + ", nombreArchivo=" + nombreArchivo + 
-               ", rutaArchivo=" + rutaArchivo + ", tipoMime=" + tipoMime + 
-               ", tamaño=" + tamaño + ", fechaSubida=" + fechaSubida + ", estado=" + estado + "]";
+        return "DocumentoAdjunto [id=" + id + ", idSolicitud=" + idSolicitud + ", idTipoDocumento=" + idTipoDocumento
+                + ", rutaArchivo=" + rutaArchivo + ", fechaCargado=" + fechaCargado + ", version=" + version
+                + ", solicitudCredito=" + solicitudCredito + ", tipoDocumento=" + tipoDocumento + "]";
     }
 }

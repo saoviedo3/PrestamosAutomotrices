@@ -49,7 +49,7 @@ public class ObservacionAnalista {
     private Long version;
 
     @ManyToOne
-    @JoinColumn(name = "IdSolicitud", referencedColumnName = "IdSolicitudCredito", insertable = false, updatable = false)
+    @JoinColumn(name = "IdSolicitud", referencedColumnName = "IdSolicitud", insertable = false, updatable = false)
     private SolicitudCredito solicitudCredito;
 
     public ObservacionAnalista() {

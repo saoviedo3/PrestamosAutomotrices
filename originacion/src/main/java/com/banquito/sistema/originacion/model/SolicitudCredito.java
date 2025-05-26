@@ -1,59 +1,74 @@
 package com.banquito.sistema.originacion.model;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 @Entity
-@Table(name = "SolicitudesCreditos")
+@Table(name = "SolicitudesCredito")
 public class SolicitudCredito {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "IdSolicitudCredito", nullable = false)
+    @Column(name = "IdSolicitud", nullable = false)
     private Long id;
 
-    @Column(name = "NumeroSolicitud", length = 50, nullable = false, unique = true)
+    @Column(name = "NumeroSolicitud", nullable = false, length = 20, unique = true)
     private String numeroSolicitud;
+
+    @Column(name = "IdClienteProspecto", nullable = false)
+    private Long idClienteProspecto;
 
     @Column(name = "IdVehiculo", nullable = false)
     private Long idVehiculo;
 
-    @Column(name = "MontoSolicitado", precision = 15, scale = 2, nullable = false)
+    @Column(name = "MontoSolicitado", nullable = false, precision = 10, scale = 2)
     private BigDecimal montoSolicitado;
 
     @Column(name = "PlazoMeses", nullable = false)
     private Integer plazoMeses;
 
-    @Column(name = "FechaSolicitud", nullable = false)
-    private LocalDate fechaSolicitud;
-
-    @Column(name = "ScoreInterno", precision = 10, scale = 2)
-    private BigDecimal scoreInterno;
-
-    @Column(name = "ScoreExterno", precision = 10, scale = 2)
-    private BigDecimal scoreExterno;
-
-    @Column(name = "RelacionCuotaIngreso", precision = 10, scale = 2)
-    private BigDecimal relacionCuotaIngreso;
-
-    @Column(name = "TasaAnual", precision = 10, scale = 6, nullable = false)
+    @Column(name = "TasaAnual", nullable = false, precision = 5, scale = 2)
     private BigDecimal tasaAnual;
 
-    @Column(name = "CuotaMensual", precision = 15, scale = 2, nullable = false)
+    @Column(name = "CuotaMensual", nullable = false, precision = 10, scale = 2)
     private BigDecimal cuotaMensual;
 
-    @Column(name = "TotalPagar", precision = 15, scale = 2, nullable = false)
+    @Column(name = "TotalPagar", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalPagar;
 
-    @Column(name = "Estado", length = 20, nullable = false)
+    @Column(name = "ScoreInterno", precision = 5, scale = 2)
+    private BigDecimal scoreInterno;
+
+    @Column(name = "ScoreExterno", precision = 5, scale = 2)
+    private BigDecimal scoreExterno;
+
+    @Column(name = "RelacionCuotaIngreso", precision = 5, scale = 2)
+    private BigDecimal relacionCuotaIngreso;
+
+    @Column(name = "Estado", nullable = false, length = 20)
     private String estado;
+
+    @Version
+    @Column(name = "Version", nullable = false)
+    private Long version;
+
+    @OneToMany(mappedBy = "solicitudCredito")
+    private List<Contrato> contratos;
+
+    @OneToMany(mappedBy = "solicitudCredito")
+    private List<DocumentoAdjunto> documentosAdjuntos;
+
+    @OneToMany(mappedBy = "solicitudCredito")
+    private List<Pagare> pagares;
 
     public SolicitudCredito() {
     }
@@ -68,6 +83,30 @@ public class SolicitudCredito {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getNumeroSolicitud() {
+        return numeroSolicitud;
+    }
+
+    public void setNumeroSolicitud(String numeroSolicitud) {
+        this.numeroSolicitud = numeroSolicitud;
+    }
+
+    public Long getIdClienteProspecto() {
+        return idClienteProspecto;
+    }
+
+    public void setIdClienteProspecto(Long idClienteProspecto) {
+        this.idClienteProspecto = idClienteProspecto;
+    }
+
+    public Long getIdVehiculo() {
+        return idVehiculo;
+    }
+
+    public void setIdVehiculo(Long idVehiculo) {
+        this.idVehiculo = idVehiculo;
     }
 
     public BigDecimal getMontoSolicitado() {
@@ -86,12 +125,52 @@ public class SolicitudCredito {
         this.plazoMeses = plazoMeses;
     }
 
-    public LocalDate getFechaSolicitud() {
-        return fechaSolicitud;
+    public BigDecimal getTasaAnual() {
+        return tasaAnual;
     }
 
-    public void setFechaSolicitud(LocalDate fechaSolicitud) {
-        this.fechaSolicitud = fechaSolicitud;
+    public void setTasaAnual(BigDecimal tasaAnual) {
+        this.tasaAnual = tasaAnual;
+    }
+
+    public BigDecimal getCuotaMensual() {
+        return cuotaMensual;
+    }
+
+    public void setCuotaMensual(BigDecimal cuotaMensual) {
+        this.cuotaMensual = cuotaMensual;
+    }
+
+    public BigDecimal getTotalPagar() {
+        return totalPagar;
+    }
+
+    public void setTotalPagar(BigDecimal totalPagar) {
+        this.totalPagar = totalPagar;
+    }
+
+    public BigDecimal getScoreInterno() {
+        return scoreInterno;
+    }
+
+    public void setScoreInterno(BigDecimal scoreInterno) {
+        this.scoreInterno = scoreInterno;
+    }
+
+    public BigDecimal getScoreExterno() {
+        return scoreExterno;
+    }
+
+    public void setScoreExterno(BigDecimal scoreExterno) {
+        this.scoreExterno = scoreExterno;
+    }
+
+    public BigDecimal getRelacionCuotaIngreso() {
+        return relacionCuotaIngreso;
+    }
+
+    public void setRelacionCuotaIngreso(BigDecimal relacionCuotaIngreso) {
+        this.relacionCuotaIngreso = relacionCuotaIngreso;
     }
 
     public String getEstado() {
@@ -102,50 +181,37 @@ public class SolicitudCredito {
         this.estado = estado;
     }
 
-    public String getNumeroSolicitud() {
-        return numeroSolicitud;
-    }
-    public void setNumeroSolicitud(String numeroSolicitud) {
-        this.numeroSolicitud = numeroSolicitud;
+    public Long getVersion() {
+        return version;
     }
 
-    public Long getIdVehiculo() {
-        return idVehiculo;
-    }
-    public void setIdVehiculo(Long idVehiculo) {
-        this.idVehiculo = idVehiculo;
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
-    public BigDecimal getScoreInterno() {
-        return scoreInterno;
-    }
-    public void setScoreInterno(BigDecimal scoreInterno) {
-        this.scoreInterno = scoreInterno;
+    public List<Contrato> getContratos() {
+        return contratos;
     }
 
-    public BigDecimal getScoreExterno() {
-        return scoreExterno;
-    }
-    public void setScoreExterno(BigDecimal scoreExterno) {
-        this.scoreExterno = scoreExterno;
+    public void setContratos(List<Contrato> contratos) {
+        this.contratos = contratos;
     }
 
-    public BigDecimal getRelacionCuotaIngreso() {
-        return relacionCuotaIngreso;
-    }
-    public void setRelacionCuotaIngreso(BigDecimal relacionCuotaIngreso) {
-        this.relacionCuotaIngreso = relacionCuotaIngreso;
+    public List<DocumentoAdjunto> getDocumentosAdjuntos() {
+        return documentosAdjuntos;
     }
 
-    public BigDecimal getTasaAnual() { return tasaAnual; }
-    public void setTasaAnual(BigDecimal tasaAnual) { this.tasaAnual = tasaAnual; }
+    public void setDocumentosAdjuntos(List<DocumentoAdjunto> documentosAdjuntos) {
+        this.documentosAdjuntos = documentosAdjuntos;
+    }
 
-    public BigDecimal getCuotaMensual() { return cuotaMensual; }
-    public void setCuotaMensual(BigDecimal cuotaMensual) { this.cuotaMensual = cuotaMensual; }
+    public List<Pagare> getPagares() {
+        return pagares;
+    }
 
-    public BigDecimal getTotalPagar() { return totalPagar; }
-    public void setTotalPagar(BigDecimal totalPagar) { this.totalPagar = totalPagar; }
-
+    public void setPagares(List<Pagare> pagares) {
+        this.pagares = pagares;
+    }
 
     @Override
     public int hashCode() {
@@ -174,8 +240,9 @@ public class SolicitudCredito {
 
     @Override
     public String toString() {
-        return "SolicitudCredito [id=" + id + ", montoSolicitado=" + montoSolicitado + 
-               ", plazoMeses=" + plazoMeses + ", fechaSolicitud=" + fechaSolicitud + 
-               ", estado=" + estado + "]";
+        return "SolicitudCredito [id=" + id + ", numeroSolicitud=" + numeroSolicitud + 
+               ", montoSolicitado=" + montoSolicitado + ", plazoMeses=" + plazoMeses + 
+               ", tasaAnual=" + tasaAnual + ", cuotaMensual=" + cuotaMensual + 
+               ", totalPagar=" + totalPagar + ", estado=" + estado + "]";
     }
 }

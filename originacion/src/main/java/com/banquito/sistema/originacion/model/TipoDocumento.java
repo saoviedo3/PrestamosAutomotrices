@@ -6,9 +6,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 @Entity
-@Table(name = "TiposDocumentos")
+@Table(name = "tiposdocumentos")
 public class TipoDocumento {
 
     @Id
@@ -16,17 +17,18 @@ public class TipoDocumento {
     @Column(name = "IdTipoDocumento", nullable = false)
     private Long id;
 
-    @Column(name = "Codigo", length = 10, nullable = false, unique = true)
-    private String codigo;
-
-    @Column(name = "Nombre", length = 100, nullable = false)
+    @Column(name = "Nombre", nullable = false, length = 50)
     private String nombre;
 
-    @Column(name = "Descripcion", length = 255)
+    @Column(name = "Descripcion", length = 200)
     private String descripcion;
 
-    @Column(name = "Estado", length = 10, nullable = false)
+    @Column(name = "Estado", nullable = false, length = 20)
     private String estado;
+
+    @Version
+    @Column(name = "Version", nullable = false)
+    private Long version;
 
     public TipoDocumento() {
     }
@@ -41,14 +43,6 @@ public class TipoDocumento {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getCodigo() {
-        return codigo;
-    }
-
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
     }
 
     public String getNombre() {
@@ -73,6 +67,14 @@ public class TipoDocumento {
 
     public void setEstado(String estado) {
         this.estado = estado;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     @Override
@@ -102,7 +104,7 @@ public class TipoDocumento {
 
     @Override
     public String toString() {
-        return "TipoDocumento [id=" + id + ", codigo=" + codigo + ", nombre=" + nombre + 
-               ", descripcion=" + descripcion + ", estado=" + estado + "]";
+        return "TipoDocumento [id=" + id + ", nombre=" + nombre + ", descripcion=" + descripcion + ", estado=" + estado
+                + ", version=" + version + "]";
     }
 }

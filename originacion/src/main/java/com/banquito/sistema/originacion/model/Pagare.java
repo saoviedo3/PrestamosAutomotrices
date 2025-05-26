@@ -1,17 +1,18 @@
 package com.banquito.sistema.originacion.model;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
+import java.time.LocalDateTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 @Entity
-@Table(name = "Pagares")
+@Table(name = "pagares")
 public class Pagare {
 
     @Id
@@ -19,23 +20,25 @@ public class Pagare {
     @Column(name = "IdPagare", nullable = false)
     private Long id;
 
-    @Column(name = "NumeroPagare", length = 50, nullable = false, unique = true)
-    private String numeroPagare;
+    @Column(name = "IdSolicitud", nullable = false)
+    private Long idSolicitud;
 
-    @Column(name = "Monto", precision = 15, scale = 2, nullable = false)
-    private BigDecimal monto;
+    @Column(name = "NumeroCuota", nullable = false, precision = 3)
+    private Integer numeroCuota;
 
-    @Column(name = "FechaEmision", nullable = false)
-    private LocalDate fechaEmision;
+    @Column(name = "RutaArchivo", nullable = false, length = 150)
+    private String rutaArchivo;
 
-    @Column(name = "FechaVencimiento", nullable = false)
-    private LocalDate fechaVencimiento;
+    @Column(name = "FechaGenerado", nullable = false)
+    private LocalDateTime fechaGenerado;
 
-    @Column(name = "Estado", length = 20, nullable = false)
-    private String estado;
+    @Version
+    @Column(name = "Version", nullable = false)
+    private Long version;
 
-    @Column(name = "Observaciones", length = 500)
-    private String observaciones;
+    @ManyToOne
+    @JoinColumn(name = "IdSolicitud", referencedColumnName = "IdSolicitud", insertable = false, updatable = false)
+    private SolicitudCredito solicitudCredito;
 
     public Pagare() {
     }
@@ -52,52 +55,52 @@ public class Pagare {
         this.id = id;
     }
 
-    public String getNumeroPagare() {
-        return numeroPagare;
+    public Long getIdSolicitud() {
+        return idSolicitud;
     }
 
-    public void setNumeroPagare(String numeroPagare) {
-        this.numeroPagare = numeroPagare;
+    public void setIdSolicitud(Long idSolicitud) {
+        this.idSolicitud = idSolicitud;
     }
 
-    public BigDecimal getMonto() {
-        return monto;
+    public Integer getNumeroCuota() {
+        return numeroCuota;
     }
 
-    public void setMonto(BigDecimal monto) {
-        this.monto = monto;
+    public void setNumeroCuota(Integer numeroCuota) {
+        this.numeroCuota = numeroCuota;
     }
 
-    public LocalDate getFechaEmision() {
-        return fechaEmision;
+    public String getRutaArchivo() {
+        return rutaArchivo;
     }
 
-    public void setFechaEmision(LocalDate fechaEmision) {
-        this.fechaEmision = fechaEmision;
+    public void setRutaArchivo(String rutaArchivo) {
+        this.rutaArchivo = rutaArchivo;
     }
 
-    public LocalDate getFechaVencimiento() {
-        return fechaVencimiento;
+    public LocalDateTime getFechaGenerado() {
+        return fechaGenerado;
     }
 
-    public void setFechaVencimiento(LocalDate fechaVencimiento) {
-        this.fechaVencimiento = fechaVencimiento;
+    public void setFechaGenerado(LocalDateTime fechaGenerado) {
+        this.fechaGenerado = fechaGenerado;
     }
 
-    public String getEstado() {
-        return estado;
+    public Long getVersion() {
+        return version;
     }
 
-    public void setEstado(String estado) {
-        this.estado = estado;
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
-    public String getObservaciones() {
-        return observaciones;
+    public SolicitudCredito getSolicitudCredito() {
+        return solicitudCredito;
     }
 
-    public void setObservaciones(String observaciones) {
-        this.observaciones = observaciones;
+    public void setSolicitudCredito(SolicitudCredito solicitudCredito) {
+        this.solicitudCredito = solicitudCredito;
     }
 
     @Override
@@ -127,8 +130,8 @@ public class Pagare {
 
     @Override
     public String toString() {
-        return "Pagare [id=" + id + ", numeroPagare=" + numeroPagare + ", monto=" + monto + 
-               ", fechaEmision=" + fechaEmision + ", fechaVencimiento=" + fechaVencimiento + 
-               ", estado=" + estado + ", observaciones=" + observaciones + "]";
+        return "Pagare [id=" + id + ", idSolicitud=" + idSolicitud + ", numeroCuota=" + numeroCuota
+                + ", rutaArchivo=" + rutaArchivo + ", fechaGenerado=" + fechaGenerado + ", version=" + version
+                + ", solicitudCredito=" + solicitudCredito + "]";
     }
 } 
