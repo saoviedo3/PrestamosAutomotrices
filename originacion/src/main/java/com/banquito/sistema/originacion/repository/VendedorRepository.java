@@ -14,7 +14,8 @@ public interface VendedorRepository extends JpaRepository<Vendedor, Long> {
     
     List<Vendedor> findByIdConcesionario(Long idConcesionario);
     
-    List<Vendedor> findByNombreContainingIgnoreCase(String nombre);
+    List<Vendedor> findBynombreContainingIgnoreCase(String nombre);
+    
     
     boolean existsByEmail(String email);
 } 

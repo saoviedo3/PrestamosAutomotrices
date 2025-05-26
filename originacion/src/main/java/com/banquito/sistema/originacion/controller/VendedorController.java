@@ -36,7 +36,7 @@ public class VendedorController {
         } else if (concesionarioId != null) {
             vendedores = this.service.findByConcesionarioId(concesionarioId);
         } else if (nombre != null) {
-            vendedores = this.service.findByNombre(nombre);
+            vendedores = this.service.findBynombre(nombre);
         } else {
             vendedores = this.service.findAll();
         }

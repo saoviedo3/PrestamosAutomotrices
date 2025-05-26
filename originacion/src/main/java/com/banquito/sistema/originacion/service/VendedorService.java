@@ -19,13 +19,14 @@ public class VendedorService {
 
     private final VendedorRepository repository;
     private final ConcesionarioService concesionarioService;
+    private final HistorialEstadoService historialEstadoService;
 
-
-    public VendedorService(VendedorRepository repository, 
-                          ConcesionarioService concesionarioService) {
+    public VendedorService(VendedorRepository repository,
+            ConcesionarioService concesionarioService,
+            HistorialEstadoService historialEstadoService) {
         this.repository = repository;
         this.concesionarioService = concesionarioService;
-
+        this.historialEstadoService = historialEstadoService;
     }
 
     @Transactional(readOnly = true)
@@ -53,24 +54,27 @@ public class VendedorService {
     }
 
     @Transactional(readOnly = true)
-    public List<Vendedor> findByNombre(String nombre) {
-        return this.repository.findByNombreContainingIgnoreCase(nombre);
+    public List<Vendedor> findBynombre(String nombre) {
+        return this.repository.findBynombreContainingIgnoreCase(nombre);
     }
 
     public Vendedor create(Vendedor vendedor) {
         this.validateForCreate(vendedor);
- 
-        Vendedor savedVendedor = this.repository.save(vendedor);
 
+        //Guarda el vendedor (id, versión, etc. se generan aquí)
+        Vendedor saved = this.repository.save(vendedor);
 
-        return repository.findById(savedVendedor.getId())
-                .orElseThrow(() -> new NotFoundException(savedVendedor.getId().toString(), "Vendedor"));
+        // Carga el concesionario y así lo tendrás en la respuesta
+        Concesionario c = this.concesionarioService.findById(saved.getIdConcesionario());
+        saved.setConcesionario(c);
+
+        return saved;
     }
 
     public Vendedor update(Long id, Vendedor vendedor) {
         Vendedor existingVendedor = this.findById(id);
         this.validateForUpdate(vendedor, existingVendedor);
-        
+
         // Validar que el concesionario existe y está activo
         if (!vendedor.getIdConcesionario().equals(existingVendedor.getIdConcesionario())) {
             Concesionario concesionario = this.concesionarioService.findById(vendedor.getIdConcesionario());
@@ -78,23 +82,22 @@ public class VendedorService {
                 throw new InvalidStateException(concesionario.getEstado(), "ACTIVO", "Concesionario");
             }
         }
-        
+
         vendedor.setId(id);
         vendedor.setVersion(existingVendedor.getVersion());
-        
+
         return this.repository.save(vendedor);
     }
 
     public Vendedor changeState(Long id, String newState, String motivo, String usuario) {
         Vendedor vendedor = this.findById(id);
         String oldState = vendedor.getEstado();
-        
+
         this.validateStateChange(oldState, newState);
-        
+
         vendedor.setEstado(newState);
         Vendedor updatedVendedor = this.repository.save(vendedor);
 
-        
         return updatedVendedor;
     }
 
@@ -105,9 +108,9 @@ public class VendedorService {
     }
 
     private void validateForUpdate(Vendedor vendedor, Vendedor existing) {
-        if (vendedor.getEmail() != null && 
-            !vendedor.getEmail().equals(existing.getEmail()) && 
-            this.repository.existsByEmail(vendedor.getEmail())) {
+        if (vendedor.getEmail() != null &&
+                !vendedor.getEmail().equals(existing.getEmail()) &&
+                this.repository.existsByEmail(vendedor.getEmail())) {
             throw new DuplicateException(vendedor.getEmail(), "Vendedor con email");
         }
     }
@@ -116,7 +119,7 @@ public class VendedorService {
         if (currentState.equals(newState)) {
             return;
         }
-        
+
         // Validaciones de transiciones de estado
         switch (currentState) {
             case "ACTIVO":
@@ -138,4 +141,4 @@ public class VendedorService {
                 throw new InvalidStateException(currentState, newState, "Vendedor");
         }
     }
-} 
+}
