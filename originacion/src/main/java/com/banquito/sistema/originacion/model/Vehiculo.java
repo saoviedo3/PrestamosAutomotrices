@@ -44,6 +44,9 @@ public class Vehiculo {
     @Column(name = "Extras", length = 150, nullable = false)
     private String extras;
 
+    @Column(name = "Estado", length = 30, nullable = false)
+    private String estado;
+
     @Version
     private Long version;
 
@@ -156,6 +159,14 @@ public class Vehiculo {
 
     public void setVersion(Long version) {
         this.version = version;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
     }
 
     @Override

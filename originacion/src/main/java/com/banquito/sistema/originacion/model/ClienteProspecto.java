@@ -27,7 +27,7 @@ public class ClienteProspecto {
     @Column(name = "Apellido", length = 50, nullable = false)
     private String apellido;
 
-    @Column(name = "telefono", length = 20, nullable = false)
+    @Column(name = "Telefono", length = 20, nullable = false)
     private String telefono;
 
     @Column(name = "Email", length = 60, nullable = false)
@@ -36,13 +36,13 @@ public class ClienteProspecto {
     @Column(name = "Direccion", length = 120, nullable = false)
     private String direccion;
 
-    @Column(name = "ingresos", precision = 12, scale = 2, nullable = false)
+    @Column(name = "Ingresos", precision = 12, scale = 2, nullable = false)
     private BigDecimal ingresos;
 
-    @Column(name = "egresos", precision = 12, scale = 2, nullable = false)
+    @Column(name = "Egresos", precision = 12, scale = 2, nullable = false)
     private BigDecimal egresos;
 
-    @Column(name = "actividad_economica", length = 120, nullable = false)
+    @Column(name = "ActividadEconomica", length = 120, nullable = false)
     private String actividadEconomica;
 
     @Column(name = "Estado", length = 20, nullable = false)
