@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RestController
-@RequestMapping("/v1/observaciones-analista")
+@RequestMapping("/api/observaciones-analista")
 public class ObservacionAnalistaController {
 
     private static final Logger LOG = LoggerFactory.getLogger(ObservacionAnalistaController.class);
