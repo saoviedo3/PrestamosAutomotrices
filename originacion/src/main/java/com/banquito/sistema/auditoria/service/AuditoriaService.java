@@ -19,12 +19,10 @@ public class AuditoriaService {
         this.auditoriaRepository = auditoriaRepository;
     }
 
-    @Transactional(readOnly = true)
     public List<Auditoria> getAll() {
         return auditoriaRepository.findAll();
     }
 
-    @Transactional(readOnly = true)
     public Auditoria getById(Integer id) {
         return auditoriaRepository.findById(id)
                 .orElseThrow(() -> new AuditoriaNotFoundException(id));
