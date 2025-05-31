@@ -18,19 +18,32 @@ public class IdentificadorVehiculoController {
         this.service = service;
     }
 
+    /**
+     * GET /api/identificadores
+     * Listar todos los identificadores vehiculares.
+     */
+
     @GetMapping
     public ResponseEntity<List<IdentificadorVehiculo>> getAll() {
-        return ResponseEntity.ok(service.getAll());
+        List<IdentificadorVehiculo> lista = service.getAll();
+        return ResponseEntity.ok(lista);
     }
+
+    /**
+     * GET /api/identificadores/{id}
+     * Obtener un identificador por su ID.
+     * Si no existe, se lanza IdentificadorVehiculoNotFoundException, manejado por el Handler global.
+     */
 
     @GetMapping("/{id}")
     public ResponseEntity<IdentificadorVehiculo> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(service.getById(id));
+        IdentificadorVehiculo resultado = service.getById(id);
+        return ResponseEntity.ok(resultado);
     }
 
     @PostMapping
     public ResponseEntity<IdentificadorVehiculo> create(@RequestBody IdentificadorVehiculo entity) {
-        IdentificadorVehiculo created = service.create(entity);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        IdentificadorVehiculo creado = service.create(entity);
+        return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
 }
