@@ -163,6 +163,11 @@ public class ObservacionAnalistaService {
         // Mantener la fecha original
         observacion.setFechaHora(observacionExistente.getFechaHora());
         
+        // Si la versión viene null, asignar la versión de la base
+        if (observacion.getVersion() == null) {
+            observacion.setVersion(observacionExistente.getVersion());
+        }
+        
         LOG.info("Actualizando observación del analista {} para la solicitud {}", 
                 observacion.getUsuario(), observacion.getIdSolicitud());
         
