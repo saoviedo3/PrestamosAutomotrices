@@ -25,12 +25,27 @@ public class VehiculoController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Vehiculo> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(vehiculoService.getVehiculoById(id));
+        Vehiculo vehiculo = vehiculoService.getVehiculoById(id);
+        return ResponseEntity.ok(vehiculo);
     }
 
     @PostMapping
     public ResponseEntity<Vehiculo> create(@RequestBody Vehiculo vehiculo) {
         Vehiculo created = vehiculoService.createVehiculo(vehiculo);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Vehiculo> update(
+            @PathVariable Long id,
+            @RequestBody Vehiculo vehiculo) {
+        Vehiculo updated = vehiculoService.updateVehiculo(id, vehiculo);
+        return ResponseEntity.ok(updated);
+    }
+
+    @PatchMapping("/{id}/vendido")
+    public ResponseEntity<Vehiculo> marcarComoVendido(@PathVariable Long id) {
+        Vehiculo vendido = vehiculoService.marcarComoVendido(id);
+        return ResponseEntity.ok(vendido);
     }
 }

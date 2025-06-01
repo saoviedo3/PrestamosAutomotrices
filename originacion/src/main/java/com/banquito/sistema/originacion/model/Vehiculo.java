@@ -32,10 +32,10 @@ public class Vehiculo {
     @Column(name = "Modelo", length = 40, nullable = false)
     private String modelo;
 
-    @Column(name = "Anio", nullable = false)
+    @Column(name = "Anio", length = 4, nullable = false)
     private Integer anio;
 
-    @Column(name = "Valor", nullable = false)
+    @Column(name = "Valor", length = 10, precision = 2, nullable = false)
     private Double valor;
 
     @Column(name = "Color", length = 30, nullable = false)
@@ -44,7 +44,7 @@ public class Vehiculo {
     @Column(name = "Extras", length = 150, nullable = false)
     private String extras;
 
-    @Column(name = "Estado", length = 30, nullable = false)
+    @Column(name = "Estado", length = 20, nullable = false)
     private String estado;
 
     @Version
