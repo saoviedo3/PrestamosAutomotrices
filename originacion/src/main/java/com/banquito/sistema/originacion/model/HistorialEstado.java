@@ -3,7 +3,8 @@ package com.banquito.sistema.originacion.model;
 import java.sql.Timestamp;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 @Table(name = "HistorialEstados")
@@ -14,31 +15,27 @@ public class HistorialEstado {
     @Column(name = "IdHistorialEstado")
     private Long id;
 
-    @NotNull(message = "El ID de la solicitud es obligatorio")
     @Column(name = "IdSolicitud", nullable = false)
     private Long idSolicitud;
 
-    @NotBlank(message = "El estado es obligatorio")
-    @Size(max = 12, message = "El estado no puede tener más de 12 caracteres")
     @Column(name = "Estado", nullable = false, length = 12)
     private String estado;
 
     @Column(name = "FechaHora", nullable = false)
     private Timestamp fechaHora;
 
-    @NotBlank(message = "El usuario es obligatorio")
-    @Size(max = 100, message = "El usuario no puede tener más de 100 caracteres")
     @Column(name = "Usuario", nullable = false, length = 100)
     private String usuario;
 
-    @Size(max = 500, message = "El motivo no puede tener más de 500 caracteres")
     @Column(name = "Motivo", length = 500)
     private String motivo;
 
     @Version
-    @Column(name = "version")
     private Long version;
 
+    @ManyToOne
+    @JoinColumn(name = "IdSolicitud", insertable = false, updatable = false)
+    private SolicitudCredito solicitudCredito;
 
     public HistorialEstado() {
  
@@ -63,6 +60,8 @@ public class HistorialEstado {
     public void setIdSolicitud(Long idSolicitud) {
         this.idSolicitud = idSolicitud;
     }
+
+    
 
     public String getEstado() {
         return estado;
@@ -102,6 +101,14 @@ public class HistorialEstado {
 
     public void setVersion(Long version) {
         this.version = version;
+    }
+
+    public SolicitudCredito getSolicitudCredito() {
+        return solicitudCredito;
+    }
+
+    public void setSolicitudCredito(SolicitudCredito solicitudCredito) {
+        this.solicitudCredito = solicitudCredito;
     }
 
     @Override
