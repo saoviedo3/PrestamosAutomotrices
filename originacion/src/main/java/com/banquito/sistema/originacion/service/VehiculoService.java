@@ -26,19 +26,17 @@ public class VehiculoService {
     private final ConcesionarioRepository concesionarioRepo;
 
     public VehiculoService(VehiculoRepository vehiculoRepository,
-                      IdentificadorVehiculoRepository identificadorRepo,
-                      ConcesionarioRepository concesionarioRepo) {
-    this.vehiculoRepository = vehiculoRepository;
-    this.identificadorRepo   = identificadorRepo;
-    this.concesionarioRepo   = concesionarioRepo;
+            IdentificadorVehiculoRepository identificadorRepo,
+            ConcesionarioRepository concesionarioRepo) {
+        this.vehiculoRepository = vehiculoRepository;
+        this.identificadorRepo = identificadorRepo;
+        this.concesionarioRepo = concesionarioRepo;
     }
 
-    @Transactional(readOnly = true)
     public List<Vehiculo> getAllVehiculos() {
         return vehiculoRepository.findAll();
     }
 
-    @Transactional(readOnly = true)
     public Vehiculo getVehiculoById(Long id) {
         return vehiculoRepository.findById(id)
                 .orElseThrow(() -> new VehiculoNotFoundException(id));
@@ -60,28 +58,36 @@ public class VehiculoService {
         if (vehiculo.getValor() == null || vehiculo.getValor() <= 0) {
             throw new InvalidDataException("Vehiculo", "El valor debe ser positivo");
         }
+        if (vehiculo.getColor() == null || vehiculo.getColor().isBlank()) {
+            throw new InvalidDataException("Vehiculo", "El color es obligatorio");
+        }
+        if (vehiculo.getExtras() == null) {
+            vehiculo.setExtras(""); // Permitimos cadena vacía, pero no nulo
+        }
 
         // 2. Validar FK IdentificadorVehiculo
         Long identId = vehiculo.getIdIdentificadorVehiculo();
         IdentificadorVehiculo ident = identificadorRepo.findById(identId)
-            .orElseThrow(() -> new IdentificadorVehiculoNotFoundException(identId));
+                .orElseThrow(() -> new IdentificadorVehiculoNotFoundException(identId));
 
         // 3. Validar FK Concesionario
         Long consId = vehiculo.getIdConcesionario();
         Concesionario cons = concesionarioRepo.findById(consId)
-            .orElseThrow(() -> new ConcesionarioNotFoundException(consId));
+                .orElseThrow(() -> new ConcesionarioNotFoundException(consId));
 
-         // 4. Evitar duplicados por identificador
+        // 4. Evitar duplicados por identificador
         if (vehiculoRepository.existsByIdentificadorVehiculoId(identId)) {
             throw new AlreadyExistsException(
-                "Vehiculo",
-                "Ya existe un Vehiculo con IdentificadorVehiculo id " + identId
-            );
+                    "Vehiculo",
+                    "Ya existe un Vehiculo con IdentificadorVehiculo id " + identId);
         }
 
         // 5. Asociar las referencias antes de guardar
         vehiculo.setIdentificadorVehiculo(ident);
         vehiculo.setConcesionario(cons);
+        if (vehiculo.getEstado() == null || vehiculo.getEstado().isBlank()) {
+            vehiculo.setEstado("Disponible");
+        }
 
         // 6. Persistencia y manejo de errores en BD
         try {
@@ -92,4 +98,70 @@ public class VehiculoService {
                     "Error al crear Vehiculo en la base de datos: " + ex.getMostSpecificCause().getMessage());
         }
     }
+
+    @Transactional
+    public Vehiculo updateVehiculo(Long id, Vehiculo datos) {
+        try {
+            Vehiculo existente = getVehiculoById(id);
+
+            // 7. Validaciones básicas
+            if (datos.getMarca() == null || datos.getMarca().isBlank()) {
+                throw new InvalidDataException("Vehiculo", "La marca es obligatoria");
+            }
+            if (datos.getModelo() == null || datos.getModelo().isBlank()) {
+                throw new InvalidDataException("Vehiculo", "El modelo es obligatorio");
+            }
+            if (datos.getAnio() == null || datos.getAnio() < 1886) {
+                throw new InvalidDataException("Vehiculo", "El año no es válido");
+            }
+            if (datos.getValor() == null || datos.getValor() <= 0) {
+                throw new InvalidDataException("Vehiculo", "El valor debe ser positivo");
+            }
+            if (datos.getColor() == null || datos.getColor().isBlank()) {
+                throw new InvalidDataException("Vehiculo", "El color es obligatorio");
+            }
+            if (datos.getExtras() == null) {
+                datos.setExtras(""); 
+            }
+            
+
+            existente.setMarca(datos.getMarca());
+            existente.setModelo(datos.getModelo());
+            existente.setAnio(datos.getAnio());
+            existente.setValor(datos.getValor());
+            existente.setColor(datos.getColor());
+            existente.setExtras(datos.getExtras());
+            existente.setEstado(datos.getEstado());
+
+            return vehiculoRepository.save(existente);
+
+        } catch (VehiculoNotFoundException e) {
+            throw e;
+        } catch (InvalidDataException e) {
+            throw e;
+        } catch (DataAccessException ex) {
+            throw new CreateEntityException(
+                    "Vehiculo",
+                    "Error al actualizar Vehiculo en BD: " + ex.getMostSpecificCause().getMessage());
+        }
+    }
+
+    @Transactional
+
+    // 8. Método para marcar un Vehiculo como "Vendido"
+
+    public Vehiculo marcarComoVendido(Long id) {
+        try {
+            Vehiculo existente = getVehiculoById(id);
+            existente.setEstado("Vendido");
+            return vehiculoRepository.save(existente);
+        } catch (VehiculoNotFoundException e) {
+            throw e;
+        } catch (DataAccessException ex) {
+            throw new CreateEntityException(
+                    "Vehiculo",
+                    "Error al cambiar estado a Vendido en BD: " + ex.getMostSpecificCause().getMessage());
+        }
+    }
+
 }
