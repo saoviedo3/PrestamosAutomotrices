@@ -4,9 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
@@ -23,17 +21,19 @@ public class SolicitudCredito {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "IdClienteProspecto", nullable = false)
-    @JsonIgnoreProperties({"cedula", "telefono", "email", "direccion", "ingresos", "egresos", "actividadEconomica", "estado", "version", "id"})
+    @JsonIgnoreProperties({ "cedula", "telefono", "email", "direccion", "ingresos", "egresos", "actividadEconomica",
+            "estado", "version", "id" })
     private ClienteProspecto clienteProspecto;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "IdVehiculo", nullable = false)
-    @JsonIgnoreProperties({"idIdentificadorVehiculo", "idConcesionario", "valor", "color", "extras", "estado", "version", "identificadorVehiculo", "concesionario"})
+    @JsonIgnoreProperties({ "idIdentificadorVehiculo", "idConcesionario", "valor", "color", "extras", "estado",
+            "version", "identificadorVehiculo", "concesionario" })
     private Vehiculo vehiculo;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "IdVendedor", nullable = false)
-    @JsonIgnoreProperties({"idConcesionario", "telefono", "email", "estado", "version", "concesionario"})
+    @JsonIgnoreProperties({ "idConcesionario", "telefono", "email", "estado", "version", "concesionario" })
     private Vendedor vendedor;
 
     @Column(name = "MontoSolicitado", precision = 12, scale = 2, nullable = false)
@@ -133,7 +133,7 @@ public class SolicitudCredito {
     public String getNumeroSolicitud() {
         return numeroSolicitud;
     }
-    
+
     public void setNumeroSolicitud(String numeroSolicitud) {
         this.numeroSolicitud = numeroSolicitud;
     }
@@ -141,7 +141,7 @@ public class SolicitudCredito {
     public Vehiculo getVehiculo() {
         return vehiculo;
     }
-    
+
     public void setVehiculo(Vehiculo vehiculo) {
         this.vehiculo = vehiculo;
     }
@@ -149,7 +149,7 @@ public class SolicitudCredito {
     public BigDecimal getScoreInterno() {
         return scoreInterno;
     }
-    
+
     public void setScoreInterno(BigDecimal scoreInterno) {
         this.scoreInterno = scoreInterno;
     }
@@ -157,7 +157,7 @@ public class SolicitudCredito {
     public BigDecimal getScoreExterno() {
         return scoreExterno;
     }
-    
+
     public void setScoreExterno(BigDecimal scoreExterno) {
         this.scoreExterno = scoreExterno;
     }
@@ -165,22 +165,34 @@ public class SolicitudCredito {
     public BigDecimal getRelacionCuotaIngreso() {
         return relacionCuotaIngreso;
     }
-    
+
     public void setRelacionCuotaIngreso(BigDecimal relacionCuotaIngreso) {
         this.relacionCuotaIngreso = relacionCuotaIngreso;
     }
 
-    public BigDecimal getTasaAnual() { return tasaAnual; }
-    
-    public void setTasaAnual(BigDecimal tasaAnual) { this.tasaAnual = tasaAnual; }
+    public BigDecimal getTasaAnual() {
+        return tasaAnual;
+    }
 
-    public BigDecimal getCuotaMensual() { return cuotaMensual; }
-    
-    public void setCuotaMensual(BigDecimal cuotaMensual) { this.cuotaMensual = cuotaMensual; }
+    public void setTasaAnual(BigDecimal tasaAnual) {
+        this.tasaAnual = tasaAnual;
+    }
 
-    public BigDecimal getTotalPagar() { return totalPagar; }
-    
-    public void setTotalPagar(BigDecimal totalPagar) { this.totalPagar = totalPagar; }
+    public BigDecimal getCuotaMensual() {
+        return cuotaMensual;
+    }
+
+    public void setCuotaMensual(BigDecimal cuotaMensual) {
+        this.cuotaMensual = cuotaMensual;
+    }
+
+    public BigDecimal getTotalPagar() {
+        return totalPagar;
+    }
+
+    public void setTotalPagar(BigDecimal totalPagar) {
+        this.totalPagar = totalPagar;
+    }
 
     public ClienteProspecto getClienteProspecto() {
         return clienteProspecto;
@@ -265,14 +277,14 @@ public class SolicitudCredito {
 
     @Override
     public String toString() {
-        return "SolicitudCredito [id=" + id + ", numeroSolicitud=" + numeroSolicitud + 
-               ", idVehiculo=" + vehiculo + ", montoSolicitado=" + montoSolicitado + 
-               ", plazoMeses=" + plazoMeses + ", fechaSolicitud=" + fechaSolicitud + 
-               ", scoreInterno=" + scoreInterno + ", scoreExterno=" + scoreExterno + 
-               ", relacionCuotaIngreso=" + relacionCuotaIngreso + ", tasaAnual=" + tasaAnual + 
-               ", cuotaMensual=" + cuotaMensual + ", totalPagar=" + totalPagar + 
-               ", estado=" + estado + ", entrada=" + entrada + 
-               ", version=" + version + ", clienteProspecto=" + clienteProspecto + 
-               ", vendedor=" + vendedor + "]";
+        return "SolicitudCredito [id=" + id + ", numeroSolicitud=" + numeroSolicitud +
+                ", idVehiculo=" + vehiculo + ", montoSolicitado=" + montoSolicitado +
+                ", plazoMeses=" + plazoMeses + ", fechaSolicitud=" + fechaSolicitud +
+                ", scoreInterno=" + scoreInterno + ", scoreExterno=" + scoreExterno +
+                ", relacionCuotaIngreso=" + relacionCuotaIngreso + ", tasaAnual=" + tasaAnual +
+                ", cuotaMensual=" + cuotaMensual + ", totalPagar=" + totalPagar +
+                ", estado=" + estado + ", entrada=" + entrada +
+                ", version=" + version + ", clienteProspecto=" + clienteProspecto +
+                ", vendedor=" + vendedor + "]";
     }
 }
