@@ -21,5 +21,5 @@ public interface SolicitudCreditoRepository extends JpaRepository<SolicitudCredi
     
     boolean existsByNumeroSolicitud(String numeroSolicitud);
 
-    boolean existsByIdVehiculo(Long idVehiculo);
+    boolean existsByVehiculo_Id(Long idVehiculo);
 } 
