@@ -17,6 +17,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import com.banquito.sistema.originacion.model.SolicitudCredito;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "ObservacionAnalistas")
@@ -29,6 +31,7 @@ public class ObservacionAnalista {
 
     @NotNull(message = "El ID de la solicitud es obligatorio")
     @Column(name = "IdSolicitud", nullable = false)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Long idSolicitud;
 
     @NotBlank(message = "El usuario es obligatorio")
@@ -50,6 +53,11 @@ public class ObservacionAnalista {
 
     @ManyToOne
     @JoinColumn(name = "IdSolicitud", referencedColumnName = "IdSolicitud", insertable = false, updatable = false)
+    @JsonIgnoreProperties({
+        "clienteProspecto", "vehiculo", "vendedor", "montoSolicitado", "plazoMeses", "fechaSolicitud",
+        "scoreInterno", "scoreExterno", "relacionCuotaIngreso", "tasaAnual", "cuotaMensual", "totalPagar",
+        "entrada", "version"
+    })
     private SolicitudCredito solicitudCredito;
 
     public ObservacionAnalista() {

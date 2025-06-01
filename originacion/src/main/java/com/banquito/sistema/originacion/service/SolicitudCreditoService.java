@@ -4,6 +4,12 @@ import com.banquito.sistema.originacion.model.SolicitudCredito;
 import com.banquito.sistema.originacion.repository.SolicitudCreditoRepository;
 import com.banquito.sistema.originacion.service.exception.CreditoException;
 import com.banquito.sistema.originacion.exception.SolicitudCreditoNotFoundException;
+import com.banquito.sistema.originacion.model.ClienteProspecto;
+import com.banquito.sistema.originacion.repository.ClienteProspectoRepository;
+import com.banquito.sistema.originacion.model.Vehiculo;
+import com.banquito.sistema.originacion.repository.VehiculoRepository;
+import com.banquito.sistema.originacion.model.Vendedor;
+import com.banquito.sistema.originacion.repository.VendedorRepository;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,14 +23,20 @@ import java.util.Optional;
 public class SolicitudCreditoService {
 
     private final SolicitudCreditoRepository solicitudCreditoRepository;
+    private final ClienteProspectoRepository clienteProspectoRepository;
+    private final VehiculoRepository vehiculoRepository;
+    private final VendedorRepository vendedorRepository;
 
     // Constantes para validación de Score
     private static final BigDecimal SCORE_RECHAZO_AUTOMATICO = new BigDecimal("500.0");
     private static final BigDecimal SCORE_CLIENTE_C = new BigDecimal("600.0");
     private static final BigDecimal SCORE_CLIENTE_B = new BigDecimal("750.0");
 
-    public SolicitudCreditoService(SolicitudCreditoRepository solicitudCreditoRepository) {
+    public SolicitudCreditoService(SolicitudCreditoRepository solicitudCreditoRepository, ClienteProspectoRepository clienteProspectoRepository, VehiculoRepository vehiculoRepository, VendedorRepository vendedorRepository) {
         this.solicitudCreditoRepository = solicitudCreditoRepository;
+        this.clienteProspectoRepository = clienteProspectoRepository;
+        this.vehiculoRepository = vehiculoRepository;
+        this.vendedorRepository = vendedorRepository;
     }
 
     public List<SolicitudCredito> findAll() {
@@ -67,32 +79,54 @@ public class SolicitudCreditoService {
         if (this.solicitudCreditoRepository.findByNumeroSolicitud(solicitud.getNumeroSolicitud()).isPresent()) {
             throw new CreditoException("Ya existe una solicitud con el número: " + solicitud.getNumeroSolicitud());
         }
-        
         // Verificar si el vehículo ya está asignado a otra solicitud
-        if (this.solicitudCreditoRepository.existsByIdVehiculo(solicitud.getIdVehiculo())) {
-            throw new CreditoException("El vehículo con ID " + solicitud.getIdVehiculo() + " ya está asignado a otra solicitud");
+        if (solicitud.getIdVehiculo() != null) {
+            if (this.solicitudCreditoRepository.existsByVehiculo_Id(solicitud.getIdVehiculo())) {
+                throw new CreditoException("El vehículo con ID " + solicitud.getIdVehiculo() + " ya está asignado a otra solicitud");
+            }
         }
-        
         // Inicializar valores por defecto si no están establecidos
         if (solicitud.getScoreInterno() == null) {
             solicitud.setScoreInterno(BigDecimal.ZERO);
         }
-        
         if (solicitud.getScoreExterno() == null) {
             solicitud.setScoreExterno(BigDecimal.ZERO);
         }
-        
         if (solicitud.getRelacionCuotaIngreso() == null) {
             solicitud.setRelacionCuotaIngreso(BigDecimal.ZERO);
         }
-        
         if (solicitud.getEstado() == null) {
             solicitud.setEstado("Borrador");
         }
-        
+        // Asignar el objeto ClienteProspecto de forma obligatoria
+        if (solicitud.getIdClienteProspecto() != null) {
+            ClienteProspecto cp = clienteProspectoRepository.findById(solicitud.getIdClienteProspecto())
+                .orElseThrow(() -> new CreditoException("No existe el ClienteProspecto con ID: " + solicitud.getIdClienteProspecto()));
+            solicitud.setClienteProspecto(cp);
+        }
+        if (solicitud.getClienteProspecto() == null) {
+            throw new CreditoException("El ClienteProspecto no puede ser nulo");
+        }
+        // Asignar el objeto Vehiculo de forma obligatoria
+        if (solicitud.getIdVehiculo() != null) {
+            Vehiculo v = vehiculoRepository.findById(solicitud.getIdVehiculo())
+                .orElseThrow(() -> new CreditoException("No existe el Vehiculo con ID: " + solicitud.getIdVehiculo()));
+            solicitud.setVehiculo(v);
+        }
+        if (solicitud.getVehiculo() == null) {
+            throw new CreditoException("El Vehiculo no puede ser nulo");
+        }
+        // Asignar el objeto Vendedor de forma obligatoria
+        if (solicitud.getIdVendedor() != null) {
+            Vendedor v = vendedorRepository.findById(solicitud.getIdVendedor())
+                .orElseThrow(() -> new CreditoException("No existe el Vendedor con ID: " + solicitud.getIdVendedor()));
+            solicitud.setVendedor(v);
+        }
+        if (solicitud.getVendedor() == null) {
+            throw new CreditoException("El Vendedor no puede ser nulo");
+        }
         // Recalcular los valores financieros
         calcularValoresFinancieros(solicitud);
-        
         return this.solicitudCreditoRepository.save(solicitud);
     }
 
@@ -102,29 +136,57 @@ public class SolicitudCreditoService {
         if (!solicitudOpt.isPresent()) {
             throw new CreditoException("No existe la solicitud de crédito con ID: " + solicitud.getId());
         }
-        
         SolicitudCredito solicitudExistente = solicitudOpt.get();
-        
         // Verificar que la solicitud esté en estado Borrador
         if (!"Borrador".equals(solicitudExistente.getEstado())) {
             throw new CreditoException("No se puede actualizar una solicitud que no está en estado Borrador");
         }
-        
         // Verificar si el número de solicitud está siendo cambiado y ya existe
         if (!solicitudExistente.getNumeroSolicitud().equals(solicitud.getNumeroSolicitud()) &&
             this.solicitudCreditoRepository.findByNumeroSolicitud(solicitud.getNumeroSolicitud()).isPresent()) {
             throw new CreditoException("Ya existe una solicitud con el número: " + solicitud.getNumeroSolicitud());
         }
-        
         // Verificar si el vehículo está cambiando y ya está asignado
-        if (!solicitudExistente.getIdVehiculo().equals(solicitud.getIdVehiculo()) &&
-            this.solicitudCreditoRepository.existsByIdVehiculo(solicitud.getIdVehiculo())) {
-            throw new CreditoException("El vehículo con ID " + solicitud.getIdVehiculo() + " ya está asignado a otra solicitud");
+        if (solicitud.getIdVehiculo() != null && 
+            (solicitudExistente.getVehiculo() == null || 
+             !solicitudExistente.getVehiculo().getId().equals(solicitud.getIdVehiculo()))) {
+            if (this.solicitudCreditoRepository.existsByVehiculo_Id(solicitud.getIdVehiculo())) {
+                throw new CreditoException("El vehículo con ID " + solicitud.getIdVehiculo() + " ya está asignado a otra solicitud");
+            }
         }
-        
+        // Asignar el objeto ClienteProspecto de forma obligatoria
+        if (solicitud.getIdClienteProspecto() != null) {
+            ClienteProspecto cp = clienteProspectoRepository.findById(solicitud.getIdClienteProspecto())
+                .orElseThrow(() -> new CreditoException("No existe el ClienteProspecto con ID: " + solicitud.getIdClienteProspecto()));
+            solicitud.setClienteProspecto(cp);
+        }
+        if (solicitud.getClienteProspecto() == null) {
+            throw new CreditoException("El ClienteProspecto no puede ser nulo");
+        }
+        // Asignar el objeto Vehiculo de forma obligatoria
+        if (solicitud.getIdVehiculo() != null) {
+            Vehiculo v = vehiculoRepository.findById(solicitud.getIdVehiculo())
+                .orElseThrow(() -> new CreditoException("No existe el Vehiculo con ID: " + solicitud.getIdVehiculo()));
+            solicitud.setVehiculo(v);
+        }
+        if (solicitud.getVehiculo() == null) {
+            throw new CreditoException("El Vehiculo no puede ser nulo");
+        }
+        // Asignar el objeto Vendedor de forma obligatoria
+        if (solicitud.getIdVendedor() != null) {
+            Vendedor v = vendedorRepository.findById(solicitud.getIdVendedor())
+                .orElseThrow(() -> new CreditoException("No existe el Vendedor con ID: " + solicitud.getIdVendedor()));
+            solicitud.setVendedor(v);
+        }
+        if (solicitud.getVendedor() == null) {
+            throw new CreditoException("El Vendedor no puede ser nulo");
+        }
         // Recalcular los valores financieros
         calcularValoresFinancieros(solicitud);
-        
+        // Asignar versión de la base si viene null
+        if (solicitud.getVersion() == null) {
+            solicitud.setVersion(solicitudExistente.getVersion());
+        }
         return this.solicitudCreditoRepository.save(solicitud);
     }
 

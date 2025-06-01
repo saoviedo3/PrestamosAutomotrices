@@ -4,6 +4,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "SolicitudesCreditos")
@@ -17,8 +21,20 @@ public class SolicitudCredito {
     @Column(name = "NumeroSolicitud", length = 50, nullable = false, unique = true)
     private String numeroSolicitud;
 
-    @Column(name = "IdVehiculo", nullable = false)
-    private Long idVehiculo;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "IdClienteProspecto", nullable = false)
+    @JsonIgnoreProperties({"cedula", "telefono", "email", "direccion", "ingresos", "egresos", "actividadEconomica", "estado", "version", "id"})
+    private ClienteProspecto clienteProspecto;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "IdVehiculo", nullable = false)
+    @JsonIgnoreProperties({"idIdentificadorVehiculo", "idConcesionario", "valor", "color", "extras", "estado", "version", "identificadorVehiculo", "concesionario"})
+    private Vehiculo vehiculo;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "IdVendedor", nullable = false)
+    @JsonIgnoreProperties({"idConcesionario", "telefono", "email", "estado", "version", "concesionario"})
+    private Vendedor vendedor;
 
     @Column(name = "MontoSolicitado", precision = 12, scale = 2, nullable = false)
     private BigDecimal montoSolicitado;
@@ -57,18 +73,14 @@ public class SolicitudCredito {
     @Column(name = "Version", nullable = false)
     private Long version;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "IdClienteProspecto", nullable = false, insertable = false, updatable = false)
-    private ClienteProspecto clienteProspecto;
-
-    @Column(name = "IdClienteProspecto", nullable = false)
+    @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Long idClienteProspecto;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "IdVendedor", nullable = false, insertable = false, updatable = false)
-    private Vendedor vendedor;
-
-    @Column(name = "IdVendedor", nullable = false)
+    @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Long idVehiculo;
+    @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Long idVendedor;
 
     public SolicitudCredito() {
@@ -126,12 +138,12 @@ public class SolicitudCredito {
         this.numeroSolicitud = numeroSolicitud;
     }
 
-    public Long getIdVehiculo() {
-        return idVehiculo;
+    public Vehiculo getVehiculo() {
+        return vehiculo;
     }
     
-    public void setIdVehiculo(Long idVehiculo) {
-        this.idVehiculo = idVehiculo;
+    public void setVehiculo(Vehiculo vehiculo) {
+        this.vehiculo = vehiculo;
     }
 
     public BigDecimal getScoreInterno() {
@@ -210,6 +222,14 @@ public class SolicitudCredito {
         this.idClienteProspecto = idClienteProspecto;
     }
 
+    public Long getIdVehiculo() {
+        return idVehiculo;
+    }
+
+    public void setIdVehiculo(Long idVehiculo) {
+        this.idVehiculo = idVehiculo;
+    }
+
     public Long getIdVendedor() {
         return idVendedor;
     }
@@ -246,13 +266,13 @@ public class SolicitudCredito {
     @Override
     public String toString() {
         return "SolicitudCredito [id=" + id + ", numeroSolicitud=" + numeroSolicitud + 
-               ", idVehiculo=" + idVehiculo + ", montoSolicitado=" + montoSolicitado + 
+               ", idVehiculo=" + vehiculo + ", montoSolicitado=" + montoSolicitado + 
                ", plazoMeses=" + plazoMeses + ", fechaSolicitud=" + fechaSolicitud + 
                ", scoreInterno=" + scoreInterno + ", scoreExterno=" + scoreExterno + 
                ", relacionCuotaIngreso=" + relacionCuotaIngreso + ", tasaAnual=" + tasaAnual + 
                ", cuotaMensual=" + cuotaMensual + ", totalPagar=" + totalPagar + 
                ", estado=" + estado + ", entrada=" + entrada + 
-               ", version=" + version + ", idClienteProspecto=" + idClienteProspecto + 
-               ", idVendedor=" + idVendedor + "]";
+               ", version=" + version + ", clienteProspecto=" + clienteProspecto + 
+               ", vendedor=" + vendedor + "]";
     }
 }

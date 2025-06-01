@@ -146,10 +146,10 @@ public class VehiculoService {
         }
     }
 
-    @Transactional
+    
 
     // 8. Método para marcar un Vehiculo como "Vendido"
-
+    @Transactional
     public Vehiculo marcarComoVendido(Long id) {
         try {
             Vehiculo existente = getVehiculoById(id);
