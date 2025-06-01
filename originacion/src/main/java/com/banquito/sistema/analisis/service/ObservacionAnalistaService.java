@@ -2,13 +2,13 @@ package com.banquito.sistema.analisis.service;
 
 import com.banquito.sistema.analisis.model.ObservacionAnalista;
 import com.banquito.sistema.analisis.repository.ObservacionAnalistaRepository;
-import com.banquito.sistema.analisis.service.exception.AnalisisException;
+import com.banquito.sistema.exception.CreateEntityException;
+import com.banquito.sistema.exception.DeleteEntityException;
+import com.banquito.sistema.exception.InvalidDataException;
+import com.banquito.sistema.exception.UpdateEntityException;
 import com.banquito.sistema.originacion.model.SolicitudCredito;
 import com.banquito.sistema.originacion.service.SolicitudCreditoService;
-import com.banquito.sistema.originacion.service.exception.CreditoException;
-
 import jakarta.transaction.Transactional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -40,7 +40,7 @@ public class ObservacionAnalistaService {
         if (observacionOpt.isPresent()) {
             return observacionOpt.get();
         } else {
-            throw new AnalisisException("No existe la observación del analista con ID: " + id);
+            throw new InvalidDataException("ObservacionAnalista", "No existe la observación del analista con ID: " + id);
         }
     }
 
@@ -56,7 +56,7 @@ public class ObservacionAnalistaService {
     public ObservacionAnalista save(ObservacionAnalista observacion) {
         // Verificar que la solicitud exista
         if (observacion.getIdSolicitud() == null) {
-            throw new AnalisisException("El ID de la solicitud es obligatorio");
+            throw new InvalidDataException("ObservacionAnalista", "El ID de la solicitud es obligatorio");
         }
         
         // Verificar que la solicitud exista en la base de datos
@@ -65,10 +65,10 @@ public class ObservacionAnalistaService {
             
             // Verificar que la solicitud esté en estado que permita observaciones (EnRevision)
             if (!"EnRevision".equals(solicitud.getEstado())) {
-                throw new AnalisisException("Solo se pueden agregar observaciones a solicitudes en estado de revisión");
+                throw new InvalidDataException("ObservacionAnalista", "Solo se pueden agregar observaciones a solicitudes en estado de revisión");
             }
-        } catch (CreditoException e) {
-            throw new AnalisisException("La solicitud de crédito no existe: " + e.getMessage());
+        } catch (Exception e) {
+            throw new InvalidDataException("ObservacionAnalista", "La solicitud de crédito no existe: " + e.getMessage());
         }
         
         // Establecer la fecha actual si no se proporcionó
@@ -79,7 +79,11 @@ public class ObservacionAnalistaService {
         LOG.info("Guardando observación del analista {} para la solicitud {}", 
                 observacion.getUsuario(), observacion.getIdSolicitud());
         
-        return this.observacionAnalistaRepository.save(observacion);
+        try {
+            return this.observacionAnalistaRepository.save(observacion);
+        } catch (Exception e) {
+            throw new CreateEntityException("ObservacionAnalista", "Error al guardar la observación: " + e.getMessage());
+        }
     }
 
     /**
@@ -92,12 +96,12 @@ public class ObservacionAnalistaService {
     public ObservacionAnalista saveConDecision(ObservacionAnalista observacion, String decision) {
         // Verificar que la solicitud exista
         if (observacion.getIdSolicitud() == null) {
-            throw new AnalisisException("El ID de la solicitud es obligatorio");
+            throw new InvalidDataException("ObservacionAnalista", "El ID de la solicitud es obligatorio");
         }
         
         // Verificar que la decisión sea válida
         if (!"Aprobada".equals(decision) && !"Rechazada".equals(decision)) {
-            throw new AnalisisException("La decisión debe ser 'Aprobada' o 'Rechazada'");
+            throw new InvalidDataException("ObservacionAnalista", "La decisión debe ser 'Aprobada' o 'Rechazada'");
         }
         
         // Verificar que la solicitud exista en la base de datos
@@ -107,10 +111,10 @@ public class ObservacionAnalistaService {
             
             // Verificar que la solicitud esté en estado que permita decisiones (EnRevision)
             if (!"EnRevision".equals(solicitud.getEstado())) {
-                throw new AnalisisException("Solo se pueden tomar decisiones en solicitudes en estado de revisión");
+                throw new InvalidDataException("ObservacionAnalista", "Solo se pueden tomar decisiones en solicitudes en estado de revisión");
             }
-        } catch (CreditoException e) {
-            throw new AnalisisException("La solicitud de crédito no existe: " + e.getMessage());
+        } catch (Exception e) {
+            throw new InvalidDataException("ObservacionAnalista", "La solicitud de crédito no existe: " + e.getMessage());
         }
         
         // Establecer la fecha actual si no se proporcionó
@@ -119,7 +123,12 @@ public class ObservacionAnalistaService {
         }
         
         // Guardar la observación
-        ObservacionAnalista observacionGuardada = this.observacionAnalistaRepository.save(observacion);
+        ObservacionAnalista observacionGuardada;
+        try {
+            observacionGuardada = this.observacionAnalistaRepository.save(observacion);
+        } catch (Exception e) {
+            throw new CreateEntityException("ObservacionAnalista", "Error al guardar la observación: " + e.getMessage());
+        }
         
         // Cambiar el estado de la solicitud según la decisión
         LOG.info("Analista {} ha {} la solicitud {} con la razón: {}", 
@@ -130,8 +139,8 @@ public class ObservacionAnalistaService {
         
         try {
             this.solicitudCreditoService.cambiarEstado(solicitud.getId(), decision);
-        } catch (CreditoException e) {
-            throw new AnalisisException("Error al cambiar el estado de la solicitud: " + e.getMessage());
+        } catch (Exception e) {
+            throw new UpdateEntityException("SolicitudCredito", "Error al cambiar el estado de la solicitud: " + e.getMessage());
         }
         
         return observacionGuardada;
@@ -141,23 +150,23 @@ public class ObservacionAnalistaService {
     public ObservacionAnalista update(ObservacionAnalista observacion) {
         Optional<ObservacionAnalista> observacionOpt = this.observacionAnalistaRepository.findById(observacion.getId());
         if (!observacionOpt.isPresent()) {
-            throw new AnalisisException("No existe la observación del analista con ID: " + observacion.getId());
+            throw new InvalidDataException("ObservacionAnalista", "No existe la observación del analista con ID: " + observacion.getId());
         }
         
         // No permitir modificar la solicitud asociada
         ObservacionAnalista observacionExistente = observacionOpt.get();
         if (!observacionExistente.getIdSolicitud().equals(observacion.getIdSolicitud())) {
-            throw new AnalisisException("No se puede cambiar la solicitud asociada a una observación");
+            throw new InvalidDataException("ObservacionAnalista", "No se puede cambiar la solicitud asociada a una observación");
         }
         
         // Verificar el estado de la solicitud
         try {
             SolicitudCredito solicitud = this.solicitudCreditoService.findById(observacion.getIdSolicitud());
             if (!"EnRevision".equals(solicitud.getEstado())) {
-                throw new AnalisisException("Solo se pueden modificar observaciones de solicitudes en estado de revisión");
+                throw new InvalidDataException("ObservacionAnalista", "Solo se pueden modificar observaciones de solicitudes en estado de revisión");
             }
-        } catch (CreditoException e) {
-            throw new AnalisisException("La solicitud de crédito no existe: " + e.getMessage());
+        } catch (Exception e) {
+            throw new InvalidDataException("ObservacionAnalista", "La solicitud de crédito no existe: " + e.getMessage());
         }
         
         // Mantener la fecha original
@@ -171,14 +180,18 @@ public class ObservacionAnalistaService {
         LOG.info("Actualizando observación del analista {} para la solicitud {}", 
                 observacion.getUsuario(), observacion.getIdSolicitud());
         
-        return this.observacionAnalistaRepository.save(observacion);
+        try {
+            return this.observacionAnalistaRepository.save(observacion);
+        } catch (Exception e) {
+            throw new UpdateEntityException("ObservacionAnalista", "Error al actualizar la observación: " + e.getMessage());
+        }
     }
 
     @Transactional
     public void delete(Long id) {
         Optional<ObservacionAnalista> observacionOpt = this.observacionAnalistaRepository.findById(id);
         if (!observacionOpt.isPresent()) {
-            throw new AnalisisException("No existe la observación del analista con ID: " + id);
+            throw new InvalidDataException("ObservacionAnalista", "No existe la observación del analista con ID: " + id);
         }
         
         ObservacionAnalista observacion = observacionOpt.get();
@@ -187,15 +200,19 @@ public class ObservacionAnalistaService {
         try {
             SolicitudCredito solicitud = this.solicitudCreditoService.findById(observacion.getIdSolicitud());
             if (!"EnRevision".equals(solicitud.getEstado())) {
-                throw new AnalisisException("Solo se pueden eliminar observaciones de solicitudes en estado de revisión");
+                throw new InvalidDataException("ObservacionAnalista", "Solo se pueden eliminar observaciones de solicitudes en estado de revisión");
             }
-        } catch (CreditoException e) {
-            throw new AnalisisException("La solicitud de crédito no existe: " + e.getMessage());
+        } catch (Exception e) {
+            throw new InvalidDataException("ObservacionAnalista", "La solicitud de crédito no existe: " + e.getMessage());
         }
         
         LOG.info("Eliminando observación del analista {} para la solicitud {}", 
                 observacion.getUsuario(), observacion.getIdSolicitud());
         
-        this.observacionAnalistaRepository.delete(observacion);
+        try {
+            this.observacionAnalistaRepository.delete(observacion);
+        } catch (Exception e) {
+            throw new DeleteEntityException("ObservacionAnalista", "Error al eliminar la observación: " + e.getMessage());
+        }
     }
 } 

@@ -4,7 +4,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
@@ -21,19 +23,17 @@ public class SolicitudCredito {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "IdClienteProspecto", nullable = false)
-    @JsonIgnoreProperties({ "cedula", "telefono", "email", "direccion", "ingresos", "egresos", "actividadEconomica",
-            "estado", "version", "id" })
+    @JsonIgnoreProperties({"cedula", "telefono", "email", "direccion", "ingresos", "egresos", "actividadEconomica", "estado", "version", "id"})
     private ClienteProspecto clienteProspecto;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "IdVehiculo", nullable = false)
-    @JsonIgnoreProperties({ "idIdentificadorVehiculo", "idConcesionario", "valor", "color", "extras", "estado",
-            "version", "identificadorVehiculo", "concesionario" })
+    @JsonIgnoreProperties({"idIdentificadorVehiculo", "idConcesionario", "valor", "color", "extras", "estado", "version", "identificadorVehiculo", "concesionario"})
     private Vehiculo vehiculo;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "IdVendedor", nullable = false)
-    @JsonIgnoreProperties({ "idConcesionario", "telefono", "email", "estado", "version", "concesionario" })
+    @JsonIgnoreProperties({"idConcesionario", "telefono", "email", "estado", "version", "concesionario"})
     private Vendedor vendedor;
 
     @Column(name = "MontoSolicitado", precision = 12, scale = 2, nullable = false)
@@ -170,29 +170,17 @@ public class SolicitudCredito {
         this.relacionCuotaIngreso = relacionCuotaIngreso;
     }
 
-    public BigDecimal getTasaAnual() {
-        return tasaAnual;
-    }
+    public BigDecimal getTasaAnual() { return tasaAnual; }
 
-    public void setTasaAnual(BigDecimal tasaAnual) {
-        this.tasaAnual = tasaAnual;
-    }
+    public void setTasaAnual(BigDecimal tasaAnual) { this.tasaAnual = tasaAnual; }
 
-    public BigDecimal getCuotaMensual() {
-        return cuotaMensual;
-    }
+    public BigDecimal getCuotaMensual() { return cuotaMensual; }
 
-    public void setCuotaMensual(BigDecimal cuotaMensual) {
-        this.cuotaMensual = cuotaMensual;
-    }
+    public void setCuotaMensual(BigDecimal cuotaMensual) { this.cuotaMensual = cuotaMensual; }
 
-    public BigDecimal getTotalPagar() {
-        return totalPagar;
-    }
+    public BigDecimal getTotalPagar() { return totalPagar; }
 
-    public void setTotalPagar(BigDecimal totalPagar) {
-        this.totalPagar = totalPagar;
-    }
+    public void setTotalPagar(BigDecimal totalPagar) { this.totalPagar = totalPagar; }
 
     public ClienteProspecto getClienteProspecto() {
         return clienteProspecto;

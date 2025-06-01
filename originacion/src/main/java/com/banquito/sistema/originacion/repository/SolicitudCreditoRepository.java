@@ -10,15 +10,15 @@ import java.util.Optional;
 
 @Repository
 public interface SolicitudCreditoRepository extends JpaRepository<SolicitudCredito, Long> {
-    
+
     Optional<SolicitudCredito> findByNumeroSolicitud(String numeroSolicitud);
-    
+
     //List<SolicitudCredito> findByIdClienteProspecto(Long idClienteProspecto);
-    
+
     List<SolicitudCredito> findByEstado(String estado);
-    
+
     //List<SolicitudCredito> findByIdVendedor(Long idVendedor);
-    
+
     boolean existsByNumeroSolicitud(String numeroSolicitud);
 
     boolean existsByVehiculo_Id(Long idVehiculo);

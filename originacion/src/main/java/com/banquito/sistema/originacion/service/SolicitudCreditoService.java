@@ -2,8 +2,11 @@ package com.banquito.sistema.originacion.service;
 
 import com.banquito.sistema.originacion.model.SolicitudCredito;
 import com.banquito.sistema.originacion.repository.SolicitudCreditoRepository;
-import com.banquito.sistema.originacion.service.exception.CreditoException;
-import com.banquito.sistema.originacion.exception.SolicitudCreditoNotFoundException;
+import com.banquito.sistema.exception.InvalidDataException;
+import com.banquito.sistema.exception.AlreadyExistsException;
+import com.banquito.sistema.exception.CreateEntityException;
+import com.banquito.sistema.exception.UpdateEntityException;
+import com.banquito.sistema.exception.DeleteEntityException;
 import com.banquito.sistema.originacion.model.ClienteProspecto;
 import com.banquito.sistema.originacion.repository.ClienteProspectoRepository;
 import com.banquito.sistema.originacion.model.Vehiculo;
@@ -60,7 +63,7 @@ public class SolicitudCreditoService {
         if (solicitudOpt.isPresent()) {
             return solicitudOpt.get();
         } else {
-            throw new CreditoException("No existe la solicitud de crédito con ID: " + id);
+            throw new InvalidDataException("SolicitudCredito", "No existe la solicitud de crédito con ID: " + id);
         }
     }
 
@@ -69,7 +72,7 @@ public class SolicitudCreditoService {
         if (solicitudOpt.isPresent()) {
             return solicitudOpt.get();
         } else {
-            throw new CreditoException("No existe la solicitud de crédito con número: " + numeroSolicitud);
+            throw new InvalidDataException("SolicitudCredito", "No existe la solicitud de crédito con número: " + numeroSolicitud);
         }
     }
 
@@ -77,12 +80,12 @@ public class SolicitudCreditoService {
     public SolicitudCredito save(SolicitudCredito solicitud) {
         // Verificar si ya existe una solicitud con el mismo número
         if (this.solicitudCreditoRepository.findByNumeroSolicitud(solicitud.getNumeroSolicitud()).isPresent()) {
-            throw new CreditoException("Ya existe una solicitud con el número: " + solicitud.getNumeroSolicitud());
+            throw new AlreadyExistsException("SolicitudCredito", "Ya existe una solicitud con el número: " + solicitud.getNumeroSolicitud());
         }
         // Verificar si el vehículo ya está asignado a otra solicitud
         if (solicitud.getIdVehiculo() != null) {
             if (this.solicitudCreditoRepository.existsByVehiculo_Id(solicitud.getIdVehiculo())) {
-                throw new CreditoException("El vehículo con ID " + solicitud.getIdVehiculo() + " ya está asignado a otra solicitud");
+                throw new InvalidDataException("SolicitudCredito", "El vehículo con ID " + solicitud.getIdVehiculo() + " ya está asignado a otra solicitud");
             }
         }
         // Inicializar valores por defecto si no están establecidos
@@ -101,93 +104,101 @@ public class SolicitudCreditoService {
         // Asignar el objeto ClienteProspecto de forma obligatoria
         if (solicitud.getIdClienteProspecto() != null) {
             ClienteProspecto cp = clienteProspectoRepository.findById(solicitud.getIdClienteProspecto())
-                .orElseThrow(() -> new CreditoException("No existe el ClienteProspecto con ID: " + solicitud.getIdClienteProspecto()));
+                    .orElseThrow(() -> new InvalidDataException("ClienteProspecto", "No existe el ClienteProspecto con ID: " + solicitud.getIdClienteProspecto()));
             solicitud.setClienteProspecto(cp);
         }
         if (solicitud.getClienteProspecto() == null) {
-            throw new CreditoException("El ClienteProspecto no puede ser nulo");
+            throw new InvalidDataException("SolicitudCredito", "El ClienteProspecto no puede ser nulo");
         }
         // Asignar el objeto Vehiculo de forma obligatoria
         if (solicitud.getIdVehiculo() != null) {
             Vehiculo v = vehiculoRepository.findById(solicitud.getIdVehiculo())
-                .orElseThrow(() -> new CreditoException("No existe el Vehiculo con ID: " + solicitud.getIdVehiculo()));
+                    .orElseThrow(() -> new InvalidDataException("Vehiculo", "No existe el Vehiculo con ID: " + solicitud.getIdVehiculo()));
             solicitud.setVehiculo(v);
         }
         if (solicitud.getVehiculo() == null) {
-            throw new CreditoException("El Vehiculo no puede ser nulo");
+            throw new InvalidDataException("SolicitudCredito", "El Vehiculo no puede ser nulo");
         }
         // Asignar el objeto Vendedor de forma obligatoria
         if (solicitud.getIdVendedor() != null) {
             Vendedor v = vendedorRepository.findById(solicitud.getIdVendedor())
-                .orElseThrow(() -> new CreditoException("No existe el Vendedor con ID: " + solicitud.getIdVendedor()));
+                    .orElseThrow(() -> new InvalidDataException("Vendedor", "No existe el Vendedor con ID: " + solicitud.getIdVendedor()));
             solicitud.setVendedor(v);
         }
         if (solicitud.getVendedor() == null) {
-            throw new CreditoException("El Vendedor no puede ser nulo");
+            throw new InvalidDataException("SolicitudCredito", "El Vendedor no puede ser nulo");
         }
         // Recalcular los valores financieros
-        calcularValoresFinancieros(solicitud);
-        return this.solicitudCreditoRepository.save(solicitud);
+        try {
+            calcularValoresFinancieros(solicitud);
+            return this.solicitudCreditoRepository.save(solicitud);
+        } catch (Exception e) {
+            throw new CreateEntityException("SolicitudCredito", "Error al crear solicitud de crédito: " + e.getMessage());
+        }
     }
 
     @Transactional
     public SolicitudCredito update(SolicitudCredito solicitud) {
         Optional<SolicitudCredito> solicitudOpt = this.solicitudCreditoRepository.findById(solicitud.getId());
         if (!solicitudOpt.isPresent()) {
-            throw new CreditoException("No existe la solicitud de crédito con ID: " + solicitud.getId());
+            throw new InvalidDataException("SolicitudCredito", "No existe la solicitud de crédito con ID: " + solicitud.getId());
         }
         SolicitudCredito solicitudExistente = solicitudOpt.get();
         // Verificar que la solicitud esté en estado Borrador
         if (!"Borrador".equals(solicitudExistente.getEstado())) {
-            throw new CreditoException("No se puede actualizar una solicitud que no está en estado Borrador");
+            throw new InvalidDataException("SolicitudCredito", "No se puede actualizar una solicitud que no está en estado Borrador");
         }
         // Verificar si el número de solicitud está siendo cambiado y ya existe
         if (!solicitudExistente.getNumeroSolicitud().equals(solicitud.getNumeroSolicitud()) &&
-            this.solicitudCreditoRepository.findByNumeroSolicitud(solicitud.getNumeroSolicitud()).isPresent()) {
-            throw new CreditoException("Ya existe una solicitud con el número: " + solicitud.getNumeroSolicitud());
+                this.solicitudCreditoRepository.findByNumeroSolicitud(solicitud.getNumeroSolicitud()).isPresent()) {
+            throw new AlreadyExistsException("SolicitudCredito", "Ya existe una solicitud con el número: " + solicitud.getNumeroSolicitud());
         }
         // Verificar si el vehículo está cambiando y ya está asignado
-        if (solicitud.getIdVehiculo() != null && 
-            (solicitudExistente.getVehiculo() == null || 
-             !solicitudExistente.getVehiculo().getId().equals(solicitud.getIdVehiculo()))) {
+        if (solicitud.getIdVehiculo() != null &&
+                (solicitudExistente.getVehiculo() == null ||
+                        !solicitudExistente.getVehiculo().getId().equals(solicitud.getIdVehiculo()))) {
             if (this.solicitudCreditoRepository.existsByVehiculo_Id(solicitud.getIdVehiculo())) {
-                throw new CreditoException("El vehículo con ID " + solicitud.getIdVehiculo() + " ya está asignado a otra solicitud");
+                throw new InvalidDataException("SolicitudCredito", "El vehículo con ID " + solicitud.getIdVehiculo() + " ya está asignado a otra solicitud");
             }
         }
         // Asignar el objeto ClienteProspecto de forma obligatoria
         if (solicitud.getIdClienteProspecto() != null) {
             ClienteProspecto cp = clienteProspectoRepository.findById(solicitud.getIdClienteProspecto())
-                .orElseThrow(() -> new CreditoException("No existe el ClienteProspecto con ID: " + solicitud.getIdClienteProspecto()));
+                    .orElseThrow(() -> new InvalidDataException("ClienteProspecto", "No existe el ClienteProspecto con ID: " + solicitud.getIdClienteProspecto()));
             solicitud.setClienteProspecto(cp);
         }
         if (solicitud.getClienteProspecto() == null) {
-            throw new CreditoException("El ClienteProspecto no puede ser nulo");
+            throw new InvalidDataException("SolicitudCredito", "El ClienteProspecto no puede ser nulo");
         }
         // Asignar el objeto Vehiculo de forma obligatoria
         if (solicitud.getIdVehiculo() != null) {
             Vehiculo v = vehiculoRepository.findById(solicitud.getIdVehiculo())
-                .orElseThrow(() -> new CreditoException("No existe el Vehiculo con ID: " + solicitud.getIdVehiculo()));
+                    .orElseThrow(() -> new InvalidDataException("Vehiculo", "No existe el Vehiculo con ID: " + solicitud.getIdVehiculo()));
             solicitud.setVehiculo(v);
         }
         if (solicitud.getVehiculo() == null) {
-            throw new CreditoException("El Vehiculo no puede ser nulo");
+            throw new InvalidDataException("SolicitudCredito", "El Vehiculo no puede ser nulo");
         }
         // Asignar el objeto Vendedor de forma obligatoria
         if (solicitud.getIdVendedor() != null) {
             Vendedor v = vendedorRepository.findById(solicitud.getIdVendedor())
-                .orElseThrow(() -> new CreditoException("No existe el Vendedor con ID: " + solicitud.getIdVendedor()));
+                    .orElseThrow(() -> new InvalidDataException("Vendedor", "No existe el Vendedor con ID: " + solicitud.getIdVendedor()));
             solicitud.setVendedor(v);
         }
         if (solicitud.getVendedor() == null) {
-            throw new CreditoException("El Vendedor no puede ser nulo");
+            throw new InvalidDataException("SolicitudCredito", "El Vendedor no puede ser nulo");
         }
         // Recalcular los valores financieros
-        calcularValoresFinancieros(solicitud);
-        // Asignar versión de la base si viene null
-        if (solicitud.getVersion() == null) {
-            solicitud.setVersion(solicitudExistente.getVersion());
+        try {
+            calcularValoresFinancieros(solicitud);
+            // Asignar versión de la base si viene null
+            if (solicitud.getVersion() == null) {
+                solicitud.setVersion(solicitudExistente.getVersion());
+            }
+            return this.solicitudCreditoRepository.save(solicitud);
+        } catch (Exception e) {
+            throw new UpdateEntityException("SolicitudCredito", "Error al actualizar solicitud de crédito: " + e.getMessage());
         }
-        return this.solicitudCreditoRepository.save(solicitud);
     }
 
     /**
@@ -200,73 +211,73 @@ public class SolicitudCreditoService {
     public SolicitudCredito evaluarSolicitud(SolicitudCredito solicitud) {
         // Verificar que la solicitud esté en estado Borrador
         if (!"Borrador".equals(solicitud.getEstado())) {
-            throw new CreditoException("Solo se pueden evaluar solicitudes en estado Borrador");
+            throw new InvalidDataException("SolicitudCredito", "Solo se pueden evaluar solicitudes en estado Borrador");
         }
-        
+
         // Calcular el score combinado (promedio entre interno y externo)
         BigDecimal scoreCombinado = solicitud.getScoreInterno().add(solicitud.getScoreExterno())
-                                    .divide(new BigDecimal("2"), 2, RoundingMode.HALF_UP);
-        
+                .divide(new BigDecimal("2"), 2, RoundingMode.HALF_UP);
+
         // Verificar si cumple el score mínimo o debe ser rechazada automáticamente
         if (scoreCombinado.compareTo(SCORE_RECHAZO_AUTOMATICO) < 0) {
             solicitud.setEstado("Rechazada");
             return this.solicitudCreditoRepository.save(solicitud);
         }
-        
+
         // Verificar que la relación cuota/ingreso sea aceptable (máximo 30%)
         if (solicitud.getRelacionCuotaIngreso().compareTo(new BigDecimal("30.0")) > 0) {
             solicitud.setEstado("Rechazada");
             return this.solicitudCreditoRepository.save(solicitud);
         }
-        
+
         // Si pasa las validaciones automáticas, pasa a estado EnRevision para análisis manual
         solicitud.setEstado("EnRevision");
         return this.solicitudCreditoRepository.save(solicitud);
     }
-    
+
     private void calcularValoresFinancieros(SolicitudCredito solicitud) {
         // Implementar cálculo de cuota mensual, total a pagar, etc.
         // Este es un cálculo simplificado, en la realidad se usaría
         // una fórmula financiera más compleja
-        
+
         BigDecimal tasaMensual = solicitud.getTasaAnual().divide(new BigDecimal("12"), 10, RoundingMode.HALF_UP)
-                                .divide(new BigDecimal("100"), 10, RoundingMode.HALF_UP);
-        
+                .divide(new BigDecimal("100"), 10, RoundingMode.HALF_UP);
+
         BigDecimal montoFinanciado = solicitud.getMontoSolicitado().subtract(solicitud.getEntrada());
         BigDecimal plazoMesesBD = new BigDecimal(solicitud.getPlazoMeses());
-        
+
         // Fórmula: cuota = P * r * (1 + r)^n / ((1 + r)^n - 1)
         BigDecimal numerador = tasaMensual.add(BigDecimal.ONE).pow(solicitud.getPlazoMeses());
         BigDecimal denominador = numerador.subtract(BigDecimal.ONE);
         BigDecimal factor = tasaMensual.multiply(numerador).divide(denominador, 10, RoundingMode.HALF_UP);
-        
+
         BigDecimal cuotaMensual = montoFinanciado.multiply(factor).setScale(2, RoundingMode.HALF_UP);
         solicitud.setCuotaMensual(cuotaMensual);
-        
+
         BigDecimal totalPagar = cuotaMensual.multiply(plazoMesesBD).setScale(2, RoundingMode.HALF_UP);
         solicitud.setTotalPagar(totalPagar);
     }
-    
+
     private void validarTransicionEstado(String estadoActual, String nuevoEstado) {
         // Definir transiciones válidas de estados
         switch (estadoActual) {
             case "Borrador":
                 if (!("EnRevision".equals(nuevoEstado) || "Cancelada".equals(nuevoEstado))) {
-                    throw new CreditoException("Desde Borrador solo se puede pasar a EnRevision o Cancelada");
+                    throw new InvalidDataException("SolicitudCredito", "Desde Borrador solo se puede pasar a EnRevision o Cancelada");
                 }
                 break;
             case "EnRevision":
                 if (!("Aprobada".equals(nuevoEstado) || "Rechazada".equals(nuevoEstado) || "Cancelada".equals(nuevoEstado))) {
-                    throw new CreditoException("Desde EnRevision solo se puede pasar a Aprobada, Rechazada o Cancelada");
+                    throw new InvalidDataException("SolicitudCredito", "Desde EnRevision solo se puede pasar a Aprobada, Rechazada o Cancelada");
                 }
                 break;
             case "Aprobada":
             case "Rechazada":
-                throw new CreditoException("No se puede cambiar el estado de una solicitud Aprobada o Rechazada");
+                throw new InvalidDataException("SolicitudCredito", "No se puede cambiar el estado de una solicitud Aprobada o Rechazada");
             case "Cancelada":
-                throw new CreditoException("No se puede cambiar el estado de una solicitud Cancelada");
+                throw new InvalidDataException("SolicitudCredito", "No se puede cambiar el estado de una solicitud Cancelada");
             default:
-                throw new CreditoException("Estado no reconocido: " + estadoActual);
+                throw new InvalidDataException("SolicitudCredito", "Estado no reconocido: " + estadoActual);
         }
     }
 
@@ -274,45 +285,53 @@ public class SolicitudCreditoService {
     public SolicitudCredito cambiarEstado(Long id, String nuevoEstado) {
         Optional<SolicitudCredito> solicitudOpt = this.solicitudCreditoRepository.findById(id);
         if (!solicitudOpt.isPresent()) {
-            throw new CreditoException("No existe la solicitud de crédito con ID: " + id);
+            throw new InvalidDataException("SolicitudCredito", "No existe la solicitud de crédito con ID: " + id);
         }
-        
+
         SolicitudCredito solicitud = solicitudOpt.get();
-        
+
         // Validar transiciones de estado permitidas
         validarTransicionEstado(solicitud.getEstado(), nuevoEstado);
-        
+
         // Verificar si es una decisión de aprobación/rechazo por analista
-        if (("Aprobada".equals(nuevoEstado) || "Rechazada".equals(nuevoEstado)) 
+        if (("Aprobada".equals(nuevoEstado) || "Rechazada".equals(nuevoEstado))
                 && "EnRevision".equals(solicitud.getEstado())) {
             // Aquí se registraría la decisión del analista
             // Pero eso se hará a través de ObservacionAnalista
         }
-        
+
         solicitud.setEstado(nuevoEstado);
-        return this.solicitudCreditoRepository.save(solicitud);
+        try {
+            return this.solicitudCreditoRepository.save(solicitud);
+        } catch (Exception e) {
+            throw new UpdateEntityException("SolicitudCredito", "Error al cambiar el estado de la solicitud: " + e.getMessage());
+        }
     }
 
     @Transactional
     public void delete(Long id) {
         Optional<SolicitudCredito> solicitudOpt = this.solicitudCreditoRepository.findById(id);
         if (!solicitudOpt.isPresent()) {
-            throw new CreditoException("No existe la solicitud de crédito con ID: " + id);
+            throw new InvalidDataException("SolicitudCredito", "No existe la solicitud de crédito con ID: " + id);
         }
-        
+
         SolicitudCredito solicitud = solicitudOpt.get();
-        
+
         // Solo se pueden eliminar solicitudes en borrador
         if (!"Borrador".equals(solicitud.getEstado())) {
-            throw new CreditoException("Solo se pueden eliminar solicitudes en estado Borrador");
+            throw new InvalidDataException("SolicitudCredito", "Solo se pueden eliminar solicitudes en estado Borrador");
         }
-        
-        this.solicitudCreditoRepository.delete(solicitud);
+
+        try {
+            this.solicitudCreditoRepository.delete(solicitud);
+        } catch (Exception e) {
+            throw new DeleteEntityException("SolicitudCredito", "Error al eliminar la solicitud: " + e.getMessage());
+        }
     }
 
     @Transactional(readOnly = true)
     public SolicitudCredito getById(Long id) {
         return solicitudCreditoRepository.findById(id)
-                .orElseThrow(() -> new SolicitudCreditoNotFoundException(id));
+                .orElseThrow(() -> new InvalidDataException("SolicitudCredito", "No existe la solicitud de crédito con ID: " + id));
     }
 } 

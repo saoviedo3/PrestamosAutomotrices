@@ -1,9 +1,8 @@
 package com.banquito.sistema.analisis.repository;
 
+import com.banquito.sistema.analisis.model.ObservacionAnalista;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import com.banquito.sistema.analisis.model.ObservacionAnalista;
 
 import java.util.List;
 

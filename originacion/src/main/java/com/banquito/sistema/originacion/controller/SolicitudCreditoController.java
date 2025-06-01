@@ -1,18 +1,14 @@
 package com.banquito.sistema.originacion.controller;
 
+import com.banquito.sistema.originacion.model.SolicitudCredito;
+import com.banquito.sistema.originacion.service.SolicitudCreditoService;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.banquito.sistema.originacion.model.SolicitudCredito;
-import com.banquito.sistema.originacion.service.SolicitudCreditoService;
-import com.banquito.sistema.originacion.service.exception.CreditoException;
-
-import jakarta.validation.Valid;
-
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/solicitudes-credito")
@@ -56,37 +52,22 @@ public class SolicitudCreditoController {
     @GetMapping("/{id}")
     public ResponseEntity<SolicitudCredito> obtenerPorId(@PathVariable Long id) {
         LOG.info("Obteniendo solicitud de crédito con ID: {}", id);
-        try {
-            SolicitudCredito solicitud = this.service.findById(id);
-            return ResponseEntity.ok(solicitud);
-        } catch (CreditoException e) {
-            LOG.error("Error al obtener solicitud de crédito: {}", e.getMessage());
-            return ResponseEntity.notFound().build();
-        }
+        SolicitudCredito solicitud = this.service.findById(id);
+        return ResponseEntity.ok(solicitud);
     }
 
     @GetMapping("/numero/{numeroSolicitud}")
     public ResponseEntity<SolicitudCredito> obtenerPorNumero(@PathVariable String numeroSolicitud) {
         LOG.info("Obteniendo solicitud de crédito con número: {}", numeroSolicitud);
-        try {
-            SolicitudCredito solicitud = this.service.findByNumeroSolicitud(numeroSolicitud);
-            return ResponseEntity.ok(solicitud);
-        } catch (CreditoException e) {
-            LOG.error("Error al obtener solicitud de crédito: {}", e.getMessage());
-            return ResponseEntity.notFound().build();
-        }
+        SolicitudCredito solicitud = this.service.findByNumeroSolicitud(numeroSolicitud);
+        return ResponseEntity.ok(solicitud);
     }
 
     @PostMapping
     public ResponseEntity<SolicitudCredito> crear(@Valid @RequestBody SolicitudCredito solicitud) {
         LOG.info("Creando nueva solicitud de crédito con número: {}", solicitud.getNumeroSolicitud());
-        try {
-            solicitud = this.service.save(solicitud);
-            return ResponseEntity.ok(solicitud);
-        } catch (CreditoException e) {
-            LOG.error("Error al crear solicitud de crédito: {}", e.getMessage());
-            return ResponseEntity.badRequest().build();
-        }
+        solicitud = this.service.save(solicitud);
+        return ResponseEntity.ok(solicitud);
     }
 
     /**
@@ -95,60 +76,33 @@ public class SolicitudCreditoController {
     @PostMapping("/{id}/evaluar")
     public ResponseEntity<SolicitudCredito> evaluarSolicitud(@PathVariable Long id) {
         LOG.info("Iniciando evaluación automática de solicitud de crédito con ID: {}", id);
-        try {
-            SolicitudCredito solicitud = this.service.findById(id);
-            solicitud = this.service.evaluarSolicitud(solicitud);
-            
-            return ResponseEntity.ok(solicitud);
-        } catch (CreditoException e) {
-            LOG.error("Error al evaluar solicitud de crédito: {}", e.getMessage());
-            return ResponseEntity.badRequest().build();
-        }
+        SolicitudCredito solicitud = this.service.findById(id);
+        solicitud = this.service.evaluarSolicitud(solicitud);
+        return ResponseEntity.ok(solicitud);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<SolicitudCredito> actualizar(@PathVariable Long id, 
+    public ResponseEntity<SolicitudCredito> actualizar(@PathVariable Long id,
                                                     @Valid @RequestBody SolicitudCredito solicitud) {
         LOG.info("Actualizando solicitud de crédito con ID: {}", id);
-        try {
-            this.service.findById(id); // Verificar que exista
-            solicitud.setId(id);
-            solicitud = this.service.update(solicitud);
-            return ResponseEntity.ok(solicitud);
-        } catch (CreditoException e) {
-            LOG.error("Error al actualizar solicitud de crédito: {}", e.getMessage());
-            return ResponseEntity.badRequest().build();
-        }
+        this.service.findById(id); // Verificar que exista
+        solicitud.setId(id);
+        solicitud = this.service.update(solicitud);
+        return ResponseEntity.ok(solicitud);
     }
 
     @PutMapping("/{id}/estado/{estado}")
-    public ResponseEntity<SolicitudCredito> cambiarEstado(@PathVariable Long id, 
+    public ResponseEntity<SolicitudCredito> cambiarEstado(@PathVariable Long id,
                                                         @PathVariable String estado) {
         LOG.info("Cambiando estado de solicitud de crédito con ID: {} a {}", id, estado);
-        try {
-            SolicitudCredito solicitud = this.service.cambiarEstado(id, estado);
-            return ResponseEntity.ok(solicitud);
-        } catch (CreditoException e) {
-            LOG.error("Error al cambiar estado de solicitud de crédito: {}", e.getMessage());
-            return ResponseEntity.badRequest().build();
-        }
+        SolicitudCredito solicitud = this.service.cambiarEstado(id, estado);
+        return ResponseEntity.ok(solicitud);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         LOG.info("Eliminando solicitud de crédito con ID: {}", id);
-        try {
-            this.service.delete(id);
-            return ResponseEntity.noContent().build();
-        } catch (CreditoException e) {
-            LOG.error("Error al eliminar solicitud de crédito: {}", e.getMessage());
-            return ResponseEntity.badRequest().build();
-        }
+        this.service.delete(id);
+        return ResponseEntity.noContent().build();
     }
-    
-    @ExceptionHandler({CreditoException.class})
-    public ResponseEntity<String> handleCreditoException(CreditoException e) {
-        LOG.error("Error en la solicitud: {}", e.getMessage());
-        return ResponseEntity.badRequest().body(e.getMessage());
-    }
-} 
+}
