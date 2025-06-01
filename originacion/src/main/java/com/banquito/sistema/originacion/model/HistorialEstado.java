@@ -2,9 +2,9 @@ package com.banquito.sistema.originacion.model;
 
 import java.sql.Timestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.*;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 
 @Entity
 @Table(name = "HistorialEstados")
@@ -35,6 +35,23 @@ public class HistorialEstado {
 
     @ManyToOne
     @JoinColumn(name = "IdSolicitud", insertable = false, updatable = false)
+    @JsonIgnoreProperties({
+        "clienteProspecto",
+        "vehiculo",
+        "vendedor",
+        "montoSolicitado",
+        "plazoMeses",
+        "fechaSolicitud",
+        "scoreInterno",
+        "scoreExterno",
+        "relacionCuotaIngreso",
+        "tasaAnual",
+        "cuotaMensual",
+        "totalPagar",
+        "estado",
+        "entrada",
+        "version"
+    })
     private SolicitudCredito solicitudCredito;
 
     public HistorialEstado() {

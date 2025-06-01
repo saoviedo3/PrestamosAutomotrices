@@ -2,6 +2,8 @@ package com.banquito.sistema.originacion.model;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -35,6 +37,12 @@ public class Vendedor {
     //relacion concesionario
     @ManyToOne
     @JoinColumn(name = "IdConcesionario", referencedColumnName = "IdConcesionario", insertable = false, updatable = false)
+    @JsonIgnoreProperties({
+        "direccion",
+        "telefono",
+        "emailContacto",
+        "version"
+    })
     private Concesionario concesionario;
 
 

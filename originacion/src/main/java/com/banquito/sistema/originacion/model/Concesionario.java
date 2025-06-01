@@ -3,6 +3,8 @@ package com.banquito.sistema.originacion.model;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -32,6 +34,7 @@ public class Concesionario {
     private String estado;
 
     @OneToMany(mappedBy  = "concesionario")
+    @JsonIgnore
     private List<Vehiculo> vehiculos;
 
     @Version

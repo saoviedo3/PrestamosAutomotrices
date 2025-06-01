@@ -25,7 +25,6 @@ public class VendedorService {
             ConcesionarioService concesionarioService) {
         this.repository = repository;
         this.concesionarioService = concesionarioService;
-
     }
 
     public List<Vendedor> findAll() {
@@ -43,10 +42,17 @@ public class VendedorService {
     @Transactional
     public Vendedor create(Vendedor vendedor) {
         try {
-            this.validateForCreate(vendedor);
+            // Normalizamos email antes de validar
+            if (vendedor.getEmail() != null) {
+                String emailNormalized = vendedor.getEmail().trim().toLowerCase();
+                vendedor.setEmail(emailNormalized);
+            }
+
+            validateForCreate(vendedor);
 
             Vendedor saved = this.repository.save(vendedor);
 
+            // Cargar concesionario en la respuesta
             Concesionario c = this.concesionarioService.findById(saved.getIdConcesionario());
             saved.setConcesionario(c);
 
@@ -60,19 +66,33 @@ public class VendedorService {
     public Vendedor update(Long id, Vendedor vendedor) {
         try {
             Vendedor existingVendedor = this.findById(id);
-            this.validateForUpdate(vendedor, existingVendedor);
+            validateForUpdate(vendedor, existingVendedor);
 
+            // Si cambió de concesionario, validamos que exista y esté ACTIVO
             if (!vendedor.getIdConcesionario().equals(existingVendedor.getIdConcesionario())) {
-                Concesionario concesionario = this.concesionarioService.findById(vendedor.getIdConcesionario());
-                if (!"ACTIVO".equals(concesionario.getEstado())) {
-                    throw new InvalidStateException(concesionario.getEstado(), "ACTIVO", "Concesionario");
+                Concesionario concesionarioNuevo = this.concesionarioService.findById(vendedor.getIdConcesionario());
+                if (!"ACTIVO".equals(concesionarioNuevo.getEstado())) {
+                    throw new InvalidStateException(concesionarioNuevo.getEstado(), "ACTIVO", "Concesionario");
                 }
             }
 
+            // Normalizar email
+            if (vendedor.getEmail() != null) {
+                vendedor.setEmail(vendedor.getEmail().trim().toLowerCase());
+            }
+
+            // Aseguramos que sea una actualización, no inserción
             vendedor.setId(id);
             vendedor.setVersion(existingVendedor.getVersion());
 
-            return this.repository.save(vendedor);
+            // Guardamos el vendedor “en crudo”
+            Vendedor guardado = this.repository.save(vendedor);
+
+            // Volvemos a cargar el Concesionario para que no venga null
+            Concesionario c = this.concesionarioService.findById(guardado.getIdConcesionario());
+            guardado.setConcesionario(c);
+
+            return guardado;
         } catch (Exception e) {
             throw new UpdateEntityException("Vendedor", e.getMessage());
         }
@@ -83,8 +103,7 @@ public class VendedorService {
         Vendedor vendedor = this.findById(id);
         String oldState = vendedor.getEstado();
 
-        this.validateStateChange(oldState, newState);
-
+        validateStateChange(oldState, newState);
         vendedor.setEstado(newState);
 
         try {
@@ -95,16 +114,28 @@ public class VendedorService {
     }
 
     private void validateForCreate(Vendedor vendedor) {
-        if (vendedor.getEmail() != null && this.repository.existsByEmail(vendedor.getEmail())) {
+        if (vendedor.getEmail() != null 
+                && this.repository.existsByEmail(vendedor.getEmail().trim().toLowerCase())) {
             throw new DuplicateException(vendedor.getEmail(), "Vendedor con email");
         }
     }
 
     private void validateForUpdate(Vendedor vendedor, Vendedor existing) {
-        if (vendedor.getEmail() != null &&
-                !vendedor.getEmail().equals(existing.getEmail()) &&
-                this.repository.existsByEmail(vendedor.getEmail())) {
-            throw new DuplicateException(vendedor.getEmail(), "Vendedor con email");
+        if (vendedor.getEmail() != null && !vendedor.getEmail().isBlank()) {
+            String nuevoEmail = vendedor.getEmail().trim().toLowerCase();
+            String emailExistente = existing.getEmail() != null
+                    ? existing.getEmail().trim().toLowerCase()
+                    : "";
+
+            // Si realmente se cambió el email (ignorando mayúsculas/minúsculas y espacios)
+            if (!nuevoEmail.equals(emailExistente)) {
+                // Y ese nuevo email ya está en BD (pertenece a otro registro) → excepción
+                if (this.repository.existsByEmail(nuevoEmail)) {
+                    throw new DuplicateException(vendedor.getEmail(), "Vendedor con email");
+                }
+            }
+            // Asignamos la versión normalizada para que se guarde en minúsculas
+            vendedor.setEmail(nuevoEmail);
         }
     }
 
