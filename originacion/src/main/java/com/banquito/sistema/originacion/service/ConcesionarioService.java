@@ -9,11 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.banquito.sistema.originacion.exception.DuplicateException;
 import com.banquito.sistema.originacion.exception.InvalidStateException;
 import com.banquito.sistema.originacion.exception.NotFoundException;
+import com.banquito.sistema.exception.CreateEntityException;
+import com.banquito.sistema.exception.UpdateEntityException;
 import com.banquito.sistema.originacion.model.Concesionario;
 import com.banquito.sistema.originacion.repository.ConcesionarioRepository;
 
 @Service
-@Transactional
 public class ConcesionarioService {
 
     private final ConcesionarioRepository repository;
@@ -22,12 +23,10 @@ public class ConcesionarioService {
         this.repository = repository;
     }
 
-    @Transactional(readOnly = true)
     public List<Concesionario> findAll() {
         return this.repository.findAll();
     }
 
-    @Transactional(readOnly = true)
     public Concesionario findById(Long id) {
         Optional<Concesionario> concesionario = this.repository.findById(id);
         if (concesionario.isEmpty()) {
@@ -36,47 +35,63 @@ public class ConcesionarioService {
         return concesionario.get();
     }
 
-    @Transactional(readOnly = true)
-    public List<Concesionario> findByEstado(String estado) {
-        return this.repository.findByEstado(estado);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Concesionario> findByRazonSocial(String razonSocial) {
-        return this.repository.findByRazonSocialContainingIgnoreCase(razonSocial);
-    }
-
+    @Transactional
     public Concesionario create(Concesionario concesionario) {
-        this.validateForCreate(concesionario);
-        if (concesionario.getEstado() == null || concesionario.getEstado().trim().isEmpty()) {
-            concesionario.setEstado("ACTIVO");
+        try {
+            this.validateForCreate(concesionario);
+            if (concesionario.getEstado() == null || concesionario.getEstado().trim().isEmpty()) {
+                concesionario.setEstado("ACTIVO");
+            }
+            Concesionario savedConcesionario = this.repository.save(concesionario);
+            // Sincronización bidireccional opcional:
+            if (savedConcesionario.getVehiculos() != null) {
+                savedConcesionario.getVehiculos().forEach(v -> v.setConcesionario(savedConcesionario));
+            }
+            return savedConcesionario;
+        } catch (Exception e) {
+            throw new CreateEntityException("Concesionario", e.getMessage());
         }
-        Concesionario savedConcesionario = this.repository.save(concesionario);
-
-        
-        return savedConcesionario;
     }
 
+    @Transactional
     public Concesionario update(Long id, Concesionario concesionario) {
-        Concesionario existingConcesionario = this.findById(id);
-        this.validateForUpdate(concesionario, existingConcesionario);
+        try {
+            Concesionario existingConcesionario = this.findById(id);
+            this.validateForUpdate(concesionario, existingConcesionario);
 
-        concesionario.setIdConcesionario(id);
-        concesionario.setVersion(existingConcesionario.getVersion());
-        
-        return this.repository.save(concesionario);
+            concesionario.setIdConcesionario(id);
+            concesionario.setVersion(existingConcesionario.getVersion());
+
+            if (concesionario.getVehiculos() != null) {
+                existingConcesionario.setVehiculos(concesionario.getVehiculos());
+                existingConcesionario.getVehiculos().forEach(v -> v.setConcesionario(existingConcesionario));
+            }
+
+            existingConcesionario.setRazonSocial(concesionario.getRazonSocial());
+            existingConcesionario.setDireccion(concesionario.getDireccion());
+            existingConcesionario.setTelefono(concesionario.getTelefono());
+            existingConcesionario.setEmailContacto(concesionario.getEmailContacto());
+            existingConcesionario.setEstado(concesionario.getEstado());
+
+            return this.repository.save(existingConcesionario);
+        } catch (Exception e) {
+            throw new UpdateEntityException("Concesionario", e.getMessage());
+        }
     }
 
     public Concesionario changeState(Long id, String newState, String motivo, String usuario) {
-        Concesionario concesionario = this.findById(id);
+        Concesionario concesionario = this.findById(id);  // Lanza NotFoundException si no existe
         String oldState = concesionario.getEstado();
-        
-        this.validateStateChange(oldState, newState);
-        
+
+        this.validateStateChange(oldState, newState);     // Lanza InvalidStateException si estado no válido
+
         concesionario.setEstado(newState);
-        Concesionario updatedConcesionario = this.repository.save(concesionario);
-        
-        return updatedConcesionario;
+
+        try {
+            return this.repository.save(concesionario);    // Captura errores solo al persistir
+        } catch (Exception e) {
+            throw new UpdateEntityException("Concesionario", e.getMessage());
+        }
     }
 
     private void validateForCreate(Concesionario concesionario) {
@@ -97,8 +112,7 @@ public class ConcesionarioService {
         if (currentState.equals(newState)) {
             return;
         }
-        
-        // Validaciones de transiciones de estado
+
         switch (currentState) {
             case "ACTIVO":
                 if (!newState.equals("INACTIVO") && !newState.equals("SUSPENDIDO")) {
@@ -119,4 +133,4 @@ public class ConcesionarioService {
                 throw new InvalidStateException(currentState, newState, "Concesionario");
         }
     }
-} 
+}

@@ -9,10 +9,6 @@ import com.banquito.sistema.originacion.model.Concesionario;
 
 @Repository
 public interface ConcesionarioRepository extends JpaRepository<Concesionario, Long> {
-
-    List<Concesionario> findByEstado(String estado);
-    
-    List<Concesionario> findByRazonSocialContainingIgnoreCase(String razonSocial);
     
     boolean existsByEmailContacto(String emailContacto);
 } 
