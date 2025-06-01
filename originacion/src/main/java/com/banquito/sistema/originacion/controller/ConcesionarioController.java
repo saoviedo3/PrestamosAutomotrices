@@ -1,17 +1,14 @@
 package com.banquito.sistema.originacion.controller;
 
-import java.util.List;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import com.banquito.sistema.originacion.exception.DuplicateException;
-import com.banquito.sistema.originacion.exception.InvalidStateException;
-import com.banquito.sistema.originacion.exception.NotFoundException;
 import com.banquito.sistema.originacion.model.Concesionario;
 import com.banquito.sistema.originacion.service.ConcesionarioService;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import jakarta.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/concesionarios")
@@ -24,85 +21,27 @@ public class ConcesionarioController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Concesionario>> getAllConcesionarios(
-            @RequestParam(required = false) String estado,
-            @RequestParam(required = false) String razonSocial) {
-        
-        List<Concesionario> concesionarios;
-        
-        if (estado != null) {
-            concesionarios = this.service.findByEstado(estado);
-        } else if (razonSocial != null) {
-            concesionarios = this.service.findByRazonSocial(razonSocial);
-        } else {
-            concesionarios = this.service.findAll();
-        }
-        
+    public ResponseEntity<List<Concesionario>> getAllConcesionarios() {
+        List<Concesionario> concesionarios = service.findAll();
         return ResponseEntity.ok(concesionarios);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Concesionario> getConcesionarioById(@PathVariable("id") Long id) {
-        try {
-            Concesionario concesionario = this.service.findById(id);
-            return ResponseEntity.ok(concesionario);
-        } catch (NotFoundException nfe) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Concesionario> getConcesionarioById(@PathVariable Long id) {
+        Concesionario concesionario = service.findById(id);
+        return ResponseEntity.ok(concesionario);
     }
 
     @PostMapping
     public ResponseEntity<Concesionario> createConcesionario(@Valid @RequestBody Concesionario concesionario) {
-        try {
-            Concesionario savedConcesionario = this.service.create(concesionario);
-            return ResponseEntity.ok(savedConcesionario);
-        } catch (DuplicateException de) {
-            return ResponseEntity.badRequest().build();
-        }
+        Concesionario nuevaConcesionario = service.create(concesionario);
+        return new ResponseEntity<>(nuevaConcesionario, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Concesionario> updateConcesionario(
-            @PathVariable("id") Long id, 
+    public ResponseEntity<Concesionario> updateConcesionario(@PathVariable Long id,
             @Valid @RequestBody Concesionario concesionario) {
-        try {
-            Concesionario updatedConcesionario = this.service.update(id, concesionario);
-            return ResponseEntity.ok(updatedConcesionario);
-        } catch (NotFoundException nfe) {
-            return ResponseEntity.notFound().build();
-        } catch (DuplicateException de) {
-            return ResponseEntity.badRequest().build();
-        }
+        Concesionario concesionarioActualizado = service.update(id, concesionario);
+        return ResponseEntity.ok(concesionarioActualizado);
     }
-
-    @PatchMapping("/{id}/estado")
-    public ResponseEntity<Concesionario> changeState(
-            @PathVariable("id") Long id,
-            @RequestParam("estado") String newState,
-            @RequestParam("motivo") String motivo,
-            @RequestParam("usuario") String usuario) {
-        try {
-            Concesionario updatedConcesionario = this.service.changeState(id, newState, motivo, usuario);
-            return ResponseEntity.ok(updatedConcesionario);
-        } catch (NotFoundException nfe) {
-            return ResponseEntity.notFound().build();
-        } catch (InvalidStateException ise) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    @ExceptionHandler({NotFoundException.class})
-    public ResponseEntity<Void> handleNotFound() {
-        return ResponseEntity.notFound().build();
-    }
-
-    @ExceptionHandler({DuplicateException.class})
-    public ResponseEntity<Void> handleDuplicate() {
-        return ResponseEntity.badRequest().build();
-    }
-
-    @ExceptionHandler({InvalidStateException.class})
-    public ResponseEntity<Void> handleInvalidState() {
-        return ResponseEntity.badRequest().build();
-    }
-} 
+}

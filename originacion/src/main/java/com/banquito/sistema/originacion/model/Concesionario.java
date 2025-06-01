@@ -1,5 +1,7 @@
 package com.banquito.sistema.originacion.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import jakarta.persistence.*;
@@ -30,56 +32,83 @@ public class Concesionario {
     @Column(name = "Estado", length = 20, nullable = false)
     private String estado;
 
+    @OneToMany(mappedBy  = "concesionario")
+    private List<Vehiculo> vehiculos;
+
     @Version
     private Long version; 
 
     public Concesionario() {
     }
+
     public Concesionario(Long idConcesionario) {
         this.idConcesionario = idConcesionario;
     }
+    
     public Long getIdConcesionario() {
         return idConcesionario;
     }
+
     public void setIdConcesionario(Long idConcesionario) {
         this.idConcesionario = idConcesionario;
     }
+
     public String getRazonSocial() {
         return razonSocial;
     }
+
     public void setRazonSocial(String razonSocial) {
         this.razonSocial = razonSocial;
     }
+
     public String getDireccion() {
         return direccion;
     }
+
     public void setDireccion(String direccion) {
         this.direccion = direccion;
     }
+
     public String getTelefono() {
         return telefono;
     }
+
     public void setTelefono(String telefono) {
         this.telefono = telefono;
     }
+
     public String getEmailContacto() {
         return emailContacto;
     }
+
     public void setEmailContacto(String emailContacto) {
         this.emailContacto = emailContacto;
     }
+
     public String getEstado() {
         return estado;
     }
+
     public void setEstado(String estado) {
         this.estado = estado;
     }
+
     public Long getVersion() {
         return version;
     }
+
+        public List<Vehiculo> getVehiculos() {
+        return vehiculos;
+    }
+
+    public void setVehiculos(List<Vehiculo> vehiculos) {
+        this.vehiculos = vehiculos;
+    }
+
     public void setVersion(Long version) {
         this.version = version;
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -101,5 +130,8 @@ public class Concesionario {
                 ", estado='" + estado + '\'' +
                 ", version=" + version +
                 '}';
-    }   
+    }
+
+
+ 
 }

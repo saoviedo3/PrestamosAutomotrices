@@ -20,11 +20,6 @@ public class ManejadorGlobalExcepciones {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    /**
-     * Captura AlreadyExistsException, InvalidDataException, CreateEntityException.
-     * Responde con 400 Bad Request (parámetros inválidos o conflicto lógico) 
-     * o 500 Internal Server Error si proviene de CreateEntityException.
-     */
     @ExceptionHandler({AlreadyExistsException.class, InvalidDataException.class})
     public ResponseEntity<Map<String, String>> manejarBadRequest(RuntimeException ex) {
         Map<String, String> error = new HashMap<>();

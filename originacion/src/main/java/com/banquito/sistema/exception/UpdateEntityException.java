@@ -2,7 +2,7 @@ package com.banquito.sistema.exception;
 
 public class UpdateEntityException extends RuntimeException {
 
-    private final Integer errorCode = 1003; // código para “error al actualizar entidad”
+    private final Integer errorCode = 1003; // Código para “error al actualizar entidad”
     private final String entityName;
 
     public UpdateEntityException(String entityName, String message) {
