@@ -16,7 +16,7 @@ public class ClienteProspecto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "IdClienteProspecto", nullable = false)
-    private Integer idClienteProspecto;
+    private Long idClienteProspecto;
 
     @Column(name = "Cedula", length = 10, nullable = false, unique = true)
     private String cedula;
@@ -49,20 +49,21 @@ public class ClienteProspecto {
     private String estado;
 
     @Version
+    @Column(name = "Version", nullable = false)
     private Long version;
 
     public ClienteProspecto() {
     }
 
-    public ClienteProspecto(Integer idClienteProspecto) {
+    public ClienteProspecto(Long idClienteProspecto) {
         this.idClienteProspecto = idClienteProspecto;
     }
 
-    public Integer getIdClienteProspecto() {
+    public Long getIdClienteProspecto() {
         return idClienteProspecto;
     }
 
-    public void setIdClienteProspecto(Integer idClienteProspecto) {
+    public void setIdClienteProspecto(Long idClienteProspecto) {
         this.idClienteProspecto = idClienteProspecto;
     }
 
@@ -154,10 +155,6 @@ public class ClienteProspecto {
         this.version = version;
     }
 
-    public Integer getId() {
-        return this.idClienteProspecto;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -186,9 +183,8 @@ public class ClienteProspecto {
     @Override
     public String toString() {
         return "ClienteProspecto [idClienteProspecto=" + idClienteProspecto + ", cedula=" + cedula + ", nombre="
-                + nombre
-                + ", apellido=" + apellido + ", telefono=" + telefono + ", email=" + email + ", direccion=" + direccion
-                + ", ingresos=" + ingresos + ", egresos=" + egresos + ", actividadEconomica=" + actividadEconomica
-                + ", estado=" + estado + ", version=" + version + "]";
+                + nombre + ", apellido=" + apellido + ", telefono=" + telefono + ", email=" + email + ", direccion="
+                + direccion + ", ingresos=" + ingresos + ", egresos=" + egresos + ", actividadEconomica="
+                + actividadEconomica + ", estado=" + estado + ", version=" + version + "]";
     }
 }

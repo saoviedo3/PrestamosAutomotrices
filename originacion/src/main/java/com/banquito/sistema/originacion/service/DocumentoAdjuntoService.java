@@ -5,7 +5,6 @@ import com.banquito.sistema.originacion.repository.DocumentoAdjuntoRepository;
 import com.banquito.sistema.exception.AlreadyExistsException;
 import com.banquito.sistema.exception.CreateEntityException;
 import com.banquito.sistema.exception.InvalidDataException;
-import com.banquito.sistema.originacion.exception.DocumentoAdjuntoNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +33,7 @@ public class DocumentoAdjuntoService {
     @Transactional(readOnly = true)
     public DocumentoAdjunto getById(Long id) {
         return documentoAdjuntoRepository.findById(id)
-                .orElseThrow(() -> new DocumentoAdjuntoNotFoundException(id));
+                .orElseThrow(() -> new InvalidDataException("DocumentoAdjunto", "No existe un documento adjunto con el id: " + id));
     }
 
     @Transactional(readOnly = true)
@@ -71,6 +70,13 @@ public class DocumentoAdjuntoService {
             );
         }
 
+        if (documento.getRutaArchivo() == null || documento.getRutaArchivo().isBlank()) {
+            throw new InvalidDataException(
+                "DocumentoAdjunto",
+                "La ruta del archivo no puede estar vacía"
+            );
+        }
+
         if (documento.getFechaCargado() == null) {
             documento.setFechaCargado(LocalDateTime.now());
         }
@@ -87,27 +93,38 @@ public class DocumentoAdjuntoService {
 
     @Transactional
     public List<DocumentoAdjunto> createAll(List<DocumentoAdjunto> documentos) {
-        if (!documentos.isEmpty()) {
-            Long idSolicitud = documentos.get(0).getIdSolicitud();
-            solicitudService.getById(idSolicitud);
+        if (documentos == null || documentos.isEmpty()) {
+            throw new InvalidDataException(
+                "DocumentoAdjunto",
+                "La lista de documentos no puede estar vacía"
+            );
+        }
 
-            for (DocumentoAdjunto documento : documentos) {
-                if (!documento.getIdSolicitud().equals(idSolicitud)) {
-                    throw new InvalidDataException(
-                        "DocumentoAdjunto",
-                        "Todos los documentos deben pertenecer a la misma solicitud"
-                    );
-                }
-                tipoDocumentoService.getById(documento.getIdTipoDocumento());
-                if (documentoAdjuntoRepository.existsByIdSolicitudAndIdTipoDocumento(
-                        documento.getIdSolicitud(), 
-                        documento.getIdTipoDocumento())) {
-                    throw new AlreadyExistsException(
-                        "DocumentoAdjunto",
-                        "Ya existe un documento del tipo " + documento.getIdTipoDocumento() + 
-                        " para la solicitud " + documento.getIdSolicitud()
-                    );
-                }
+        Long idSolicitud = documentos.get(0).getIdSolicitud();
+        solicitudService.getById(idSolicitud);
+
+        for (DocumentoAdjunto documento : documentos) {
+            if (!documento.getIdSolicitud().equals(idSolicitud)) {
+                throw new InvalidDataException(
+                    "DocumentoAdjunto",
+                    "Todos los documentos deben pertenecer a la misma solicitud"
+                );
+            }
+            tipoDocumentoService.getById(documento.getIdTipoDocumento());
+            if (documentoAdjuntoRepository.existsByIdSolicitudAndIdTipoDocumento(
+                    documento.getIdSolicitud(), 
+                    documento.getIdTipoDocumento())) {
+                throw new AlreadyExistsException(
+                    "DocumentoAdjunto",
+                    "Ya existe un documento del tipo " + documento.getIdTipoDocumento() + 
+                    " para la solicitud " + documento.getIdSolicitud()
+                );
+            }
+            if (documento.getRutaArchivo() == null || documento.getRutaArchivo().isBlank()) {
+                throw new InvalidDataException(
+                    "DocumentoAdjunto",
+                    "La ruta del archivo no puede estar vacía"
+                );
             }
         }
 

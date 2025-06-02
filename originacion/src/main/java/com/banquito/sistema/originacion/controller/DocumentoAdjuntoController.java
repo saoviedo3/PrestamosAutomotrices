@@ -17,39 +17,46 @@ public class DocumentoAdjuntoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<DocumentoAdjunto>> getAll() {
-        return ResponseEntity.ok(documentoAdjuntoService.getAll());
+    public ResponseEntity<List<DocumentoAdjunto>> getAllDocumentosAdjuntos() {
+        List<DocumentoAdjunto> documentos = documentoAdjuntoService.getAll();
+        return ResponseEntity.ok(documentos);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DocumentoAdjunto> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(documentoAdjuntoService.getById(id));
+    public ResponseEntity<DocumentoAdjunto> getDocumentoAdjuntoById(@PathVariable Long id) {
+        DocumentoAdjunto documento = documentoAdjuntoService.getById(id);
+        return ResponseEntity.ok(documento);
     }
 
     @GetMapping("/solicitud/{idSolicitud}")
-    public ResponseEntity<List<DocumentoAdjunto>> getBySolicitudId(@PathVariable Long idSolicitud) {
-        return ResponseEntity.ok(documentoAdjuntoService.getBySolicitudId(idSolicitud));
+    public ResponseEntity<List<DocumentoAdjunto>> getDocumentosBySolicitudId(@PathVariable Long idSolicitud) {
+        List<DocumentoAdjunto> documentos = documentoAdjuntoService.getBySolicitudId(idSolicitud);
+        return ResponseEntity.ok(documentos);
     }
 
     @GetMapping("/tipo-documento/{idTipoDocumento}")
-    public ResponseEntity<List<DocumentoAdjunto>> getByTipoDocumentoId(@PathVariable Long idTipoDocumento) {
-        return ResponseEntity.ok(documentoAdjuntoService.getByTipoDocumentoId(idTipoDocumento));
+    public ResponseEntity<List<DocumentoAdjunto>> getDocumentosByTipoDocumentoId(@PathVariable Long idTipoDocumento) {
+        List<DocumentoAdjunto> documentos = documentoAdjuntoService.getByTipoDocumentoId(idTipoDocumento);
+        return ResponseEntity.ok(documentos);
     }
 
     @GetMapping("/solicitud/{idSolicitud}/tipo-documento/{idTipoDocumento}")
-    public ResponseEntity<List<DocumentoAdjunto>> getBySolicitudAndTipoDocumento(
+    public ResponseEntity<List<DocumentoAdjunto>> getDocumentosBySolicitudAndTipoDocumento(
             @PathVariable Long idSolicitud,
             @PathVariable Long idTipoDocumento) {
-        return ResponseEntity.ok(documentoAdjuntoService.getBySolicitudAndTipoDocumento(idSolicitud, idTipoDocumento));
+        List<DocumentoAdjunto> documentos = documentoAdjuntoService.getBySolicitudAndTipoDocumento(idSolicitud, idTipoDocumento);
+        return ResponseEntity.ok(documentos);
     }
 
     @PostMapping
-    public ResponseEntity<DocumentoAdjunto> create(@RequestBody DocumentoAdjunto documento) {
-        return ResponseEntity.ok(documentoAdjuntoService.create(documento));
+    public ResponseEntity<DocumentoAdjunto> createDocumentoAdjunto(@RequestBody DocumentoAdjunto documento) {
+        DocumentoAdjunto nuevoDocumento = documentoAdjuntoService.create(documento);
+        return ResponseEntity.ok(nuevoDocumento);
     }
 
-    @PostMapping("/batch")
-    public ResponseEntity<List<DocumentoAdjunto>> createAll(@RequestBody List<DocumentoAdjunto> documentos) {
-        return ResponseEntity.ok(documentoAdjuntoService.createAll(documentos));
+    @PostMapping("/multiple")
+    public ResponseEntity<List<DocumentoAdjunto>> createMultipleDocumentosAdjuntos(@RequestBody List<DocumentoAdjunto> documentos) {
+        List<DocumentoAdjunto> nuevosDocumentos = documentoAdjuntoService.createAll(documentos);
+        return ResponseEntity.ok(nuevosDocumentos);
     }
 } 

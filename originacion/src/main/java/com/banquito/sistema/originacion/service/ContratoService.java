@@ -4,7 +4,8 @@ import com.banquito.sistema.originacion.model.Contrato;
 import com.banquito.sistema.originacion.repository.ContratoRepository;
 import com.banquito.sistema.exception.AlreadyExistsException;
 import com.banquito.sistema.exception.CreateEntityException;
-import com.banquito.sistema.originacion.exception.ContratoNotFoundException;
+import com.banquito.sistema.exception.InvalidDataException;
+import com.banquito.sistema.exception.UpdateEntityException;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,13 +32,13 @@ public class ContratoService {
     @Transactional(readOnly = true)
     public Contrato getById(Long id) {
         return contratoRepository.findById(id)
-                .orElseThrow(() -> new ContratoNotFoundException(id));
+                .orElseThrow(() -> new InvalidDataException("Contrato", "No existe un contrato con el id: " + id));
     }
 
     @Transactional(readOnly = true)
     public Contrato getBySolicitudId(Long idSolicitud) {
         return contratoRepository.findByIdSolicitud(idSolicitud)
-                .orElseThrow(() -> new ContratoNotFoundException("Solicitud: " + idSolicitud));
+                .orElseThrow(() -> new InvalidDataException("Contrato", "No existe un contrato para la solicitud: " + idSolicitud));
     }
 
     @Transactional(readOnly = true)
@@ -53,6 +54,20 @@ public class ContratoService {
             throw new AlreadyExistsException(
                 "Contrato",
                 "Ya existe un contrato para la solicitud " + contrato.getIdSolicitud()
+            );
+        }
+
+        if (contrato.getRutaArchivo() == null || contrato.getRutaArchivo().isBlank()) {
+            throw new InvalidDataException(
+                "Contrato",
+                "La ruta del archivo no puede estar vacía"
+            );
+        }
+
+        if (contrato.getFechaFirma() != null && contrato.getFechaFirma().isBefore(LocalDateTime.now())) {
+            throw new InvalidDataException(
+                "Contrato",
+                "La fecha de firma debe ser futura"
             );
         }
 
@@ -80,6 +95,30 @@ public class ContratoService {
 
         solicitudService.getById(contratoActualizado.getIdSolicitud());
 
+        if (contratoActualizado.getRutaArchivo() == null || contratoActualizado.getRutaArchivo().isBlank()) {
+            throw new InvalidDataException(
+                "Contrato",
+                "La ruta del archivo no puede estar vacía"
+            );
+        }
+
+        if (contratoActualizado.getFechaFirma() != null && contratoActualizado.getFechaFirma().isBefore(LocalDateTime.now())) {
+            throw new InvalidDataException(
+                "Contrato",
+                "La fecha de firma debe ser futura"
+            );
+        }
+
+        if (contratoActualizado.getEstado() != null && !contratoActualizado.getEstado().isBlank()) {
+            String estado = contratoActualizado.getEstado();
+            if (!estado.equals("Draft") && !estado.equals("Signed") && !estado.equals("Cancelled")) {
+                throw new InvalidDataException(
+                    "Contrato",
+                    "El estado debe ser uno de: Draft, Signed, Cancelled"
+                );
+            }
+        }
+
         contratoExistente.setRutaArchivo(contratoActualizado.getRutaArchivo());
         contratoExistente.setFechaFirma(contratoActualizado.getFechaFirma());
         contratoExistente.setEstado(contratoActualizado.getEstado());
@@ -88,7 +127,7 @@ public class ContratoService {
         try {
             return contratoRepository.save(contratoExistente);
         } catch (Exception e) {
-            throw new CreateEntityException(
+            throw new UpdateEntityException(
                 "Contrato",
                 "Error al actualizar Contrato: " + e.getMessage()
             );

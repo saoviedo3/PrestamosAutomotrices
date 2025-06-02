@@ -3,7 +3,6 @@ package com.banquito.sistema.originacion.controller;
 import com.banquito.sistema.originacion.model.Pagare;
 import com.banquito.sistema.originacion.service.PagareService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,36 +11,39 @@ import java.util.List;
 @RequestMapping("/api/pagares")
 public class PagareController {
 
-    private final PagareService service;
+    private final PagareService pagareService;
 
-    public PagareController(PagareService service) {
-        this.service = service;
+    public PagareController(PagareService pagareService) {
+        this.pagareService = pagareService;
     }
 
     @GetMapping
-    public ResponseEntity<List<Pagare>> getAll() {
-        return ResponseEntity.ok(service.getAll());
+    public ResponseEntity<List<Pagare>> getAllPagares() {
+        List<Pagare> pagares = pagareService.getAll();
+        return ResponseEntity.ok(pagares);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Pagare> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(service.getById(id));
+    public ResponseEntity<Pagare> getPagareById(@PathVariable Long id) {
+        Pagare pagare = pagareService.getById(id);
+        return ResponseEntity.ok(pagare);
     }
 
     @GetMapping("/solicitud/{idSolicitud}")
-    public ResponseEntity<List<Pagare>> getBySolicitudId(@PathVariable Long idSolicitud) {
-        return ResponseEntity.ok(service.getBySolicitudId(idSolicitud));
+    public ResponseEntity<List<Pagare>> getPagaresBySolicitudId(@PathVariable Long idSolicitud) {
+        List<Pagare> pagares = pagareService.getBySolicitudId(idSolicitud);
+        return ResponseEntity.ok(pagares);
     }
 
     @PostMapping
-    public ResponseEntity<Pagare> create(@RequestBody Pagare pagare) {
-        Pagare created = service.create(pagare);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    public ResponseEntity<Pagare> createPagare(@RequestBody Pagare pagare) {
+        Pagare nuevoPagare = pagareService.create(pagare);
+        return ResponseEntity.ok(nuevoPagare);
     }
 
-    @PostMapping("/batch")
-    public ResponseEntity<List<Pagare>> createAll(@RequestBody List<Pagare> pagares) {
-        List<Pagare> created = service.createAll(pagares);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    @PostMapping("/multiple")
+    public ResponseEntity<List<Pagare>> createMultiplePagares(@RequestBody List<Pagare> pagares) {
+        List<Pagare> nuevosPagares = pagareService.createAll(pagares);
+        return ResponseEntity.ok(nuevosPagares);
     }
 } 
