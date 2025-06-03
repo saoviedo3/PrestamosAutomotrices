@@ -1,5 +1,7 @@
 package com.banquito.sistema.originacion.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,7 +22,7 @@ public class Vehiculo {
     @Column(name = "IdVehiculo", nullable = false)
     private Long id;
 
-    @Column(name = "IdIdentificadorVehiculo", nullable = false)
+    @Column(name = "IdIdentificadorVehiculo", nullable = false, unique = true)
     private Long idIdentificadorVehiculo;
 
     @Column(name = "IdConcesionario", nullable = false)
@@ -52,10 +54,22 @@ public class Vehiculo {
 
     @OneToOne
     @JoinColumn(name = "IdIdentificadorVehiculo", referencedColumnName = "IdIdentificadorVehiculo", insertable = false, updatable = false)
+    @JsonIgnoreProperties({
+        "vin",
+        "numeroMotor",
+        "version"
+    })
     private IdentificadorVehiculo identificadorVehiculo;
 
     @ManyToOne
     @JoinColumn(name = "IdConcesionario", referencedColumnName = "IdConcesionario", insertable = false, updatable = false)
+    @JsonIgnoreProperties({
+        "direccion",
+        "telefono",
+        "emailContacto",
+        "estado",
+        "version"
+    })
     private Concesionario concesionario;
 
     public Vehiculo() {
