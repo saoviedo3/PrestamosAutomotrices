@@ -91,25 +91,25 @@ public class PagareService {
             );
         }
 
-        Long idSolicitud = pagares.get(0).getIdSolicitud();
-        solicitudService.getById(idSolicitud);
+            Long idSolicitud = pagares.get(0).getIdSolicitud();
+            solicitudService.getById(idSolicitud);
 
-        for (Pagare pagare : pagares) {
-            if (!pagare.getIdSolicitud().equals(idSolicitud)) {
-                throw new InvalidDataException(
-                    "Pagare",
-                    "Todos los pagarés deben pertenecer a la misma solicitud"
-                );
-            }
-            if (pagareRepository.existsByIdSolicitudAndNumeroCuota(
-                    pagare.getIdSolicitud(), 
-                    pagare.getNumeroCuota())) {
-                throw new AlreadyExistsException(
-                    "Pagare",
-                    "Ya existe un pagaré para la solicitud " + pagare.getIdSolicitud() + 
-                    " y cuota " + pagare.getNumeroCuota()
-                );
-            }
+            for (Pagare pagare : pagares) {
+                if (!pagare.getIdSolicitud().equals(idSolicitud)) {
+                    throw new InvalidDataException(
+                        "Pagare",
+                        "Todos los pagarés deben pertenecer a la misma solicitud"
+                    );
+                }
+                if (pagareRepository.existsByIdSolicitudAndNumeroCuota(
+                        pagare.getIdSolicitud(), 
+                        pagare.getNumeroCuota())) {
+                    throw new AlreadyExistsException(
+                        "Pagare",
+                        "Ya existe un pagaré para la solicitud " + pagare.getIdSolicitud() + 
+                        " y cuota " + pagare.getNumeroCuota()
+                    );
+                }
             if (pagare.getNumeroCuota() <= 0) {
                 throw new InvalidDataException(
                     "Pagare",

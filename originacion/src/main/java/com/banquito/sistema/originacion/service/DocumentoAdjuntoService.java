@@ -100,26 +100,26 @@ public class DocumentoAdjuntoService {
             );
         }
 
-        Long idSolicitud = documentos.get(0).getIdSolicitud();
-        solicitudService.getById(idSolicitud);
+            Long idSolicitud = documentos.get(0).getIdSolicitud();
+            solicitudService.getById(idSolicitud);
 
-        for (DocumentoAdjunto documento : documentos) {
-            if (!documento.getIdSolicitud().equals(idSolicitud)) {
-                throw new InvalidDataException(
-                    "DocumentoAdjunto",
-                    "Todos los documentos deben pertenecer a la misma solicitud"
-                );
-            }
-            tipoDocumentoService.getById(documento.getIdTipoDocumento());
-            if (documentoAdjuntoRepository.existsByIdSolicitudAndIdTipoDocumento(
-                    documento.getIdSolicitud(), 
-                    documento.getIdTipoDocumento())) {
-                throw new AlreadyExistsException(
-                    "DocumentoAdjunto",
-                    "Ya existe un documento del tipo " + documento.getIdTipoDocumento() + 
-                    " para la solicitud " + documento.getIdSolicitud()
-                );
-            }
+            for (DocumentoAdjunto documento : documentos) {
+                if (!documento.getIdSolicitud().equals(idSolicitud)) {
+                    throw new InvalidDataException(
+                        "DocumentoAdjunto",
+                        "Todos los documentos deben pertenecer a la misma solicitud"
+                    );
+                }
+                tipoDocumentoService.getById(documento.getIdTipoDocumento());
+                if (documentoAdjuntoRepository.existsByIdSolicitudAndIdTipoDocumento(
+                        documento.getIdSolicitud(), 
+                        documento.getIdTipoDocumento())) {
+                    throw new AlreadyExistsException(
+                        "DocumentoAdjunto",
+                        "Ya existe un documento del tipo " + documento.getIdTipoDocumento() + 
+                        " para la solicitud " + documento.getIdSolicitud()
+                    );
+                }
             if (documento.getRutaArchivo() == null || documento.getRutaArchivo().isBlank()) {
                 throw new InvalidDataException(
                     "DocumentoAdjunto",

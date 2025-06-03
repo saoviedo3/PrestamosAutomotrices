@@ -12,7 +12,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
 @Entity
-@Table(name = "contratos")
+@Table(name = "Contratos")
 public class Contrato {
 
     @Id
