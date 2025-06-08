@@ -1,0 +1,372 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+BASE DE DATOS
+Necesito de tu ayuda para poder replicar este modelo dentro de una base de datos en postgres, considerando todo lo mismo, quiero que me ayudes a proporcionar el
+Query para yo poder correr, no rompas ninguna relación entre las tablas, no como parámetros, ni cambios tipos de datos.
+
+MODELOS
+Generar solo dos constructores: uno vacío y otro que reciba como argumento la propiedad de clave primaria.
+En los ID SERIAL PONER que son GenrateValue caso contrario se mantiene conforme al tipo de dato que este en la base de datos.
+Sobreescribir los métodos hashCode y equals, que solo utilicen las propiedades que representan a la clave primaria.
+Sobreescribir el método toString para cada propiedad
+Solo incluir relaciones de hijos a padres. 
+Incluir todas las columnas de claves foráneas y agregar en las relaciones de hijos a padres las propiedades "insertable" y "updatable" con el valor "false".
+Agregar métodos set y get para cada propiedad.
+Las claves compuestas deben generarse con una clase Emmbedable
+Agregar la anotación @Column a todas las propiedades.
+Agregar a todas las clases de tipo Entidad una propiedad "version" de tipo Long anotada con "@Version"
+Se debe manejar el principio de clave promaria compuesta, con el uso de serializable, ,@Emmbedable donde se debe menatener el mismo esuqema del resto de modelos
+es decir, los atributos, getters y setters, equals and hashCode y to String.
+En los model recuerda mapear bien la bd y no usar loombook, sino hacer lo getters, setters, el hascode, equals y el to string.
+
+CONSIDERA ESTE EJEMPLO DE CODIGO CUANDO EXISTEN LAS CLAVES PRIMARIAS COMPUESTAS
+package com.banquito.core.general.model;
+
+import java.io.Serializable;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+
+@Embeddable
+public class GeographyStructureId implements Serializable {
+
+    @Column(name = "countyId", length = 2, nullable = false)
+    private String countyID;
+
+    @Column(name = "levelCode", length = 1, nullable = false)
+    private Integer levelCode;
+
+    public GeographyStructureId() {
+    }
+
+    public GeographyStructureId(String countyID, Integer levelCode) {
+        this.countyID = countyID;
+        this.levelCode = levelCode;
+    }
+
+    public String getCountyID() {
+        return countyID;
+    }
+
+    public void setCountyID(String countyID) {
+        this.countyID = countyID;
+    }
+
+    public Integer getLevelCode() {
+        return levelCode;
+    }
+
+    public void setLevelCode(Integer levelCode) {
+        this.levelCode = levelCode;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((countyID == null) ? 0 : countyID.hashCode());
+        result = prime * result + ((levelCode == null) ? 0 : levelCode.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        GeographyStructureId other = (GeographyStructureId) obj;
+        if (countyID == null) {
+            if (other.countyID != null)
+                return false;
+        } else if (!countyID.equals(other.countyID))
+            return false;
+        if (levelCode == null) {
+            if (other.levelCode != null)
+                return false;
+        } else if (!levelCode.equals(other.levelCode))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "GeographyStructureId [countyID=" + countyID + ", levelCode=" + levelCode + "]";
+    }
+
+}
+_______________
+package com.banquito.core.general.model;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "geographyStructure")
+public class GeographyStructure {
+
+    @EmbeddedId
+    private GeographyStructureId id;
+
+    @Column(name = "name", length = 50, nullable = false)
+    private String name;
+
+    @ManyToOne()
+    @JoinColumn(name = "countyID", columnDefinition = "countyId", insertable = false, updatable = false)
+    private Country county;
+
+    public GeographyStructure() {
+    }
+
+    public GeographyStructure(GeographyStructureId id) {
+        this.id = id;
+    }
+
+    public GeographyStructureId getId() {
+        return id;
+    }
+
+    public void setId(GeographyStructureId id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Country getCounty() {
+        return county;
+    }
+
+    public void setCounty(Country county) {
+        this.county = county;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        GeographyStructure other = (GeographyStructure) obj;
+        if (id == null) {
+            if (other.id != null)
+                return false;
+        } else if (!id.equals(other.id))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "GeographyStructure [id=" + id + ", name=" + name + "]";
+    }
+
+}
+
+
+REPOSITORIOS
+Listo, ya tengo que crear lo que son los repositorios uno para cada entidad. Ademas de considerar que se debe usar JPA.
+En los repositorios, jamás uses queries @Query ni @Modifying, usa los métodos de JPA para las consultas.
+
+Considera este codigo como ejemplo
+package com.banquito.core.general.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.banquito.core.general.model.GeographyStructure;
+import com.banquito.core.general.model.GeographyStructureId;
+
+public interface GeographyStructureRepository extends JpaRepository<GeographyStructure, GeographyStructureId>{
+
+}
+
+
+SERVICIOS - EXCEPCIONES
+Usa la inyección de dependencias a través del constructor
+Añade lógica personalizada (como el manejo de excepciones)
+Maneja excepciones personalizadas
+Considera que en los servicios y exoceciones debe tener y cumplir reglas de negocios.
+El servicio debe incluir validaciones de reglas de negocio y manejo adecuado de excepciones. Además, utiliza @Transactional donde sea apropiado para 
+garantizar la atomicidad en las operaciones de escritura (crear, actualizar, eliminar). Las excepciones personalizadas deben ser lanzadas en casos de errores.
+Asegúrate de que estas excepciones hereden de RuntimeException para que puedan ser manejadas de manera eficiente.
+Las reglas de negocio es la parte fundamental de un sistema que estas construyendo
+por ejemplo cuando creas un usuario, antes de crearlo deberias validar que no exista un usuario con su codigo de usuario creado
+Si pensamos en un prestamo, para crear un prestamo ademas de crear el prestamo y de realizar algunas validaciones como qeu el monto solicitado este entre 
+los limites de minimo y maximo,que el plazo igual este ente limites esperados.
+Usa siempre runtimeexception para las excepciones, y crea una excepción personalizada para cada error.
+COonsidera este como ejemplo:
+package com.banquito.core.general.service;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import com.banquito.core.general.execption.BankNotFoundException;
+import com.banquito.core.general.model.BankEntity;
+import com.banquito.core.general.repository.BankEntityRepository;
+
+@Service
+public class BankService {
+
+    private final BankEntityRepository repository;
+
+    public BankService(BankEntityRepository repository) {
+        this.repository = repository;
+    }
+
+    public BankEntity findById(Integer id) {
+        Optional<BankEntity> bankOptional = this.repository.findById(id);
+        if (bankOptional.isPresent()) {
+            return bankOptional.get();
+        } else {
+            throw new BankNotFoundException("El id: " + id + " no corresponde a ningun registro");
+        }
+    }
+
+    public BankEntity findDefaultBank() {
+        List<BankEntity> list = this.repository.findAll();
+        if(list.isEmpty()){
+            return list.getFirst();
+        } else {
+            throw new BankNotFoundException("No exite ningun banco Registrado");
+        }
+        
+    }
+
+}
+_______________
+package com.banquito.core.general.execption;
+
+public class BankNotFoundException extends RuntimeException {
+
+    private final Integer errorCode;
+
+    public BankNotFoundException(String message) {
+        super(message);
+        this.errorCode = 1;
+    }
+
+    @Override
+    public String getMessage() {
+        return "Error code: " + this.errorCode + ", message" + super.getMessage();
+    }
+
+    public Integer getErrorCode() {
+        return errorCode;
+    }
+
+}
+
+
+CONTROLADORES
+Debe tener inyecciones de dependecias y siempre llamar a los servicios
+No usar @Autowired
+No uses map ni hashmap en los controllers
+No uses un throw en los controllers, usa excepciones
+Cliente-Servidor:Separa la lógica del cliente y del servidor, permitiendo independencia entre ambos.
+Stateless(Sin estado):Cada solicitud debe contener toda la información necesaria, sin depender de sesiones previas.
+Interfaz uniforme: Usa métodos estándar de HTTP (GET, POST,PUT, DELETE) para interactuar con los recursos.
+Uso de URIsúnicas: Cada recurso tiene una dirección única (/usuarios/1 para obtener el usuario con ID 1).
+Capacidad de almacenamiento en caché: Mejora el rendimiento al permitir que ciertos datos sean almacenados temporalmente.
+ Usar nombres de recursos en plural: /usuarios, /productos
+ • Evitar verbos en la URI. Usar métodos HTTP para la acción.
+ • Jerarquía clara:
+ /api/usuarios/123 → Usuario con ID 123
+ /api/usuarios/123/pedidos → Pedidos del usuario 12
+	- ManejadorGlobalDeExcepciones
+	 La clase anotada con @RestControllerAdvice captura excepciones a nivel de toda la aplicación.
+ Sus métodos anotados con @ExceptionHandler capturan y gestión las excepciones de forma global.
+No uses mappers ni dtos.
+Considera este codigo como ejemplo:
+package com.carolina.examen.general.controller;
+
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.carolina.examen.general.model.Institucion;
+import com.carolina.examen.general.service.InstitucionService;
+
+
+@RestController
+@RequestMapping("/api/instituciones")
+public class InstitucionController {
+
+    private final InstitucionService institucionService;
+
+    public InstitucionController(InstitucionService institucionService) {
+        this.institucionService = institucionService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Institucion>> getAllInstituciones() {
+        List<Institucion> instituciones = institucionService.findAll();
+        return ResponseEntity.ok(instituciones);
+    }
+
+    @GetMapping("/{codInstitucion}")
+    public ResponseEntity<Institucion> getInstitucion(@PathVariable Integer codInstitucion) {
+        Institucion institucion = institucionService.findById(codInstitucion);
+        return ResponseEntity.ok(institucion);
+    }
+
+    @GetMapping("/ruc/{ruc}")
+    public ResponseEntity<Institucion> getInstitucionByRuc(@PathVariable String ruc) {
+        Institucion institucion = institucionService.findByRuc(ruc);
+        return ResponseEntity.ok(institucion);
+    }
+
+    @PostMapping
+    public ResponseEntity<Institucion> createInstitucion(@RequestBody Institucion institucion) {
+        Institucion nuevaInstitucion = institucionService.create(institucion);
+        return ResponseEntity.ok(nuevaInstitucion);
+    }
+
+    @PutMapping("/{codInstitucion}")
+    public ResponseEntity<Institucion> updateInstitucion(
+            @PathVariable Integer codInstitucion,
+            @RequestBody Institucion institucion) {
+        Institucion institucionActualizada = institucionService.update(codInstitucion, institucion);
+        return ResponseEntity.ok(institucionActualizada);
+    }
+
+    @DeleteMapping("/{codInstitucion}")
+    public ResponseEntity<Void> deleteInstitucion(@PathVariable Integer codInstitucion) {
+        institucionService.delete(codInstitucion);
+        return ResponseEntity.noContent().build();
+    }
+
+} 

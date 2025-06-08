@@ -1,8 +1,9 @@
 package com.banquito.sistema.originacion.repository;
 
-import com.banquito.sistema.originacion.model.Pagare;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import com.banquito.sistema.contratos.model.Pagare;
 
 import java.util.List;
 

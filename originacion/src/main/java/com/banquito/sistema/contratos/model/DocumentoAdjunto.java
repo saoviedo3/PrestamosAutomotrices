@@ -1,4 +1,4 @@
-package com.banquito.sistema.originacion.model;
+package com.banquito.sistema.contratos.model;
 
 import java.time.LocalDateTime;
 import jakarta.persistence.Column;
@@ -10,33 +10,28 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import com.banquito.sistema.originacion.model.SolicitudCredito;
 
 @Entity
-@Table(name = "contratos")
-public class Contrato {
+@Table(name = "documentosadjuntos")
+public class DocumentoAdjunto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "IdContrato", nullable = false)
+    @Column(name = "IdDocumento", nullable = false)
     private Long id;
 
     @Column(name = "IdSolicitud", nullable = false)
     private Long idSolicitud;
 
+    @Column(name = "IdTipoDocumento", nullable = false)
+    private Long idTipoDocumento;
+
     @Column(name = "RutaArchivo", nullable = false, length = 150)
     private String rutaArchivo;
 
-    @Column(name = "FechaGenerado", nullable = false)
-    private LocalDateTime fechaGenerado;
-
-    @Column(name = "FechaFirma", nullable = false)
-    private LocalDateTime fechaFirma;
-
-    @Column(name = "Estado", nullable = false, length = 20)
-    private String estado;
-
-    @Column(name = "CondicionEspecial", length = 120)
-    private String condicionEspecial;
+    @Column(name = "FechaCargado", nullable = false)
+    private LocalDateTime fechaCargado;
 
     @Version
     @Column(name = "Version", nullable = false)
@@ -46,10 +41,14 @@ public class Contrato {
     @JoinColumn(name = "IdSolicitud", referencedColumnName = "IdSolicitud", insertable = false, updatable = false)
     private SolicitudCredito solicitudCredito;
 
-    public Contrato() {
+    @ManyToOne
+    @JoinColumn(name = "IdTipoDocumento", referencedColumnName = "IdTipoDocumento", insertable = false, updatable = false)
+    private TipoDocumento tipoDocumento;
+
+    public DocumentoAdjunto() {
     }
 
-    public Contrato(Long id) {
+    public DocumentoAdjunto(Long id) {
         this.id = id;
     }
 
@@ -69,6 +68,14 @@ public class Contrato {
         this.idSolicitud = idSolicitud;
     }
 
+    public Long getIdTipoDocumento() {
+        return idTipoDocumento;
+    }
+
+    public void setIdTipoDocumento(Long idTipoDocumento) {
+        this.idTipoDocumento = idTipoDocumento;
+    }
+
     public String getRutaArchivo() {
         return rutaArchivo;
     }
@@ -77,36 +84,12 @@ public class Contrato {
         this.rutaArchivo = rutaArchivo;
     }
 
-    public LocalDateTime getFechaGenerado() {
-        return fechaGenerado;
+    public LocalDateTime getFechaCargado() {
+        return fechaCargado;
     }
 
-    public void setFechaGenerado(LocalDateTime fechaGenerado) {
-        this.fechaGenerado = fechaGenerado;
-    }
-
-    public LocalDateTime getFechaFirma() {
-        return fechaFirma;
-    }
-
-    public void setFechaFirma(LocalDateTime fechaFirma) {
-        this.fechaFirma = fechaFirma;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
-
-    public String getCondicionEspecial() {
-        return condicionEspecial;
-    }
-
-    public void setCondicionEspecial(String condicionEspecial) {
-        this.condicionEspecial = condicionEspecial;
+    public void setFechaCargado(LocalDateTime fechaCargado) {
+        this.fechaCargado = fechaCargado;
     }
 
     public Long getVersion() {
@@ -125,6 +108,14 @@ public class Contrato {
         this.solicitudCredito = solicitudCredito;
     }
 
+    public TipoDocumento getTipoDocumento() {
+        return tipoDocumento;
+    }
+
+    public void setTipoDocumento(TipoDocumento tipoDocumento) {
+        this.tipoDocumento = tipoDocumento;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -141,7 +132,7 @@ public class Contrato {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        Contrato other = (Contrato) obj;
+        DocumentoAdjunto other = (DocumentoAdjunto) obj;
         if (id == null) {
             if (other.id != null)
                 return false;
@@ -152,9 +143,8 @@ public class Contrato {
 
     @Override
     public String toString() {
-        return "Contrato [id=" + id + ", idSolicitud=" + idSolicitud + ", rutaArchivo=" + rutaArchivo
-                + ", fechaGenerado=" + fechaGenerado + ", fechaFirma=" + fechaFirma + ", estado=" + estado
-                + ", condicionEspecial=" + condicionEspecial + ", version=" + version + ", solicitudCredito="
-                + solicitudCredito + "]";
+        return "DocumentoAdjunto [id=" + id + ", idSolicitud=" + idSolicitud + ", idTipoDocumento=" + idTipoDocumento
+                + ", rutaArchivo=" + rutaArchivo + ", fechaCargado=" + fechaCargado + ", version=" + version
+                + ", solicitudCredito=" + solicitudCredito + ", tipoDocumento=" + tipoDocumento + "]";
     }
-} 
+}

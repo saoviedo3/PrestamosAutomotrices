@@ -1,4 +1,4 @@
-package com.banquito.sistema.originacion.model;
+package com.banquito.sistema.contratos.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

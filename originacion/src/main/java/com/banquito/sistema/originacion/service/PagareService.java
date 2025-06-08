@@ -1,7 +1,7 @@
 package com.banquito.sistema.originacion.service;
 
-import com.banquito.sistema.originacion.model.Pagare;
 import com.banquito.sistema.originacion.repository.PagareRepository;
+import com.banquito.sistema.contratos.model.Pagare;
 import com.banquito.sistema.exception.AlreadyExistsException;
 import com.banquito.sistema.exception.CreateEntityException;
 import com.banquito.sistema.exception.InvalidDataException;
