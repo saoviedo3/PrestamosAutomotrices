@@ -1,8 +1,8 @@
 package com.banquito.sistema.analisis.controller;
 
-import com.banquito.sistema.analisis.model.DecisionAnalista;
 import com.banquito.sistema.analisis.model.ObservacionAnalista;
 import com.banquito.sistema.analisis.service.ObservacionAnalistaService;
+import com.banquito.sistema.originacion.model.SolicitudCredito;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +26,22 @@ public class ObservacionAnalistaController {
     public ResponseEntity<List<ObservacionAnalista>> listarTodas() {
         LOG.info("Obteniendo todas las observaciones de analistas");
         List<ObservacionAnalista> observaciones = this.service.findAll();
+        
+        // Cargar la información de la solicitud para cada observación
+        observaciones.forEach(obs -> {
+            if (obs.getIdSolicitud() != null && obs.getSolicitudCredito() == null) {
+                try {
+                    // Intentar obtener los datos de la solicitud usando el ID
+                    SolicitudCredito solicitudReducida = new SolicitudCredito(obs.getIdSolicitud());
+                    // Al menos establecemos el ID para que no sea null
+                    solicitudReducida.setVersion(0L); // Establecer una versión por defecto
+                    obs.setSolicitudCredito(solicitudReducida);
+                } catch (Exception e) {
+                    LOG.warn("No se pudo cargar información mínima de la solicitud: {}", e.getMessage());
+                }
+            }
+        });
+        
         return ResponseEntity.ok(observaciones);
     }
 
@@ -60,13 +76,18 @@ public class ObservacionAnalistaController {
     /**
      * Endpoint para registrar una decisión del analista sobre una solicitud de crédito
      * La decisión (Aprobada/Rechazada) cambiará el estado de la solicitud
+     * @param observacion La observación del analista
+     * @param decision La decisión a aplicar (Aprobada o Rechazada)
+     * @return La observación guardada
      */
-    @PostMapping("/decision")
-    public ResponseEntity<ObservacionAnalista> registrarDecision(@Valid @RequestBody DecisionAnalista decision) {
+    @PostMapping("/decision/{decision}")
+    public ResponseEntity<ObservacionAnalista> registrarDecision(
+            @Valid @RequestBody ObservacionAnalista observacion,
+            @PathVariable String decision) {
         LOG.info("Registrando decisión {} para la solicitud con ID: {}", 
-                decision.getDecision(), decision.getObservacion().getIdSolicitud());
-        ObservacionAnalista observacion = this.service.saveConDecision(decision.getObservacion(), decision.getDecision());
-        return ResponseEntity.ok(observacion);
+                decision, observacion.getIdSolicitud());
+        ObservacionAnalista observacionGuardada = this.service.saveConDecision(observacion, decision);
+        return ResponseEntity.ok(observacionGuardada);
     }
 
     @PutMapping("/{id}")
