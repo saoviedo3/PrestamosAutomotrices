@@ -32,5 +32,8 @@ build/
 ### Ignorar VS Code ###
 .vscode/
 
+### Ignorar Cursor ###
+.cursor/
+
 # Ignorar tests
 /src/test/
