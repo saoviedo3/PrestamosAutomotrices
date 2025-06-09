@@ -95,9 +95,6 @@ public class SolicitudCreditoService {
         if (solicitud.getScoreExterno() == null) {
             solicitud.setScoreExterno(BigDecimal.ZERO);
         }
-        if (solicitud.getRelacionCuotaIngreso() == null) {
-            solicitud.setRelacionCuotaIngreso(BigDecimal.ZERO);
-        }
         if (solicitud.getEstado() == null) {
             solicitud.setEstado("Borrador");
         }
@@ -119,6 +116,7 @@ public class SolicitudCreditoService {
         if (solicitud.getVehiculo() == null) {
             throw new InvalidDataException("SolicitudCredito", "El Vehiculo no puede ser nulo");
         }
+        
         // Asignar el objeto Vendedor de forma obligatoria
         if (solicitud.getIdVendedor() != null) {
             Vendedor v = vendedorRepository.findById(solicitud.getIdVendedor())
@@ -128,9 +126,19 @@ public class SolicitudCreditoService {
         if (solicitud.getVendedor() == null) {
             throw new InvalidDataException("SolicitudCredito", "El Vendedor no puede ser nulo");
         }
+        
+        // Calcular automáticamente el monto solicitado (valor del vehículo - entrada)
+        BigDecimal valorVehiculo = new BigDecimal(solicitud.getVehiculo().getValor().toString());
+        BigDecimal montoSolicitado = valorVehiculo.subtract(solicitud.getEntrada());
+        solicitud.setMontoSolicitado(montoSolicitado);
+        
         // Recalcular los valores financieros
         try {
             calcularValoresFinancieros(solicitud);
+            
+            // Calcular la relación cuota/ingreso automáticamente
+            calcularRelacionCuotaIngreso(solicitud);
+            
             return this.solicitudCreditoRepository.save(solicitud);
         } catch (Exception e) {
             throw new CreateEntityException("SolicitudCredito", "Error al crear solicitud de crédito: " + e.getMessage());
@@ -179,6 +187,7 @@ public class SolicitudCreditoService {
         if (solicitud.getVehiculo() == null) {
             throw new InvalidDataException("SolicitudCredito", "El Vehiculo no puede ser nulo");
         }
+        
         // Asignar el objeto Vendedor de forma obligatoria
         if (solicitud.getIdVendedor() != null) {
             Vendedor v = vendedorRepository.findById(solicitud.getIdVendedor())
@@ -188,9 +197,19 @@ public class SolicitudCreditoService {
         if (solicitud.getVendedor() == null) {
             throw new InvalidDataException("SolicitudCredito", "El Vendedor no puede ser nulo");
         }
+        
+        // Calcular automáticamente el monto solicitado (valor del vehículo - entrada)
+        BigDecimal valorVehiculo = new BigDecimal(solicitud.getVehiculo().getValor().toString());
+        BigDecimal montoSolicitado = valorVehiculo.subtract(solicitud.getEntrada());
+        solicitud.setMontoSolicitado(montoSolicitado);
+        
         // Recalcular los valores financieros
         try {
             calcularValoresFinancieros(solicitud);
+            
+            // Calcular la relación cuota/ingreso automáticamente
+            calcularRelacionCuotaIngreso(solicitud);
+            
             // Asignar versión de la base si viene null
             if (solicitud.getVersion() == null) {
                 solicitud.setVersion(solicitudExistente.getVersion());
@@ -224,6 +243,9 @@ public class SolicitudCreditoService {
             return this.solicitudCreditoRepository.save(solicitud);
         }
 
+        // Recalcular relación cuota/ingreso
+        calcularRelacionCuotaIngreso(solicitud);
+        
         // Verificar que la relación cuota/ingreso sea aceptable (máximo 30%)
         if (solicitud.getRelacionCuotaIngreso().compareTo(new BigDecimal("30.0")) > 0) {
             solicitud.setEstado("Rechazada");
@@ -243,7 +265,7 @@ public class SolicitudCreditoService {
         BigDecimal tasaMensual = solicitud.getTasaAnual().divide(new BigDecimal("12"), 10, RoundingMode.HALF_UP)
                 .divide(new BigDecimal("100"), 10, RoundingMode.HALF_UP);
 
-        BigDecimal montoFinanciado = solicitud.getMontoSolicitado().subtract(solicitud.getEntrada());
+        BigDecimal montoFinanciado = solicitud.getMontoSolicitado();
         BigDecimal plazoMesesBD = new BigDecimal(solicitud.getPlazoMeses());
 
         // Fórmula: cuota = P * r * (1 + r)^n / ((1 + r)^n - 1)
@@ -256,6 +278,20 @@ public class SolicitudCreditoService {
 
         BigDecimal totalPagar = cuotaMensual.multiply(plazoMesesBD).setScale(2, RoundingMode.HALF_UP);
         solicitud.setTotalPagar(totalPagar);
+    }
+    
+    private void calcularRelacionCuotaIngreso(SolicitudCredito solicitud) {
+        // Calcular relación cuota/ingreso (cuota mensual / ingresos * 100)
+        BigDecimal ingresos = solicitud.getClienteProspecto().getIngresos();
+        if (ingresos != null && ingresos.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal relacionCuotaIngreso = solicitud.getCuotaMensual()
+                .divide(ingresos, 4, RoundingMode.HALF_UP)
+                .multiply(new BigDecimal("100"))
+                .setScale(2, RoundingMode.HALF_UP);
+            solicitud.setRelacionCuotaIngreso(relacionCuotaIngreso);
+        } else {
+            solicitud.setRelacionCuotaIngreso(new BigDecimal("100")); // Si no hay ingresos, la relación es 100%
+        }
     }
 
     private void validarTransicionEstado(String estadoActual, String nuevoEstado) {

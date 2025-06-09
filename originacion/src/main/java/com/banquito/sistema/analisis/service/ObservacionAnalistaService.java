@@ -21,6 +21,10 @@ import java.util.Optional;
 public class ObservacionAnalistaService {
     
     private static final Logger LOG = LoggerFactory.getLogger(ObservacionAnalistaService.class);
+    
+    // Constantes para decisiones válidas
+    public static final String DECISION_APROBADA = "Aprobada";
+    public static final String DECISION_RECHAZADA = "Rechazada";
 
     private final ObservacionAnalistaRepository observacionAnalistaRepository;
     private final SolicitudCreditoService solicitudCreditoService;
@@ -32,24 +36,103 @@ public class ObservacionAnalistaService {
     }
 
     public List<ObservacionAnalista> findAll() {
-        return this.observacionAnalistaRepository.findAll();
+        List<ObservacionAnalista> observaciones = this.observacionAnalistaRepository.findAll();
+        
+        // Cargar la información de la solicitud para cada observación
+        for (ObservacionAnalista obs : observaciones) {
+            if (obs.getIdSolicitud() != null) {
+                try {
+                    SolicitudCredito solicitud = this.solicitudCreditoService.findById(obs.getIdSolicitud());
+                    // Crear una versión reducida de SolicitudCredito con solo la información necesaria
+                    SolicitudCredito solicitudReducida = new SolicitudCredito(solicitud.getId());
+                    solicitudReducida.setNumeroSolicitud(solicitud.getNumeroSolicitud());
+                    solicitudReducida.setEstado(solicitud.getEstado());
+                    solicitudReducida.setVersion(solicitud.getVersion());
+                    
+                    obs.setSolicitudCredito(solicitudReducida);
+                } catch (Exception e) {
+                    LOG.warn("No se pudo cargar la solicitud asociada a la observación: {}", e.getMessage());
+                }
+            }
+        }
+        
+        return observaciones;
     }
 
     public ObservacionAnalista findById(Long id) {
         Optional<ObservacionAnalista> observacionOpt = this.observacionAnalistaRepository.findById(id);
         if (observacionOpt.isPresent()) {
-            return observacionOpt.get();
+            ObservacionAnalista observacion = observacionOpt.get();
+            
+            // Cargar explícitamente la SolicitudCredito
+            if (observacion.getIdSolicitud() != null) {
+                try {
+                    SolicitudCredito solicitud = this.solicitudCreditoService.findById(observacion.getIdSolicitud());
+                    // Crear una versión reducida de SolicitudCredito con solo la información necesaria
+                    SolicitudCredito solicitudReducida = new SolicitudCredito(solicitud.getId());
+                    solicitudReducida.setNumeroSolicitud(solicitud.getNumeroSolicitud());
+                    solicitudReducida.setEstado(solicitud.getEstado());
+                    solicitudReducida.setVersion(solicitud.getVersion());
+                    
+                    observacion.setSolicitudCredito(solicitudReducida);
+                } catch (Exception e) {
+                    LOG.warn("No se pudo cargar la solicitud asociada a la observación: {}", e.getMessage());
+                }
+            }
+            
+            return observacion;
         } else {
             throw new InvalidDataException("ObservacionAnalista", "No existe la observación del analista con ID: " + id);
         }
     }
 
     public List<ObservacionAnalista> findByIdSolicitud(Long idSolicitud) {
-        return this.observacionAnalistaRepository.findByIdSolicitud(idSolicitud);
+        List<ObservacionAnalista> observaciones = this.observacionAnalistaRepository.findByIdSolicitud(idSolicitud);
+        
+        // Intentar cargar la información de la solicitud para todas las observaciones
+        if (idSolicitud != null && !observaciones.isEmpty()) {
+            try {
+                SolicitudCredito solicitud = this.solicitudCreditoService.findById(idSolicitud);
+                // Crear una versión reducida de SolicitudCredito con solo la información necesaria
+                SolicitudCredito solicitudReducida = new SolicitudCredito(solicitud.getId());
+                solicitudReducida.setNumeroSolicitud(solicitud.getNumeroSolicitud());
+                solicitudReducida.setEstado(solicitud.getEstado());
+                solicitudReducida.setVersion(solicitud.getVersion());
+                
+                // Asignar la misma instancia de solicitud a todas las observaciones
+                for (ObservacionAnalista obs : observaciones) {
+                    obs.setSolicitudCredito(solicitudReducida);
+                }
+            } catch (Exception e) {
+                LOG.warn("No se pudo cargar la solicitud asociada a las observaciones: {}", e.getMessage());
+            }
+        }
+        
+        return observaciones;
     }
 
     public List<ObservacionAnalista> findByUsuario(String usuario) {
-        return this.observacionAnalistaRepository.findByUsuario(usuario);
+        List<ObservacionAnalista> observaciones = this.observacionAnalistaRepository.findByUsuario(usuario);
+        
+        // Cargar la información de la solicitud para cada observación
+        for (ObservacionAnalista obs : observaciones) {
+            if (obs.getIdSolicitud() != null) {
+                try {
+                    SolicitudCredito solicitud = this.solicitudCreditoService.findById(obs.getIdSolicitud());
+                    // Crear una versión reducida de SolicitudCredito con solo la información necesaria
+                    SolicitudCredito solicitudReducida = new SolicitudCredito(solicitud.getId());
+                    solicitudReducida.setNumeroSolicitud(solicitud.getNumeroSolicitud());
+                    solicitudReducida.setEstado(solicitud.getEstado());
+                    solicitudReducida.setVersion(solicitud.getVersion());
+                    
+                    obs.setSolicitudCredito(solicitudReducida);
+                } catch (Exception e) {
+                    LOG.warn("No se pudo cargar la solicitud asociada a la observación: {}", e.getMessage());
+                }
+            }
+        }
+        
+        return observaciones;
     }
 
     @Transactional
@@ -60,8 +143,9 @@ public class ObservacionAnalistaService {
         }
         
         // Verificar que la solicitud exista en la base de datos
+        SolicitudCredito solicitud;
         try {
-            SolicitudCredito solicitud = this.solicitudCreditoService.findById(observacion.getIdSolicitud());
+            solicitud = this.solicitudCreditoService.findById(observacion.getIdSolicitud());
             
             // Verificar que la solicitud esté en estado que permita observaciones (EnRevision)
             if (!"EnRevision".equals(solicitud.getEstado())) {
@@ -80,7 +164,17 @@ public class ObservacionAnalistaService {
                 observacion.getUsuario(), observacion.getIdSolicitud());
         
         try {
-            return this.observacionAnalistaRepository.save(observacion);
+            ObservacionAnalista observacionGuardada = this.observacionAnalistaRepository.save(observacion);
+            
+            // Crear una versión reducida de SolicitudCredito con solo la información necesaria
+            SolicitudCredito solicitudReducida = new SolicitudCredito(solicitud.getId());
+            solicitudReducida.setNumeroSolicitud(solicitud.getNumeroSolicitud());
+            solicitudReducida.setEstado(solicitud.getEstado());
+            solicitudReducida.setVersion(solicitud.getVersion());
+            
+            observacionGuardada.setSolicitudCredito(solicitudReducida);
+            
+            return observacionGuardada;
         } catch (Exception e) {
             throw new CreateEntityException("ObservacionAnalista", "Error al guardar la observación: " + e.getMessage());
         }
@@ -89,7 +183,7 @@ public class ObservacionAnalistaService {
     /**
      * Guarda una observación del analista y aplica la decisión a la solicitud de crédito
      * @param observacion Observación del analista
-     * @param decision Decisión a aplicar ("Aprobada", "Rechazada")
+     * @param decision Decisión a aplicar ("Aprobada" o "Rechazada")
      * @return Observación guardada
      */
     @Transactional
@@ -100,8 +194,13 @@ public class ObservacionAnalistaService {
         }
         
         // Verificar que la decisión sea válida
-        if (!"Aprobada".equals(decision) && !"Rechazada".equals(decision)) {
-            throw new InvalidDataException("ObservacionAnalista", "La decisión debe ser 'Aprobada' o 'Rechazada'");
+        if (decision == null) {
+            throw new InvalidDataException("ObservacionAnalista", "La decisión es obligatoria");
+        }
+        
+        if (!DECISION_APROBADA.equals(decision) && !DECISION_RECHAZADA.equals(decision)) {
+            throw new InvalidDataException("ObservacionAnalista", 
+                    "La decisión debe ser '" + DECISION_APROBADA + "' o '" + DECISION_RECHAZADA + "'");
         }
         
         // Verificar que la solicitud exista en la base de datos
@@ -139,6 +238,17 @@ public class ObservacionAnalistaService {
         
         try {
             this.solicitudCreditoService.cambiarEstado(solicitud.getId(), decision);
+            
+            // Actualizar la solicitud después de cambiar el estado
+            solicitud = this.solicitudCreditoService.findById(observacion.getIdSolicitud());
+            
+            // Crear una versión reducida de SolicitudCredito con solo la información necesaria
+            SolicitudCredito solicitudReducida = new SolicitudCredito(solicitud.getId());
+            solicitudReducida.setNumeroSolicitud(solicitud.getNumeroSolicitud());
+            solicitudReducida.setEstado(solicitud.getEstado());
+            solicitudReducida.setVersion(solicitud.getVersion());
+            
+            observacionGuardada.setSolicitudCredito(solicitudReducida);
         } catch (Exception e) {
             throw new UpdateEntityException("SolicitudCredito", "Error al cambiar el estado de la solicitud: " + e.getMessage());
         }
@@ -160,8 +270,9 @@ public class ObservacionAnalistaService {
         }
         
         // Verificar el estado de la solicitud
+        SolicitudCredito solicitud;
         try {
-            SolicitudCredito solicitud = this.solicitudCreditoService.findById(observacion.getIdSolicitud());
+            solicitud = this.solicitudCreditoService.findById(observacion.getIdSolicitud());
             if (!"EnRevision".equals(solicitud.getEstado())) {
                 throw new InvalidDataException("ObservacionAnalista", "Solo se pueden modificar observaciones de solicitudes en estado de revisión");
             }
@@ -181,7 +292,17 @@ public class ObservacionAnalistaService {
                 observacion.getUsuario(), observacion.getIdSolicitud());
         
         try {
-            return this.observacionAnalistaRepository.save(observacion);
+            ObservacionAnalista observacionActualizada = this.observacionAnalistaRepository.save(observacion);
+            
+            // Crear una versión reducida de SolicitudCredito con solo la información necesaria
+            SolicitudCredito solicitudReducida = new SolicitudCredito(solicitud.getId());
+            solicitudReducida.setNumeroSolicitud(solicitud.getNumeroSolicitud());
+            solicitudReducida.setEstado(solicitud.getEstado());
+            solicitudReducida.setVersion(solicitud.getVersion());
+            
+            observacionActualizada.setSolicitudCredito(solicitudReducida);
+            
+            return observacionActualizada;
         } catch (Exception e) {
             throw new UpdateEntityException("ObservacionAnalista", "Error al actualizar la observación: " + e.getMessage());
         }

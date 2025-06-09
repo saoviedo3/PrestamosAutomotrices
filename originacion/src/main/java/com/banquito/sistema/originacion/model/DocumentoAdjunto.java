@@ -12,7 +12,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
 @Entity
-@Table(name = "documentosadjuntos")
+@Table(name = "DocumentosAdjuntos")
 public class DocumentoAdjunto {
 
     @Id
