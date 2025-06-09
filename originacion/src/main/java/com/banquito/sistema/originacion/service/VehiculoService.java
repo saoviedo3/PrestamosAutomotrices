@@ -11,6 +11,7 @@ import com.banquito.sistema.exception.CreateEntityException;
 import com.banquito.sistema.exception.InvalidDataException;
 import com.banquito.sistema.originacion.exception.ConcesionarioNotFoundException;
 import com.banquito.sistema.originacion.exception.IdentificadorVehiculoNotFoundException;
+import com.banquito.sistema.originacion.exception.InvalidStateException;
 import com.banquito.sistema.originacion.exception.VehiculoNotFoundException;
 
 import org.springframework.dao.DataAccessException;
@@ -164,4 +165,41 @@ public class VehiculoService {
         }
     }
 
+    // Método para filtrar vehículos por estado
+    public List<Vehiculo> getVehiculosByEstado(String estado) {
+        // Validación del parámetro estado
+        if (!estado.equalsIgnoreCase("nuevo") && !estado.equalsIgnoreCase("usado")) {
+            throw new InvalidStateException(estado, "nuevo o usado", "Vehículo");
+        }
+        
+        return vehiculoRepository.findByEstado(estado);
+    }
+
+    public List<Vehiculo> getVehiculosByConcesionario(Long idConcesionario) {
+    // Verifica si el concesionario existe antes de buscar los vehículos
+    if (!concesionarioRepo.existsById(idConcesionario)) {
+        throw new ConcesionarioNotFoundException(idConcesionario);
+    }
+
+        return vehiculoRepository.findByIdConcesionario(idConcesionario);
+    }
+
+    public Long getVehiculoCountByConcesionario(Long idConcesionario) {
+    try {
+        // Validar si el concesionario existe
+        if (!concesionarioRepo.existsById(idConcesionario)) {
+            throw new ConcesionarioNotFoundException(idConcesionario);
+        }
+
+        // Contar los vehículos del concesionario
+        return vehiculoRepository.countByIdConcesionario(idConcesionario);
+
+    } catch (ConcesionarioNotFoundException e) {
+        // Manejar caso en que no se encuentre el concesionario
+        throw e;
+    } catch (Exception e) {
+        // Capturar cualquier otra excepción
+        throw new RuntimeException("Error al contar vehículos para el concesionario: " + e.getMessage(), e);
+        }
+    }
 }

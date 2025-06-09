@@ -48,4 +48,25 @@ public class VehiculoController {
         Vehiculo vendido = vehiculoService.marcarComoVendido(id);
         return ResponseEntity.ok(vendido);
     }
+
+    @GetMapping("/estado")
+    public ResponseEntity<List<Vehiculo>> getVehiculosByEstado(@RequestParam String estado) {
+        List<Vehiculo> vehiculos = vehiculoService.getVehiculosByEstado(estado);
+        return ResponseEntity.ok(vehiculos);
+    }
+
+    @GetMapping("/concesionario/{idConcesionario}")
+    public ResponseEntity<List<Vehiculo>> getVehiculosByConcesionario(@PathVariable Long idConcesionario) {
+        List<Vehiculo> vehiculos = vehiculoService.getVehiculosByConcesionario(idConcesionario);
+        return ResponseEntity.ok(vehiculos);
+    }
+
+    @GetMapping("/concesionario/{idConcesionario}/count")
+    public ResponseEntity<Long> getVehiculoCountByConcesionario(@PathVariable Long idConcesionario) {
+        Long count = vehiculoService.getVehiculoCountByConcesionario(idConcesionario);
+        return ResponseEntity.ok(count);
+    }
+
+
+
 }
