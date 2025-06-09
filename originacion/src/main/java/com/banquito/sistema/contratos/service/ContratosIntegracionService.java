@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.banquito.sistema.contratos.model.Contrato;
-import com.banquito.sistema.contratos.model.DocumentoAdjunto;
 import com.banquito.sistema.contratos.model.Pagare;
 import com.banquito.sistema.contratos.model.TipoDocumento;
 import com.banquito.sistema.contratos.service.PagareService.CuotaAmortizacion;
