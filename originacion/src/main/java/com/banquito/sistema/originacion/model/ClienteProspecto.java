@@ -187,4 +187,4 @@ public class ClienteProspecto {
                 + direccion + ", ingresos=" + ingresos + ", egresos=" + egresos + ", actividadEconomica="
                 + actividadEconomica + ", estado=" + estado + ", version=" + version + "]";
     }
-}
+} 

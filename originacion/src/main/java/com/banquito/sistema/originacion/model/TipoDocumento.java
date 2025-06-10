@@ -9,7 +9,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
 @Entity
-@Table(name = "TiposDocumentos")
+@Table(name = "tiposdocumentos")
 public class TipoDocumento {
 
     @Id
@@ -107,4 +107,4 @@ public class TipoDocumento {
         return "TipoDocumento [id=" + id + ", nombre=" + nombre + ", descripcion=" + descripcion + ", estado=" + estado
                 + ", version=" + version + "]";
     }
-}
+} 

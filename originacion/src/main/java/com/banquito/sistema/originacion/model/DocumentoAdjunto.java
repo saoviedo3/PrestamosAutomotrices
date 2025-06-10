@@ -12,7 +12,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
 @Entity
-@Table(name = "DocumentosAdjuntos")
+@Table(name = "documentosadjuntos")
 public class DocumentoAdjunto {
 
     @Id
@@ -146,4 +146,4 @@ public class DocumentoAdjunto {
                 + ", rutaArchivo=" + rutaArchivo + ", fechaCargado=" + fechaCargado + ", version=" + version
                 + ", solicitudCredito=" + solicitudCredito + ", tipoDocumento=" + tipoDocumento + "]";
     }
-}
+} 

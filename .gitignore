@@ -34,3 +34,6 @@ build/
 
 # Ignorar tests
 /src/test/
+
+# Ignorar configuración de Cursor
+.cursor/
