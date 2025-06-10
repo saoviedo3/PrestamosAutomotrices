@@ -24,23 +24,8 @@ public class VendedorController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Vendedor>> getAllVendedores(
-            @RequestParam(required = false) String estado,
-            @RequestParam(required = false) Long concesionarioId,
-            @RequestParam(required = false) String nombre) {
-        
-        List<Vendedor> vendedores;
-        
-        if (estado != null) {
-            vendedores = this.service.findByEstado(estado);
-        } else if (concesionarioId != null) {
-            vendedores = this.service.findByConcesionarioId(concesionarioId);
-        } else if (nombre != null) {
-            vendedores = this.service.findByNombre(nombre);
-        } else {
-            vendedores = this.service.findAll();
-        }
-        
+    public ResponseEntity<List<Vendedor>> getAllVendedores() {
+        List<Vendedor> vendedores = this.service.findAll();
         return ResponseEntity.ok(vendedores);
     }
 
@@ -54,25 +39,7 @@ public class VendedorController {
         }
     }
 
-    @GetMapping("/codigo/{codigo}")
-    public ResponseEntity<Vendedor> getVendedorByCodigo(@PathVariable("codigo") String codigo) {
-        try {
-            Vendedor vendedor = this.service.findByCodigo(codigo);
-            return ResponseEntity.ok(vendedor);
-        } catch (NotFoundException nfe) {
-            return ResponseEntity.notFound().build();
-        }
-    }
 
-    @GetMapping("/cedula/{cedula}")
-    public ResponseEntity<Vendedor> getVendedorByCedula(@PathVariable("cedula") String cedula) {
-        try {
-            Vendedor vendedor = this.service.findByCedula(cedula);
-            return ResponseEntity.ok(vendedor);
-        } catch (NotFoundException nfe) {
-            return ResponseEntity.notFound().build();
-        }
-    }
 
     @PostMapping
     public ResponseEntity<Vendedor> createVendedor(@Valid @RequestBody Vendedor vendedor) {

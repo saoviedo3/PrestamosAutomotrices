@@ -24,26 +24,8 @@ public class ConcesionarioController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Concesionario>> getAllConcesionarios(
-            @RequestParam(required = false) String estado,
-            @RequestParam(required = false) String ciudad,
-            @RequestParam(required = false) String provincia,
-            @RequestParam(required = false) String nombre) {
-        
-        List<Concesionario> concesionarios;
-        
-        if (estado != null) {
-            concesionarios = this.service.findByEstado(estado);
-        } else if (ciudad != null) {
-            concesionarios = this.service.findByCiudad(ciudad);
-        } else if (provincia != null) {
-            concesionarios = this.service.findByProvincia(provincia);
-        } else if (nombre != null) {
-            concesionarios = this.service.findByNombre(nombre);
-        } else {
-            concesionarios = this.service.findAll();
-        }
-        
+    public ResponseEntity<List<Concesionario>> getAllConcesionarios() {
+        List<Concesionario> concesionarios = this.service.findAll();
         return ResponseEntity.ok(concesionarios);
     }
 
@@ -57,15 +39,7 @@ public class ConcesionarioController {
         }
     }
 
-    @GetMapping("/codigo/{codigo}")
-    public ResponseEntity<Concesionario> getConcesionarioByCodigo(@PathVariable("codigo") String codigo) {
-        try {
-            Concesionario concesionario = this.service.findByCodigo(codigo);
-            return ResponseEntity.ok(concesionario);
-        } catch (NotFoundException nfe) {
-            return ResponseEntity.notFound().build();
-        }
-    }
+
 
     @PostMapping
     public ResponseEntity<Concesionario> createConcesionario(@Valid @RequestBody Concesionario concesionario) {

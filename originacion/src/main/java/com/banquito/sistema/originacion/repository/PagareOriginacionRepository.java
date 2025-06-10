@@ -8,7 +8,7 @@ import com.banquito.sistema.contratos.model.Pagare;
 import java.util.List;
 
 @Repository
-public interface PagareRepository extends JpaRepository<Pagare, Long> {
+public interface PagareOriginacionRepository extends JpaRepository<Pagare, Long> {
     List<Pagare> findByIdSolicitudOrderByNumeroCuotaAsc(Long idSolicitud);
     boolean existsByIdSolicitudAndNumeroCuota(Long idSolicitud, Integer numeroCuota);
 } 

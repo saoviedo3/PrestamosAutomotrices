@@ -24,30 +24,8 @@ public class HistorialEstadoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<HistorialEstado>> getAllHistorialEstados(
-            @RequestParam(required = false) String entidadTipo,
-            @RequestParam(required = false) Long entidadId,
-            @RequestParam(required = false) String usuarioCambio,
-            @RequestParam(required = false) String estadoNuevo,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaInicio,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaFin) {
-        
-        List<HistorialEstado> historiales;
-        
-        if (entidadTipo != null && entidadId != null) {
-            historiales = this.service.findByEntidadTipoAndEntidadId(entidadTipo, entidadId);
-        } else if (entidadTipo != null) {
-            historiales = this.service.findByEntidadTipo(entidadTipo);
-        } else if (usuarioCambio != null) {
-            historiales = this.service.findByUsuarioCambio(usuarioCambio);
-        } else if (estadoNuevo != null) {
-            historiales = this.service.findByEstadoNuevo(estadoNuevo);
-        } else if (fechaInicio != null && fechaFin != null) {
-            historiales = this.service.findByFechaCambioBetween(fechaInicio, fechaFin);
-        } else {
-            historiales = this.service.findAll();
-        }
-        
+    public ResponseEntity<List<HistorialEstado>> getAllHistorialEstados() {
+        List<HistorialEstado> historiales = this.service.findAll();
         return ResponseEntity.ok(historiales);
     }
 
@@ -61,15 +39,7 @@ public class HistorialEstadoController {
         }
     }
 
-    @GetMapping("/entidad/{entidadTipo}/{entidadId}")
-    public ResponseEntity<List<HistorialEstado>> getHistorialByEntidad(
-            @PathVariable("entidadTipo") String entidadTipo,
-            @PathVariable("entidadId") Long entidadId) {
-        
-        List<HistorialEstado> historiales = this.service.findByEntidadTipoAndEntidadId(entidadTipo, entidadId);
-        
-        return ResponseEntity.ok(historiales);
-    }
+
 
     @PostMapping
     public ResponseEntity<HistorialEstado> createHistorialEstado(@Valid @RequestBody HistorialEstado historialEstado) {
